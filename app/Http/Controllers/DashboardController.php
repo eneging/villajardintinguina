@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Enums\ModuleStatus;
+use App\Enums\Role;
+use App\Models\Classroom;
+use App\Models\LearningModule;
+use App\Models\SchoolYear;
+use App\Models\Student;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class DashboardController extends Controller
+{
+    public function __invoke(Request $request): Response
+    {
+        $user = $request->user();
+
+        $children = $user->hasRole(Role::Parent)
+            ? $user->children()->with('currentEnrollment.classroom.level')->get()
+                ->map(fn (Student $student) => [
+                    'id' => $student->id,
+                    'name' => $student->fullName(),
+                    'classroom' => $student->currentEnrollment ? [
+                        'id' => $student->currentEnrollment->classroom->id,
+                        'name' => $student->currentEnrollment->classroom->name,
+                        'level' => $student->currentEnrollment->classroom->level->name,
+                        'color' => $student->currentEnrollment->classroom->color,
+                        'mascot' => $student->currentEnrollment->classroom->mascot,
+                    ] : null,
+                ])
+            : collect();
+
+        $classroomIds = $children->pluck('classroom.id')->filter()->unique();
+
+        $latestModules = LearningModule::query()
+            ->whereIn('classroom_id', $classroomIds)
+            ->where('status', ModuleStatus::Published)
+            ->with(['cover', 'classroom'])
+            ->orderByDesc('starts_on')
+            ->limit(6)
+            ->get()
+            ->map(fn (LearningModule $module) => [
+                ...ClassroomController::moduleCard($module),
+                'classroom' => $module->classroom->name,
+            ]);
+
+        $managed = $user->hasRole(Role::Admin, Role::Teacher)
+            ? Classroom::query()->manageableBy($user)->where('school_year_id', SchoolYear::current()?->id)
+                ->with('level')->withCount(['enrollments', 'publishedModules'])->get()
+                ->map(fn (Classroom $classroom) => [
+                    'id' => $classroom->id,
+                    'name' => $classroom->name,
+                    'level' => $classroom->level->name,
+                    'color' => $classroom->color,
+                    'mascot' => $classroom->mascot,
+                    'students_count' => $classroom->enrollments_count,
+                    'published_modules_count' => $classroom->published_modules_count,
+                ])
+            : collect();
+
+        return Inertia::render('dashboard', [
+            'children' => $children,
+            'latestModules' => $latestModules,
+            'managedClassrooms' => $managed,
+        ]);
+    }
+}
