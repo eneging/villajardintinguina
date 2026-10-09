@@ -29,15 +29,15 @@ El sistema tiene dos caras que comparten una sola base de datos:
 │  ├─ Rutas /app/*        → Inertia.js + React + TypeScript (intranet)         │
 │  ├─ Policies / Gates + spatie/laravel-permission  (roles)                    │
 │  ├─ Jobs (cola "database") + Scheduler  ◄── Cron de cPanel cada minuto       │
-│  └─ storage/app/private  (vouchers, facturas, documentos — nunca públicos)   │
+│  └─ Firma subidas y entrega URLs firmadas de Cloudinary (no guarda archivos) │
 │                                                                              │
 │  MySQL 8 / MariaDB 10.6+                                                     │
 └──────────────────────────────────────┬───────────────────────────────────────┘
                                        │
-                 ┌─────────────────────┼──────────────────────┐
-                 ▼                     ▼                      ▼
-        WhatsApp Cloud API     SMTP del hosting        YouTube (no listado)
-        (o enlace wa.me)       (correos, reclamos)     para videos
+        ┌──────────────────┬───────────┴──────────┐
+        ▼                  ▼                      ▼
+ WhatsApp Cloud API  SMTP del hosting      Cloudinary (imágenes, videos, PDFs + CDN)
+ (o enlace wa.me)    (correos, reclamos)   ▲ el navegador sube directo, con firma de Laravel
 ```
 
 ### Stack definido
@@ -54,7 +54,7 @@ El sistema tiene dos caras que comparten una sola base de datos:
 | Tipos compartidos | **spatie/laravel-data + typescript-transformer** (opcional) | Genera los tipos TS a partir de los DTOs PHP → frontend y backend no se desincronizan. |
 | Rutas en TS | **Ziggy** | Usar `route('pagos.index')` en React. |
 | Formularios/validación | Form Requests (backend) + `useForm` de Inertia + zod (frontend) | Validación siempre en el servidor. |
-| Archivos | Disco `local` privado + descargas por ruta firmada/autorizada; **intervention/image** para comprimir fotos | Vouchers y datos de menores nunca accesibles por URL directa. |
+| Imágenes, videos y archivos | **Cloudinary** (`cloudinary-labs/cloudinary-laravel` + Upload Widget y `@cloudinary/react` en el frontend) | Subida directa desde el celular sin pasar por el hosting, optimización automática, streaming de video y CDN. Ver §1.1. |
 | Excel / PDF | **maatwebsite/excel**, **barryvdh/laravel-dompdf** | Reportes de morosos, balance, boletas de planilla, constancia de reclamo. |
 | Gráficos | Recharts | Balance de ingresos/egresos en el dashboard. |
 | Tareas programadas | **Scheduler de Laravel** + 1 cron en cPanel | Generar cuotas el día 1, marcar morosos, enviar recordatorios. |
@@ -72,9 +72,66 @@ El sistema tiene dos caras que comparten una sola base de datos:
 | A veces no hay SSH / Composer | `composer install --no-dev --optimize-autoloader` se ejecuta en CI y se sube `vendor/` por FTP. |
 | No hay procesos en segundo plano | Cron cPanel: `* * * * * cd ~/villajardin && php artisan schedule:run >> /dev/null 2>&1`; el scheduler despacha `queue:work --stop-when-empty --max-time=50`. |
 | Document root fijo en `public_html` | Proyecto en `~/villajardin/` (fuera de la web) y `public_html` apunta a `~/villajardin/public` (subdominio/addon domain) o se usa un `index.php` puente. **Nunca** exponer `.env`. |
-| Límite de subida (`upload_max_filesize`) | Comprimir imágenes en el navegador antes de subir y en el servidor con intervention/image; videos largos → YouTube, no al hosting. |
+| Límite de subida (`upload_max_filesize`) y ancho de banda | Los archivos van **directo del navegador a Cloudinary**; al hosting solo llega el `public_id`. |
 | Sin Redis | `CACHE_STORE=database` (o `file`), `SESSION_DRIVER=database`, `QUEUE_CONNECTION=database`. |
 | PHP mínimo | Verificar en cPanel ("Select PHP Version") que haya **PHP 8.2 o superior** con extensiones `pdo_mysql, mbstring, gd/imagick, zip, bcmath, intl, fileinfo`. |
+
+### 1.1 Imágenes y video con Cloudinary
+
+Todo archivo multimedia (fotos, videos, vouchers, facturas, PDFs) vive en **Cloudinary**. Laravel nunca recibe el archivo: solo **autoriza** la subida y **guarda la referencia**.
+
+**Flujo de subida (firmada)**
+
+```
+React (Upload Widget)          Laravel                              Cloudinary
+─────────────────────          ───────                              ──────────
+1. "Subir voucher" ──────────► POST /media/firma
+                               • Policy: ¿puede subir aquí?
+                               • fija carpeta, tipo de entrega,
+                                 preset y tamaño máximo
+                   ◄────────── firma + timestamp (el API secret
+                               nunca sale del servidor)
+2. Sube el archivo directo ───────────────────────────────────────► guarda, optimiza
+                   ◄─────────────────────────────────────────────── public_id, versión,
+                                                                    formato, bytes, firma
+3. POST /media  ─────────────► verifica la firma de la respuesta
+   (datos devueltos)           y crea la fila en `media`
+                                                     ◄───────────── webhook (videos):
+                               marca el video "listo"               HLS + miniatura listos
+```
+
+**Dos tipos de entrega**
+
+| Tipo Cloudinary | Para qué | Cómo se muestra |
+|-----------------|----------|-----------------|
+| `upload` (público) | Sitio web, portadas de salones, imágenes y videos de inducción públicos, banners de eventos | URL normal por CDN con `f_auto,q_auto` y tamaños responsivos |
+| `authenticated` (protegido) | **Vouchers, facturas/boletas, documentos de alumnos y personal, galería de los salones** (fotos de menores), inducción solo para padres | Laravel verifica la Policy y genera una **URL firmada**; para PDFs y comprobantes se usa una **descarga privada con vencimiento** (`expires_at`, unos minutos) |
+
+**Carpetas**
+
+```
+villajardin/{produccion|pruebas}/
+├─ publico/sitio/  publico/eventos/{id}/  publico/induccion/{leccion}/
+└─ protegido/
+   ├─ salones/{anio}/{salon}/galeria/
+   ├─ induccion/{leccion}/
+   ├─ pagos/{anio}/{mes}/          # vouchers y facturas
+   ├─ alumnos/{id}/documentos/
+   └─ personal/{id}/
+```
+
+**Upload presets (firmados)** — uno por uso, configurados en Cloudinary:
+- `vj_foto`: máx. 10 MB, redimensiona al subir a 2000 px, `q_auto`; permite cámara del celular y recorte.
+- `vj_comprobante`: imagen o PDF, `authenticated`, sin transformación destructiva (debe quedar legible).
+- `vj_video`: máx. 100 MB, genera en segundo plano (`eager_async`) streaming adaptativo HLS (`sp_auto`) y miniatura; notifica a `POST /webhooks/cloudinary`.
+
+**Reglas**
+- Las fotos de alumnos solo se suben y muestran si el alumno tiene `autoriza_imagen = true`.
+- Los comprobantes de pago y reclamos **no se borran** (borrado lógico en la app; el archivo se mantiene en Cloudinary).
+- Al eliminar una foto de galería o un video, un Job llama a `destroy` en Cloudinary para no pagar almacenamiento de más.
+- Plan gratuito: 25 créditos/mes (1 crédito ≈ 1 GB de almacenamiento, o 1 GB de transferencia, o 1 000 transformaciones). Los **videos** son lo que más consume: inducciones de 2–5 min; el panel de la administradora muestra el uso del mes (Admin API `usage`).
+- En la consola de Cloudinary: activar *"Allow delivery of PDF and ZIP files"* (las cuentas gratuitas lo traen desactivado) y *"Strict transformations"* para que nadie genere transformaciones no autorizadas.
+- Variables de entorno: `CLOUDINARY_URL` (solo en el servidor) y `VITE_CLOUDINARY_CLOUD_NAME` (pública, para mostrar imágenes).
 
 ---
 
@@ -90,7 +147,8 @@ El sistema tiene dos caras que comparten una sola base de datos:
 | Documentos | ✅ todo | 👁 los de su aula | 👁 limitados | 👁 los de su hijo + públicos | 👁 públicos |
 | Comunicados / recordatorios | ✅ envía | ✅ envía a su aula | — | 👁 recibe | — |
 | Sorteos y eventos | ✅ crea/gestiona | 👁 | 👁 | ✅ participa | ✅ participa (vía padre) |
-| Videos de inducción | ✅ gestiona | 👁 | 👁 | 👁 | 👁 |
+| Salones (página "Mi Salón", galería) | ✅ todo | ✅ edita su salón | 👁 su salón | 👁 el salón de su hijo | 👁 (vía padre) |
+| Inducción (video, imágenes, texto) | ✅ crea/edita todo + ve avance | ✅ edita la de su salón + ve avance | 👁 la del personal | ✅ la completa | — |
 | Libro de Reclamaciones | ✅ responde | — | — | ✅ registra | — |
 
 **Nota sobre "Alumno":** son niños de 0–5 años; no inician sesión por sí mismos. El rol existe como **entidad** (ficha del alumno) y, opcionalmente, como vista simplificada que el padre abre (galería, logros, cumpleaños). Esto simplifica la seguridad y cumple con la Ley 29733 de protección de datos de menores.
@@ -159,16 +217,60 @@ extras)             monto, foto del voucher y           → recordatorio manual 
 - **Sorteo en vivo:** pantalla animada (ruleta/tómbola) que elige ganador al azar con semilla registrada → transparencia ante los padres.
 - Historial de ganadores y premios.
 
-### 3.7 Videos de inducción
-- Catálogo de videos (YouTube no listado o archivo propio) con categoría: *Bienvenida, Servicios, Diferenciadores, Normas de convivencia, Protocolo de recojo*.
-- Visibilidad: público / solo padres / solo personal (inducción de maestras y practicantes).
-- Registro de **"visto"** por padre → la administradora sabe quién ya vio la inducción obligatoria.
+### 3.7 Salones (aulas) e inducción por salón
+
+Cada alumno pertenece a un **salón** del año escolar, y cada salón a un **nivel**:
+
+```
+Nivel                    Salones (ejemplo — los nombres los define la administradora)
+─────────────────────    ────────────────────────────────────────────────────────────
+Guardería / Cuna (0–2)   🐣 Pollitos
+Inicial 3 años           🐥 Patitos
+Inicial 4 años           🐻 Ositos
+Inicial 5 años           🦁 Leoncitos
+```
+
+Al matricular al alumno en un salón, **sus padres quedan vinculados automáticamente** a ese salón. Un padre con dos hijos en salones distintos ve ambos con un selector ("Ver: Sofía – Patitos | Mateo – Leoncitos").
+
+**Página "Mi Salón" (lo que ve el padre)**
+- Portada con color, mascota e imagen del salón; foto y presentación de la **maestra** y las **practicantes** asignadas.
+- Horario del día, lista de útiles, menú semanal, calendario de actividades.
+- **Comunicados del salón** (los publica la maestra o la administradora; opcionalmente avisan por WhatsApp).
+- **Galería del salón** (fotos y videos de actividades; solo los padres de ese salón la ven y solo aparecen niños con autorización de imagen).
+- Progreso de la **inducción** y acceso directo a ella.
+
+**Inducción con video, imágenes y texto**
+
+La inducción se arma como un curso corto de **lecciones**, y cada lección se compone de **bloques** que se apilan en el orden que la administradora quiera:
+
+| Tipo de bloque | Ejemplo |
+|----------------|---------|
+| Texto (con formato) | "Bienvenidos al salón Patitos. Nuestra jornada empieza a las 8:00…" |
+| Imagen o galería | Fotos del salón, del patio, del comedor |
+| Video | Recorrido por el colegio, mensaje de la maestra (subido a Cloudinary con streaming adaptativo; también se acepta un enlace de YouTube) |
+| Archivo PDF | Reglamento interno, lista de útiles |
+| Confirmación | Casilla "He leído y acepto el protocolo de recojo" |
+
+Hay tres alcances, y el padre ve la combinación que le corresponde, en este orden:
+1. **General (institucional):** bienvenida, servicios, diferenciadores, normas de convivencia, protocolo de recojo, pagos. Lo ven todos los padres.
+2. **Por nivel:** lo propio de Guardería o de 3/4/5 años (p. ej. adaptación, control de esfínteres, siesta).
+3. **Por salón:** presentación de la maestra, rutina diaria, materiales, dinámica del salón.
+
+Funcionamiento:
+- Las lecciones pueden ser **obligatorias**; el padre avanza y el sistema guarda su progreso (vista / completada / aceptada, con fecha y hora).
+- La administradora y la maestra ven un **tablero por salón**: qué padres ya completaron la inducción y cuáles no, con botón para recordarles por WhatsApp.
+- Se puede **reutilizar** una lección en varios salones (p. ej. "Protocolo de recojo") sin duplicar contenido.
+- Al inicio de cada año escolar se **copian** las inducciones del año anterior para solo actualizarlas.
+- Inducción del **personal**: el mismo módulo con alcance "solo personal" para maestras y practicantes nuevas.
+- Una parte de la inducción general puede marcarse como **pública** y mostrarse en el sitio web como presentación para padres interesados.
+
+**Quién edita:** la administradora edita todo; la maestra edita solo el contenido y los comunicados de **su** salón; la practicante solo ve.
 
 ### 3.8 Documentación (repositorio)
 - Documentos institucionales: reglamento interno, PEI, protocolos, calendario.
 - Documentos por alumno: partida de nacimiento, DNI, carné de vacunas, ficha médica, autorización de uso de imagen, contrato de matrícula.
 - Documentos del personal: CV, contrato, antecedentes, certificados.
-- Todo en Storage privado, con URL firmada temporal (nunca enlaces públicos para datos de menores).
+- Todo en Cloudinary con entrega `authenticated` y descarga firmada con vencimiento (nunca enlaces públicos para datos de menores).
 - Alertas de vencimiento (p. ej. carné de vacunas, contrato del personal).
 
 ### 3.9 Libro de Reclamaciones Virtual (obligatorio — INDECOPI)
@@ -201,7 +303,7 @@ erDiagram
     enrollments ||--o{ charges : "cuotas"
     charges ||--o{ payment_allocations : ""
     payments ||--o{ payment_allocations : ""
-    payments ||--o{ attachments : "voucher/factura"
+    payments ||--o{ media : "voucher/factura"
     staff ||--o{ payroll_items : ""
     payroll_runs ||--o{ payroll_items : ""
     expenses }o--|| expense_categories : ""
@@ -210,23 +312,31 @@ erDiagram
     events ||--o{ form_submissions : ""
     students ||--o{ documents : ""
     staff ||--o{ documents : ""
-    videos ||--o{ video_views : ""
+    levels ||--o{ classrooms : ""
+    classrooms ||--o{ classroom_posts : ""
+    induction_lessons ||--o{ lesson_blocks : ""
+    induction_lessons ||--o{ induction_assignments : ""
+    induction_lessons ||--o{ induction_progress : ""
     complaints ||--o| complaint_responses : ""
 ```
 
 ### Tablas principales
 
+> Archivos: ninguna tabla guarda URLs; guardan `*_media_id` → `media`, y las URLs se generan al vuelo (firmadas cuando corresponde).
+>
 > Convenciones Laravel: tablas en plural (`snake_case`), `id` BIGINT autoincremental, `created_at/updated_at`, `deleted_at` (SoftDeletes) donde aplique. Los "enums" se guardan como `string` + **PHP Backed Enums** (`app/Enums/PaymentMethod.php`) exportados a TypeScript. Montos en `DECIMAL(10,2)`.
 
 **Personas y estructura**
-- `users` (nombres, apellidos, dni, celular, email, password, foto_path, activo) — en el diagrama aparece como `profiles`
+- `users` (nombres, apellidos, dni, celular, email, password, foto_media_id, activo) — en el diagrama aparece como `profiles`
 - `roles` / `model_has_roles` (spatie): `admin | teacher | intern | parent | student`
-- `students` (id, nombres, apellidos, dni, fecha_nac, sexo, foto_path, alergias, notas_medicas, autoriza_imagen)
+- `students` (id, nombres, apellidos, dni, fecha_nac, sexo, foto_media_id, alergias, notas_medicas, autoriza_imagen)
 - `guardians` (student_id, profile_id, parentesco, es_responsable_pago, puede_recoger)
-- `authorized_pickups` (student_id, nombre, dni, parentesco, foto_path)
+- `authorized_pickups` (student_id, nombre, dni, parentesco, foto_media_id)
 - `staff` (profile_id, tipo, fecha_ingreso, sueldo_base, regimen, banco, cuenta)
 - `school_years` (anio, fecha_inicio, fecha_fin, activo)
-- `classrooms` (nombre "Patitos 3 años", nivel, turno, capacidad, teacher_id, school_year_id)
+- `levels` (nombre: Guardería, 3 años, 4 años, 5 años; edad_min, edad_max, orden)
+- `classrooms` (nombre "Patitos", level_id, school_year_id, turno, capacidad, color, mascota, portada_media_id, horario json, utiles json)
+- `classroom_staff` (classroom_id, staff_id, rol: `titular | auxiliar | practicante`)
 - `enrollments` (student_id, classroom_id, school_year_id, estado, tarifa_mensual, descuento_pct)
 
 **Asistencia**
@@ -238,30 +348,33 @@ erDiagram
 - `charges` (enrollment_id, concepto_id, periodo `2026-03`, monto, descuento, vence_el, estado: `pendiente | parcial | pagada | vencida | anulada`)
 - `payments` (id, payer_profile_id, fecha, monto, metodo: `efectivo | transferencia | yape | plin | tarjeta | otro`, n_operacion, estado: `por_verificar | confirmado | rechazado`, registrado_por)
 - `payment_allocations` (payment_id, charge_id, monto) — un pago puede cubrir varios meses o hermanos
-- `receipts` (payment_id, tipo `boleta | factura`, serie, numero, archivo_path)
-- `attachments` (owner_type, owner_id, bucket, path, mime, subido_por)
+- `receipts` (payment_id, tipo `boleta | factura`, serie, numero, archivo_media_id)
 
 **Planilla y finanzas**
 - `payroll_runs` (periodo, estado: `borrador | aprobada | pagada`, total)
-- `payroll_items` (run_id, staff_id, sueldo_base, dias_falta, desc_tardanzas, bonos, descuentos, neto, metodo_pago, voucher_path)
-- `expense_categories`, `expenses` (fecha, categoria_id, descripcion, monto, comprobante_path)
+- `payroll_items` (run_id, staff_id, sueldo_base, dias_falta, desc_tardanzas, bonos, descuentos, neto, metodo_pago, voucher_media_id)
+- `expense_categories`, `expenses` (fecha, categoria_id, descripcion, monto, comprobante_media_id)
 - `other_incomes` (fecha, origen: `sorteo | evento | donacion | otro`, monto, referencia)
 - Consulta/vista `v_monthly_balance` (o servicio `BalanceService`) = ingresos (payments confirmados + other_incomes) − egresos (payroll pagada + expenses)
 
 **Eventos y sorteos**
-- `events` (nombre, fecha, tema_json {colores, banner_path, icono}, form_schema json, publicado)
+- `events` (nombre, fecha, tema_json {colores, banner_media_id, icono}, form_schema json, publicado)
 - `form_submissions` (event_id, profile_id, data json)
 - `raffles` (event_id, premio, precio_ticket, fecha_sorteo, semilla, ganador_ticket_id)
 - `raffle_tickets` (raffle_id, numero, comprador_profile_id, student_id, pagado, payment_id)
 
 **Contenido y comunicación**
 - `site_content` (seccion, clave, valor json) — textos e imágenes del sitio público
-- `videos` (titulo, descripcion, url, categoria, visibilidad, obligatorio, orden)
-- `video_views` (video_id, profile_id, visto_en, porcentaje)
+- `induction_lessons` (titulo, descripcion, portada_media_id, audiencia: `padres | personal`, publica bool, obligatoria bool, school_year_id)
+- `induction_assignments` (lesson_id, alcance: `general | level | classroom`, alcance_id nullable, orden) — permite reutilizar una lección en varios salones
+- `lesson_blocks` (lesson_id, tipo: `texto | imagen | galeria | video | archivo | confirmacion`, contenido json, orden)
+- `induction_progress` (lesson_id, user_id, student_id, estado: `vista | completada | aceptada`, completado_en, ip) — único por (lesson_id, user_id, student_id)
+- `classroom_posts` (classroom_id, autor_id, tipo: `comunicado | galeria`, titulo, cuerpo, publicado_en)
+- `media` (owner_type, owner_id, coleccion, public_id, resource_type: `image | video | raw`, delivery_type: `upload | authenticated`, format, bytes, width, height, duration, version, estado: `procesando | listo | error`, url_externa nullable (YouTube), subido_por, orden, deleted_at) — **única tabla de archivos**: fotos, videos, vouchers, facturas, documentos. Los campos `*_media_id` de otras tablas apuntan aquí.
 - `announcements` (titulo, cuerpo, audiencia, classroom_id, publicado_en)
 - `notifications` (profile_id, canal `whatsapp | email | inapp`, plantilla, payload, estado, enviado_en, error)
 - `leads` (nombre_padre, celular, edad_nino, mensaje, estado, origen)
-- `documents` (owner_type, owner_id, tipo, archivo_path, vence_el, visibilidad)
+- `documents` (owner_type, owner_id, tipo, archivo_media_id, vence_el, visibilidad)
 
 **Libro de Reclamaciones**
 - `complaints` (codigo correlativo, fecha, tipo `reclamo | queja`, consumidor_*, apoderado_*, servicio, monto, detalle, pedido, ip, user_agent) — **solo INSERT**: el modelo no expone update/delete y la Policy los prohíbe; el usuario MySQL de la app puede además restringirse con un trigger que bloquee UPDATE/DELETE
@@ -275,10 +388,10 @@ erDiagram
 ## 5. Seguridad y cumplimiento
 
 - **Policies en cada modelo** + middleware `role:` en grupos de rutas; scopes Eloquent (`Student::visibleTo($user)`) para que un padre solo liste a sus hijos y una maestra solo su aula del año activo.
-- Archivos en `storage/app/private`; se sirven por un controlador que verifica la Policy (o `URL::temporarySignedRoute`, expira en minutos).
+- Archivos sensibles en Cloudinary como `authenticated`; Laravel genera la URL firmada solo después de verificar la Policy. El API secret de Cloudinary vive únicamente en el `.env` del servidor.
 - **Ley 29733 (Protección de Datos Personales)**: consentimiento explícito al registrar al padre; autorización de uso de imagen por alumno — la galería pública solo muestra niños con `autoriza_imagen = true`; política de privacidad publicada.
 - Contraseñas con bcrypt (Laravel), *rate limiting* en login y en el formulario de reclamos, CSRF por defecto, HTTPS forzado (SSL gratuito AutoSSL/Let's Encrypt del cPanel). 2FA opcional para la administradora (Fortify).
-- `spatie/laravel-backup` diario (BD + archivos privados) enviado a Google Drive de la dueña; no depender solo del backup del hosting.
+- `spatie/laravel-backup` diario de la BD enviado a Google Drive de la dueña; no depender solo del backup del hosting. Para Cloudinary: exportación mensual de comprobantes y documentos protegidos (Job que descarga por carpeta) o activar el backup de Cloudinary en plan de pago.
 - `.env` fuera de la carpeta pública, `APP_DEBUG=false` en producción.
 - Auditoría de cambios en dinero (pagos, planilla) para evitar manipulaciones.
 
@@ -293,18 +406,18 @@ villajardintinguina/
 │  ├─ Http/
 │  │  ├─ Controllers/
 │  │  │  ├─ Public/              # Home, Nosotros, Servicios, Videos, Admision, Reclamos
-│  │  │  ├─ Admin/               # Dashboard, Users, Students, Charges, Payments, Debtors,
+│  │  │  ├─ Admin/               # Dashboard, Users, Students, Levels, Classrooms, Inductions, Charges, Payments, Debtors,
 │  │  │  │                       # Payroll, Expenses, Balance, Events, Raffles, SiteContent, Complaints
-│  │  │  ├─ Teacher/             # Classroom, StudentAttendance, Announcements
+│  │  │  ├─ Teacher/             # MiSalon, StudentAttendance, ClassroomPosts, InductionProgress
 │  │  │  ├─ Staff/               # MiAsistencia (entrada/salida), MiBoleta
-│  │  │  └─ Parent/              # MisHijos, Asistencia, Pagos, Comprobantes, Videos, Eventos
+│  │  │  └─ Parent/              # MisHijos, MiSalon, Induccion, Asistencia, Pagos, Comprobantes, Eventos
 │  │  ├─ Requests/               # Form Requests (validación)
 │  │  └─ Middleware/HandleInertiaRequests.php   # comparte user, roles, permisos, flash
 │  ├─ Models/                    # Student, Guardian, Enrollment, Charge, Payment, PayrollRun…
 │  ├─ Policies/
-│  ├─ Services/                  # ChargeGenerator, DebtorService, PayrollCalculator,
+│  ├─ Services/                  # CloudinaryMediaService (firma, verificación, URLs), ChargeGenerator, DebtorService, PayrollCalculator,
 │  │                             # BalanceService, RaffleDrawer, ComplaintNumberer
-│  ├─ Jobs/                      # SendPaymentReminder, SendComplaintCopy
+│  ├─ Jobs/                      # SendPaymentReminder, SendComplaintCopy, DeleteCloudinaryAsset
 │  ├─ Notifications/             # canales: mail, whatsapp (custom), database
 │  └─ Console/                   # comandos programados (cuotas:generar, morosos:marcar…)
 ├─ database/
@@ -317,7 +430,7 @@ villajardintinguina/
 │  │  │  ├─ Public/              # Home.tsx, Servicios.tsx, Videos.tsx, Reclamos/Create.tsx…
 │  │  │  ├─ Admin/ Teacher/ Staff/ Parent/
 │  │  ├─ Layouts/                # PublicLayout.tsx, AppLayout.tsx (menú según rol)
-│  │  ├─ Components/             # ui/ (shadcn), AttendanceGrid, PaymentForm, RaffleWheel…
+│  │  ├─ Components/             # ui/ (shadcn), AttendanceGrid, PaymentForm, RaffleWheel, LessonBlockEditor, LessonViewer, MediaUploader, CldImage/CldVideo…
 │  │  ├─ hooks/  lib/
 │  │  └─ types/                  # index.d.ts + tipos generados desde PHP (generated.d.ts)
 │  └─ views/app.blade.php        # plantilla raíz de Inertia (meta SEO por página)
@@ -325,7 +438,6 @@ villajardintinguina/
 │  ├─ web.php                    # públicas + reclamos
 │  ├─ admin.php  teacher.php  parent.php   # agrupadas con middleware auth + role
 │  └─ console.php                # Schedule: cuotas, morosos, recordatorios, backups
-├─ storage/app/private/          # vouchers, facturas, documentos (NO público)
 ├─ .github/workflows/deploy.yml  # build + composer + subida por FTP/SSH al hosting
 ├─ docs/ARQUITECTURA.md
 ├─ tsconfig.json  vite.config.ts  tailwind.config.ts  composer.json  package.json
@@ -346,7 +458,7 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 
 1. Push a `main` → **GitHub Actions**: `composer install --no-dev -o`, `npm ci && npm run build`, empaqueta todo (sin `node_modules`, sin `.env`).
 2. Sube por **FTP/SFTP** (acción `SamKirkland/FTP-Deploy-Action`) o por SSH con `rsync` si el plan lo permite.
-3. Post-deploy (SSH o ruta protegida de mantenimiento): `php artisan migrate --force`, `config:cache`, `route:cache`, `view:cache`, `storage:link` (solo para assets públicos del sitio, no para documentos privados).
+3. Post-deploy (SSH o ruta protegida de mantenimiento): `php artisan migrate --force`, `config:cache`, `route:cache`, `view:cache`, `storage:link` no es necesario para multimedia (todo está en Cloudinary).
 4. En cPanel: crear BD MySQL + usuario, configurar `.env`, un solo cron cada minuto, activar SSL.
 
 ## 7. Plan por fases
@@ -354,8 +466,9 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 | Fase | Duración aprox. | Entregables |
 |------|-----------------|-------------|
 | **0. Descubrimiento** | 1 semana | Datos del hosting (versión PHP, SSH sí/no, cron, espacio), fotos, videos, textos, logo, colores; tarifas; lista de aulas/alumnos/personal; respuestas a las preguntas abiertas (§8). |
-| **1. Sitio público + Libro de Reclamaciones** | 2–3 semanas | Web llamativa publicada con dominio propio, videos de inducción, formulario de admisión, reclamos con correo automático. *(Lo que más ven los padres y lo legalmente obligatorio.)* |
+| **1. Sitio público + Libro de Reclamaciones** | 2–3 semanas | Web llamativa publicada con dominio propio, presentación pública (video, imágenes, texto), formulario de admisión, reclamos con correo automático. *(Lo que más ven los padres y lo legalmente obligatorio.)* |
 | **2. Intranet base + Pagos** | 3–4 semanas | Login por roles, fichas de alumnos/padres, cuotas mensuales, registro de pagos con modalidad y foto de comprobante, panel de morosos, recordatorio por WhatsApp (enlace `wa.me`). |
+| **2b. Salones + inducción** | 2 semanas | Niveles y salones, página "Mi Salón", inducción general/nivel/salón con bloques de video, imagen y texto, tablero de avance por salón. |
 | **3. Asistencia** | 2 semanas | Asistencia de alumnos (PWA móvil) y del personal; vista del padre. |
 | **4. Planilla y balance** | 2 semanas | Planilla mensual, gastos, balance con gráficos, exportación Excel. |
 | **5. Eventos y sorteos** | 2 semanas | Eventos con tema personalizado, formularios, tickets, sorteo en vivo. |
@@ -365,7 +478,7 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 
 ## 8. Preguntas abiertas para la dueña
 
-1. ¿Cuántos alumnos, aulas y trabajadores hay hoy? (dimensiona espacio en disco del hosting y costo de WhatsApp)
+1. ¿Cuántos alumnos, aulas y trabajadores hay hoy? (dimensiona el plan de Cloudinary y el costo de WhatsApp)
 2. ¿Qué día vence la mensualidad y cuántos días de tolerancia antes de considerar moroso? ¿Hay mora/recargo?
 3. ¿Emite boletas/facturas electrónicas con algún sistema (Nubefact, SUNAT SOL)? → podríamos integrarlo en el futuro en vez de subir fotos.
 4. ¿Tiene número de WhatsApp Business? ¿Acepta el costo por mensaje de la API oficial o prefiere empezar con el botón manual?
@@ -376,3 +489,4 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 9. ¿Dominio web ya comprado? (p. ej. `villajardin.edu.pe` o `.pe`)
 10. ¿Los sorteos son con venta de tickets (dinero) o solo participación gratuita por formulario?
 11. Datos del hosting compartido: proveedor, versión de PHP disponible, ¿acceso SSH?, ¿Composer?, espacio en disco, límite de subida de archivos.
+12. ¿Ya existe una cuenta de Cloudinary? ¿Cuántos videos de inducción y de qué duración aproximada? (para estimar si alcanza el plan gratuito)
