@@ -508,6 +508,17 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 3. Post-deploy (SSH o ruta protegida de mantenimiento): `php artisan migrate --force`, `config:cache`, `route:cache`, `view:cache`, `storage:link` no es necesario para multimedia (todo está en Cloudinary).
 4. En cPanel: crear BD MySQL + usuario, configurar `.env`, un solo cron cada minuto, activar SSL.
 
+### Estado actual (octubre 2026)
+
+| Módulo                                                       | Estado                                                                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Sitio público                                                | ✅ Base lista (textos provisionales)                                                        |
+| Roles, salones, alumnos, matrículas                          | ✅ Modelo y permisos (falta pantalla para que la administradora cree usuarios y matrículas) |
+| Módulos de aprendizaje                                       | ✅                                                                                          |
+| Inducción general / por nivel / por salón                    | ✅                                                                                          |
+| Libro de Reclamaciones                                       | ✅                                                                                          |
+| Pagos y morosidad, asistencia, planilla, sorteos, documentos | ⏳ Pendiente                                                                                |
+
 ## 7. Plan por fases
 
 | Fase                                          | Duración aprox. | Entregables                                                                                                                                                                                                   |

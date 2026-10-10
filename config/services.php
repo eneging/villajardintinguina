@@ -41,8 +41,4 @@ return [
         'folder' => env('CLOUDINARY_FOLDER', 'villajardin/local'),
     ],
 
-    'school' => [
-        'whatsapp' => env('SCHOOL_WHATSAPP', '51999999999'),
-    ],
-
 ];

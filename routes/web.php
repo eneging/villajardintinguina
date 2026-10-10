@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
@@ -8,6 +10,15 @@ use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Libro de Reclamaciones Virtual (público, obligatorio por INDECOPI).
+Route::get('libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaints.create');
+Route::post('libro-de-reclamaciones', [ComplaintController::class, 'store'])
+    ->middleware('throttle:5,10')
+    ->name('complaints.store');
+Route::get('libro-de-reclamaciones/constancia/{complaint}', [ComplaintController::class, 'receipt'])
+    ->middleware('signed')
+    ->name('complaints.receipt');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
@@ -38,6 +49,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('induccion/{lesson}', [InductionController::class, 'show'])->name('induction.show');
     Route::post('induccion/{lesson}/completar', [InductionController::class, 'complete'])->name('induction.complete');
     Route::get('salones/{classroom}/induccion', [InductionController::class, 'classroomProgress'])->name('induction.progress');
+
+    // Administración del Libro de Reclamaciones.
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('reclamos', [AdminComplaintController::class, 'index'])->name('complaints.index');
+        Route::get('reclamos/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+        Route::post('reclamos/{complaint}/respuesta', [AdminComplaintController::class, 'respond'])->name('complaints.respond');
+    });
 
     // Cloudinary: firma de subida directa y registro del archivo subido.
     Route::post('media/firma', [MediaController::class, 'signature'])

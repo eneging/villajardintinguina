@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { dashboard, login } from '@/routes';
+import { create as complaintsCreate } from '@/routes/complaints';
 
 // Textos provisionales: se reemplazarán por contenido editable desde la intranet.
 const levels = [
@@ -317,10 +318,12 @@ export default function Welcome() {
                             © {new Date().getFullYear()} EP Villa Jardín · Ica,
                             Perú
                         </p>
-                        {/* El Libro de Reclamaciones virtual se implementa en la siguiente fase. */}
-                        <span className="inline-flex items-center gap-2 font-medium text-slate-700">
+                        <Link
+                            href={complaintsCreate()}
+                            className="inline-flex items-center gap-2 font-medium text-slate-700 hover:underline"
+                        >
                             📕 Libro de Reclamaciones
-                        </span>
+                        </Link>
                     </div>
                 </footer>
             </div>

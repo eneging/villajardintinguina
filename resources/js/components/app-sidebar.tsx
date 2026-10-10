@@ -1,5 +1,12 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BookHeart, Globe, LayoutGrid, School, Settings2 } from 'lucide-react';
+import {
+    BookHeart,
+    BookX,
+    Globe,
+    LayoutGrid,
+    School,
+    Settings2,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +22,7 @@ import {
 } from '@/components/ui/sidebar';
 import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
+import { index as complaints } from '@/routes/admin/complaints';
 import { index as classrooms } from '@/routes/classrooms';
 import {
     index as manageInduction,
@@ -46,6 +54,15 @@ export function AppSidebar() {
                       title: 'Gestionar inducción',
                       href: manageInduction(),
                       icon: Settings2,
+                  },
+              ]
+            : []),
+        ...(hasRole(auth.roles, 'admin')
+            ? [
+                  {
+                      title: 'Libro de Reclamaciones',
+                      href: complaints(),
+                      icon: BookX,
                   },
               ]
             : []),

@@ -45,7 +45,8 @@ class HandleInertiaRequests extends Middleware
                     : [],
             ],
             'school' => [
-                'whatsapp' => config('services.school.whatsapp'),
+                'name' => config('school.name'),
+                'whatsapp' => config('school.whatsapp'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

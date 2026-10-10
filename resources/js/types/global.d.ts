@@ -12,7 +12,7 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
-            school: { whatsapp: string };
+            school: { name: string; whatsapp: string };
             [key: string]: unknown;
         };
     }

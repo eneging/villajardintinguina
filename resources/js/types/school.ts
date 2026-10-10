@@ -99,3 +99,35 @@ export type InductionLessonDetail = InductionLessonCard & {
     cover_media_id: number | null;
     blocks: ContentBlock[];
 };
+
+export type Provider = {
+    name: string;
+    legal_name: string;
+    ruc: string;
+    address: string;
+};
+
+export type Complaint = {
+    id: number;
+    code: string;
+    type: 'reclamo' | 'queja';
+    type_label: string;
+    created_at: string;
+    consumer_name: string;
+    consumer_document_type: string;
+    consumer_document_number: string;
+    consumer_address: string;
+    consumer_phone: string;
+    consumer_email: string;
+    is_minor: boolean;
+    guardian_name: string | null;
+    guardian_document_number: string | null;
+    item_type: 'producto' | 'servicio';
+    item_description: string;
+    amount: string | null;
+    detail: string;
+    request: string;
+    response_due_on: string;
+    response: string | null;
+    responded_at: string | null;
+};
