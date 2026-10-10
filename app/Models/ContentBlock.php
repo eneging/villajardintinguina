@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  *  video:    {caption, youtube_url?}   (si no hay youtube_url se usa media_id)
  *  file:     {caption}
  *  activity: {title, body}
+ *  confirmation: {body}             (solo inducción: "He leído y acepto…")
  */
 #[Fillable(['type', 'content', 'media_id', 'position'])]
 class ContentBlock extends Model

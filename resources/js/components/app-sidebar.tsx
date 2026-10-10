@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Globe, LayoutGrid, School } from 'lucide-react';
+import { BookHeart, Globe, LayoutGrid, School, Settings2 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -16,6 +16,10 @@ import {
 import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
 import { index as classrooms } from '@/routes/classrooms';
+import {
+    index as manageInduction,
+    mine as myInduction,
+} from '@/routes/induction';
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
@@ -32,6 +36,18 @@ export function AppSidebar() {
         { title: 'Inicio', href: dashboard(), icon: LayoutGrid },
         ...(hasRole(auth.roles, 'admin', 'teacher')
             ? [{ title: 'Salones', href: classrooms(), icon: School }]
+            : []),
+        ...(hasRole(auth.roles, 'parent', 'teacher', 'intern')
+            ? [{ title: 'Mi inducción', href: myInduction(), icon: BookHeart }]
+            : []),
+        ...(hasRole(auth.roles, 'admin', 'teacher')
+            ? [
+                  {
+                      title: 'Gestionar inducción',
+                      href: manageInduction(),
+                      icon: Settings2,
+                  },
+              ]
             : []),
     ];
 

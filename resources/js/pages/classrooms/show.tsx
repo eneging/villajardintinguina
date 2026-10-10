@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { ListChecks, Plus } from 'lucide-react';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
 import { moduleTiming } from '@/lib/school';
 import { show } from '@/routes/classrooms';
+import { progress } from '@/routes/induction';
 import { create } from '@/routes/modules';
 import type { ClassroomSummary, LearningModuleCard, MediaItem } from '@/types';
 
@@ -72,11 +73,18 @@ export default function ClassroomShow({
                             )}
                         </div>
                         {canManage && (
-                            <Button asChild>
-                                <Link href={create(classroom.id)}>
-                                    <Plus /> Nuevo módulo
-                                </Link>
-                            </Button>
+                            <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" asChild>
+                                    <Link href={progress(classroom.id)}>
+                                        <ListChecks /> Avance de inducción
+                                    </Link>
+                                </Button>
+                                <Button asChild>
+                                    <Link href={create(classroom.id)}>
+                                        <Plus /> Nuevo módulo
+                                    </Link>
+                                </Button>
+                            </div>
                         )}
                     </div>
 

@@ -28,7 +28,13 @@ export type ClassroomSummary = {
     published_modules_count?: number | null;
 };
 
-export type BlockType = 'text' | 'image' | 'video' | 'file' | 'activity';
+export type BlockType =
+    | 'text'
+    | 'image'
+    | 'video'
+    | 'file'
+    | 'activity'
+    | 'confirmation';
 
 export type BlockContent = {
     body?: string;
@@ -68,3 +74,28 @@ export type LearningModuleDetail = LearningModuleCard & {
 };
 
 export type Option = { value: string; label: string };
+
+export type InductionTargets = {
+    general: boolean;
+    level_ids: number[];
+    classroom_ids: number[];
+};
+
+export type InductionLessonCard = {
+    id: number;
+    title: string;
+    description: string | null;
+    audience: 'parents' | 'staff';
+    is_required: boolean;
+    status: ModuleStatus;
+    cover: MediaItem | null;
+    targets: InductionTargets;
+    completed?: boolean;
+    completed_count?: number;
+};
+
+export type InductionLessonDetail = InductionLessonCard & {
+    position: number;
+    cover_media_id: number | null;
+    blocks: ContentBlock[];
+};

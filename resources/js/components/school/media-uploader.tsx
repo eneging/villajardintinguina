@@ -6,6 +6,11 @@ import type { MediaItem } from '@/types';
 
 type ResourceType = 'image' | 'video' | 'raw';
 
+/** Dónde se guarda el archivo: contenido de un salón o lecciones de inducción. */
+export type UploadTarget =
+    | { context: 'classroom'; classroom_id: number }
+    | { context: 'induction' };
+
 type SignedUpload = {
     upload_url: string;
     api_key: string;
@@ -94,13 +99,13 @@ function uploadToCloudinary(
  * Sube un archivo directo del navegador a Cloudinary con la firma que da Laravel.
  */
 export function MediaUploader({
-    classroomId,
+    target,
     resourceType,
     label,
     disabled,
     onUploaded,
 }: {
-    classroomId: number;
+    target: UploadTarget;
     resourceType: ResourceType;
     label: string;
     disabled?: boolean;
@@ -124,12 +129,12 @@ export function MediaUploader({
         try {
             setProgress(0);
             const signed = await postJson<SignedUpload>(signature().url, {
-                classroom_id: classroomId,
+                ...target,
                 resource_type: resourceType,
             });
             const result = await uploadToCloudinary(file, signed, setProgress);
             const media = await postJson<MediaItem>(store().url, {
-                classroom_id: classroomId,
+                ...target,
                 public_id: result.public_id,
                 version: result.version,
                 signature: result.signature,

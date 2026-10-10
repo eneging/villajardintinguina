@@ -9,4 +9,5 @@ enum BlockType: string
     case Video = 'video';
     case File = 'file';
     case Activity = 'activity';
+    case Confirmation = 'confirmation';
 }

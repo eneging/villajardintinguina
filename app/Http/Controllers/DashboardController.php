@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\InductionAudience;
 use App\Enums\ModuleStatus;
 use App\Enums\Role;
 use App\Models\Classroom;
 use App\Models\LearningModule;
 use App\Models\SchoolYear;
 use App\Models\Student;
+use App\Services\InductionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, InductionService $induction): Response
     {
         $user = $request->user();
 
@@ -61,7 +63,20 @@ class DashboardController extends Controller
                 ])
             : collect();
 
+        $inductionSummary = null;
+
+        if ($user->hasRole(Role::Parent)) {
+            $required = $induction->lessonsFor($user, InductionAudience::Parents)
+                ->where('is_required', true)
+                ->pluck('id');
+            $inductionSummary = [
+                'required' => $required->count(),
+                'completed' => $user->inductionProgress()->whereIn('induction_lesson_id', $required)->count(),
+            ];
+        }
+
         return Inertia::render('dashboard', [
+            'induction' => $inductionSummary,
             'children' => $children,
             'latestModules' => $latestModules,
             'managedClassrooms' => $managed,

@@ -8,6 +8,7 @@ use App\Models\Classroom;
 use App\Models\ContentBlock;
 use App\Models\LearningModule;
 use App\Services\CloudinaryService;
+use App\Support\ContentBlocks;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -30,7 +31,7 @@ class LearningModuleController extends Controller
                 ...$this->attributes($request),
                 'author_id' => $request->user()->id,
             ]);
-            $this->syncBlocks($module, $request->validated('blocks', []));
+            ContentBlocks::sync($module, $request->validated('blocks', []));
 
             return $module;
         });
@@ -75,7 +76,7 @@ class LearningModuleController extends Controller
     {
         DB::transaction(function () use ($request, $module) {
             $module->update($this->attributes($request, $module));
-            $this->syncBlocks($module, $request->validated('blocks', []));
+            ContentBlocks::sync($module, $request->validated('blocks', []));
         });
 
         Inertia::flash('toast', [
@@ -131,23 +132,6 @@ class LearningModuleController extends Controller
         $data['published_at'] = $publishing ? ($module?->published_at ?? now()) : null;
 
         return $data;
-    }
-
-    /**
-     * @param  array<int, array<string, mixed>>  $blocks
-     */
-    private function syncBlocks(LearningModule $module, array $blocks): void
-    {
-        $module->blocks()->delete();
-
-        foreach (array_values($blocks) as $position => $block) {
-            $module->blocks()->create([
-                'type' => $block['type'],
-                'content' => array_filter($block['content'] ?? [], 'filled'),
-                'media_id' => $block['media_id'] ?? null,
-                'position' => $position,
-            ]);
-        }
     }
 
     /**

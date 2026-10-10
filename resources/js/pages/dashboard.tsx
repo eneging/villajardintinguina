@@ -1,9 +1,11 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import { BookHeart } from 'lucide-react';
 import Heading from '@/components/heading';
 import { ModuleCard } from '@/components/school/module-card';
 import { ClassroomTile } from '@/pages/classrooms/index';
 import { show } from '@/routes/classrooms';
 import { dashboard } from '@/routes';
+import { mine as myInduction } from '@/routes/induction';
 import type { ClassroomSummary, LearningModuleCard } from '@/types';
 
 type Child = {
@@ -16,12 +18,14 @@ type Props = {
     children: Child[];
     latestModules: LearningModuleCard[];
     managedClassrooms: ClassroomSummary[];
+    induction: { required: number; completed: number } | null;
 };
 
 export default function Dashboard({
     children,
     latestModules,
     managedClassrooms,
+    induction,
 }: Props) {
     const { auth } = usePage().props;
     const firstName = auth.user.name.split(' ')[0];
@@ -34,6 +38,25 @@ export default function Dashboard({
                     title={`¡Hola, ${firstName}! 👋`}
                     description="Bienvenida/o a la plataforma de EP Villa Jardín."
                 />
+
+                {induction && induction.required > induction.completed && (
+                    <Link
+                        href={myInduction()}
+                        className="flex items-center gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5 transition hover:shadow-md dark:border-amber-700 dark:bg-amber-950/40"
+                    >
+                        <BookHeart className="size-10 shrink-0 text-amber-600" />
+                        <span>
+                            <span className="block font-semibold">
+                                Completa tu inducción
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                                Llevas {induction.completed} de{' '}
+                                {induction.required} lecciones obligatorias.
+                                Conoce cómo trabajamos con tus hijos.
+                            </span>
+                        </span>
+                    </Link>
+                )}
 
                 {children.length > 0 && (
                     <section className="space-y-4">

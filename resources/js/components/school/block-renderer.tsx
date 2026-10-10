@@ -1,4 +1,4 @@
-import { Download, Home } from 'lucide-react';
+import { CheckSquare, Download, Home } from 'lucide-react';
 import { youtubeEmbedUrl } from '@/lib/school';
 import type { ContentBlock } from '@/types';
 
@@ -91,6 +91,14 @@ export function BlockRenderer({ block }: { block: ContentBlock }) {
                     <p className="leading-relaxed whitespace-pre-line text-amber-950 dark:text-amber-100">
                         {content.body}
                     </p>
+                </div>
+            );
+
+        case 'confirmation':
+            return (
+                <div className="flex gap-3 rounded-2xl border-2 border-green-300 bg-green-50 p-5 text-green-950 dark:border-green-800 dark:bg-green-950/40 dark:text-green-100">
+                    <CheckSquare className="mt-0.5 size-5 shrink-0 text-green-700" />
+                    <p className="font-medium">{content.body}</p>
                 </div>
             );
     }

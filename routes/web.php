@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('modulos/{module}/editar', [LearningModuleController::class, 'edit'])->name('modules.edit');
     Route::put('modulos/{module}', [LearningModuleController::class, 'update'])->name('modules.update');
     Route::delete('modulos/{module}', [LearningModuleController::class, 'destroy'])->name('modules.destroy');
+
+    // Inducción: lecciones con video, imágenes y texto (general, por nivel o por salón).
+    Route::get('induccion', [InductionController::class, 'mine'])->name('induction.mine');
+    Route::middleware('role:admin,teacher')->group(function () {
+        Route::get('induccion/gestionar', [InductionController::class, 'index'])->name('induction.index');
+        Route::get('induccion/crear', [InductionController::class, 'create'])->name('induction.create');
+        Route::post('induccion', [InductionController::class, 'store'])->name('induction.store');
+        Route::get('induccion/{lesson}/editar', [InductionController::class, 'edit'])->name('induction.edit');
+        Route::put('induccion/{lesson}', [InductionController::class, 'update'])->name('induction.update');
+        Route::delete('induccion/{lesson}', [InductionController::class, 'destroy'])->name('induction.destroy');
+    });
+    Route::get('induccion/{lesson}', [InductionController::class, 'show'])->name('induction.show');
+    Route::post('induccion/{lesson}/completar', [InductionController::class, 'complete'])->name('induction.complete');
+    Route::get('salones/{classroom}/induccion', [InductionController::class, 'classroomProgress'])->name('induction.progress');
 
     // Cloudinary: firma de subida directa y registro del archivo subido.
     Route::post('media/firma', [MediaController::class, 'signature'])
