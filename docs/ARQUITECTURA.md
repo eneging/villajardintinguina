@@ -519,7 +519,8 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 | Libro de Reclamaciones                    | ✅                                                                               |
 | Pagos y morosidad                         | ✅ Recordatorio por enlace de WhatsApp (WhatsApp Cloud API automático pendiente) |
 | Asistencia de alumnos y del personal      | ✅                                                                               |
-| Planilla y balance, sorteos, documentos   | ⏳ Pendiente                                                                     |
+| Planilla y balance                        | ✅ Retenciones referenciales (validar con el contador)                           |
+| Sorteos y eventos, documentos             | ⏳ Pendiente                                                                     |
 
 ## 7. Plan por fases
 
