@@ -139,20 +139,20 @@ villajardin/{produccion|pruebas}/
 
 ## 2. Roles y permisos
 
-| Módulo                               |         Administradora         |               Maestra               |             Practicante              |                   Padre/Madre                    |          Alumno          |
-| ------------------------------------ | :----------------------------: | :---------------------------------: | :----------------------------------: | :----------------------------------------------: | :----------------------: |
-| Configuración, usuarios, aulas       |            ✅ CRUD             |                  —                  |                  —                   |                        —                         |            —             |
-| Asistencia de alumnos                |            ✅ todo             |             ✅ su aula              | 👁 + marcar si la maestra lo habilita |                    👁 su hijo                     |        👁 la suya         |
-| Asistencia de personal               |            ✅ todo             |     ✅ marca su entrada/salida      |      ✅ marca su entrada/salida      |                        —                         |            —             |
-| Pagos / mensualidades                |            ✅ CRUD             |                  —                  |                  —                   | 👁 sus pagos + descarga comprobante, sube voucher |            —             |
-| Planilla y balance                   |               ✅               |             👁 su boleta             |           👁 su constancia            |                        —                         |            —             |
-| Documentos                           |            ✅ todo             |          👁 los de su aula           |             👁 limitados              |           👁 los de su hijo + públicos            |        👁 públicos        |
-| Comunicados / recordatorios          |            ✅ envía            |         ✅ envía a su aula          |                  —                   |                     👁 recibe                     |            —             |
-| Sorteos y eventos                    |        ✅ crea/gestiona        |                  👁                  |                  👁                   |                   ✅ participa                   | ✅ participa (vía padre) |
-| Salones (página "Mi Salón", galería) |            ✅ todo             |          ✅ edita su salón          |              👁 su salón              |              👁 el salón de su hijo               |      👁 (vía padre)       |
+| Módulo                               |         Administradora         |               Maestra               |              Practicante              |                    Padre/Madre                    |          Alumno          |
+| ------------------------------------ | :----------------------------: | :---------------------------------: | :-----------------------------------: | :-----------------------------------------------: | :----------------------: |
+| Configuración, usuarios, aulas       |            ✅ CRUD             |                  —                  |                   —                   |                         —                         |            —             |
+| Asistencia de alumnos                |            ✅ todo             |             ✅ su aula              | 👁 + marcar si la maestra lo habilita |                    👁 su hijo                     |        👁 la suya        |
+| Asistencia de personal               |            ✅ todo             |     ✅ marca su entrada/salida      |      ✅ marca su entrada/salida       |                         —                         |            —             |
+| Pagos / mensualidades                |            ✅ CRUD             |                  —                  |                   —                   | 👁 sus pagos + descarga comprobante, sube voucher |            —             |
+| Planilla y balance                   |               ✅               |            👁 su boleta             |           👁 su constancia            |                         —                         |            —             |
+| Documentos                           |            ✅ todo             |          👁 los de su aula          |             👁 limitados              |           👁 los de su hijo + públicos            |       👁 públicos        |
+| Comunicados / recordatorios          |            ✅ envía            |         ✅ envía a su aula          |                   —                   |                     👁 recibe                     |            —             |
+| Sorteos y eventos                    |        ✅ crea/gestiona        |                 👁                  |                  👁                   |                   ✅ participa                    | ✅ participa (vía padre) |
+| Salones (página "Mi Salón", galería) |            ✅ todo             |          ✅ edita su salón          |              👁 su salón              |              👁 el salón de su hijo               |      👁 (vía padre)      |
 | Módulos de aprendizaje               |            ✅ todo             |      ✅ crea/edita en su salón      |              👁 su salón              |        👁 publicados del salón de su hijo         |            —             |
-| Inducción (video, imágenes, texto)   | ✅ crea/edita todo + ve avance | ✅ edita la de su salón + ve avance |          👁 la del personal           |                  ✅ la completa                  |            —             |
-| Libro de Reclamaciones               |          ✅ responde           |                  —                  |                  —                   |                   ✅ registra                    |            —             |
+| Inducción (video, imágenes, texto)   | ✅ crea/edita todo + ve avance | ✅ edita la de su salón + ve avance |          👁 la del personal           |                  ✅ la completa                   |            —             |
+| Libro de Reclamaciones               |          ✅ responde           |                  —                  |                   —                   |                    ✅ registra                    |            —             |
 
 **Nota sobre "Alumno":** son niños de 0–5 años; no inician sesión por sí mismos. El rol existe como **entidad** (ficha del alumno) y, opcionalmente, como vista simplificada que el padre abre (galería, logros, cumpleaños). Esto simplifica la seguridad y cumple con la Ley 29733 de protección de datos de menores.
 
@@ -423,7 +423,7 @@ erDiagram
 
 **Libro de Reclamaciones**
 
-- `complaints` (codigo correlativo, fecha, tipo `reclamo | queja`, consumidor__, apoderado__, servicio, monto, detalle, pedido, ip, user_agent) — **solo INSERT**: el modelo no expone update/delete y la Policy los prohíbe; el usuario MySQL de la app puede además restringirse con un trigger que bloquee UPDATE/DELETE
+- `complaints` (codigo correlativo, fecha, tipo `reclamo | queja`, consumidor**, apoderado**, servicio, monto, detalle, pedido, ip, user_agent) — **solo INSERT**: el modelo no expone update/delete y la Policy los prohíbe; el usuario MySQL de la app puede además restringirse con un trigger que bloquee UPDATE/DELETE
 - `complaint_responses` (complaint_id, respuesta, respondido_por, respondido_en)
 
 **Auditoría**
@@ -510,20 +510,26 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 
 ### Estado actual (octubre 2026)
 
-| Módulo                                        | Estado                                                                           |
-| --------------------------------------------- | -------------------------------------------------------------------------------- |
-| Sitio público                                 | ✅ Base lista (textos provisionales)                                             |
-| Roles, salones, alumnos, matrículas           | ✅ Con pantallas de administración                                               |
-| Módulos de aprendizaje                        | ✅                                                                               |
-| Inducción general / por nivel / por salón     | ✅                                                                               |
-| Libro de Reclamaciones                        | ✅                                                                               |
-| Pagos y morosidad                             | ✅ Recordatorio por enlace de WhatsApp (WhatsApp Cloud API automático pendiente) |
-| Asistencia de alumnos y del personal          | ✅                                                                               |
-| Planilla y balance                            | ✅ Retenciones referenciales (validar con el contador)                           |
-| Eventos, sorteos, documentos y comunicados    | ✅                                                                               |
-| Despliegue en hosting compartido              | ✅ GitHub Actions + FTP + `POST /_deploy` (ver `docs/DESPLIEGUE.md`)             |
-| Galería privada por salón                     | ✅                                                                               |
-| WhatsApp Cloud API automático, PWA instalable | ⏳ Próximas mejoras                                                              |
+| Módulo                                                               | Estado                                                                                                     |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Sitio público (Inicio, Nosotros, Servicios, Videos, Fotos, Admisión) | ✅ Contenido editable desde Admin › Sitio web (`site_contents`), mapa y redes sociales                     |
+| Admisiones / pre-inscripción (`leads`)                               | ✅ Formulario, aviso por correo y seguimiento por estados                                                  |
+| Roles, salones, alumnos, matrículas                                  | ✅ Con pantallas de administración                                                                         |
+| Ficha del alumno, Mis hijos, personas autorizadas                    | ✅ Foto, salud, asistencia, cuenta, documentos; `authorized_pickups` usados en la asistencia               |
+| Información del salón                                                | ✅ Horario, menú semanal, útiles y calendario de actividades (`classroom_activities`)                      |
+| Años escolares y niveles                                             | ✅ Nuevo año copiando salones, personal e inducciones; activación                                          |
+| Módulos de aprendizaje                                               | ✅                                                                                                         |
+| Inducción general / por nivel / por salón                            | ✅ Lecciones marcables como públicas                                                                       |
+| Libro de Reclamaciones                                               | ✅                                                                                                         |
+| Pagos y morosidad                                                    | ✅ Cargos masivos; recordatorio manual por `wa.me` y automático por correo + WhatsApp Cloud API (opcional) |
+| Asistencia de alumnos y del personal                                 | ✅ Lista con foto y personas autorizadas                                                                   |
+| Planilla y balance                                                   | ✅ Retenciones referenciales (validar con el contador); categorías de gastos administrables                |
+| Eventos, sorteos, documentos y comunicados                           | ✅ Con edición y eliminación protegida (no se borra lo que ya tiene ventas)                                |
+| Galería privada por salón                                            | ✅ Álbumes publicables también en el sitio web con confirmación de autorización de imagen                  |
+| Auditoría (`audit_logs`)                                             | ✅ Inmutable; pagos, cuotas, planilla, gastos, ingresos, matrículas, trabajadores y reclamos               |
+| Respaldos                                                            | ✅ `respaldo:crear` diario en PHP (sin mysqldump), descarga desde Configuración                            |
+| PWA instalable                                                       | ✅ Manifest, íconos, service worker solo para archivos estáticos y página sin conexión                     |
+| Despliegue en hosting compartido                                     | ✅ GitHub Actions + FTP + `POST /_deploy` (ver `docs/DESPLIEGUE.md`)                                       |
 
 ## 7. Plan por fases
 

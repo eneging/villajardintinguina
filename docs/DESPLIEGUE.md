@@ -111,6 +111,12 @@ Esto ejecuta automáticamente:
 | `cuotas:generar` – mensualidades del mes                  | día 1, 00:10           |
 | `reclamos:alertar-plazos` – reclamos por vencer           | lunes a viernes, 08:00 |
 | `documentos:alertar-vencimientos` – documentos por vencer | lunes, 08:15           |
+| `respaldo:crear` – respaldo de la base de datos           | todos los días, 02:00  |
+| `morosos:recordar` – recordatorio a familias morosas      | lunes a viernes, 09:00 |
+
+Los respaldos quedan en `storage/app/private/backups` (se guardan los últimos `BACKUPS_KEEP`) y se descargan desde **Admin › Configuración**. Descarga uno al mes y guárdalo en Google Drive: el respaldo del hosting no basta.
+
+Los recordatorios automáticos se activan con `AUTO_REMINDERS=true`: llegan por correo a la persona responsable de pagos y, si configuras `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` y una plantilla aprobada por Meta (`WHATSAPP_PAYMENT_TEMPLATE`, con 5 variables: padre, concepto, alumno, monto y fecha de vencimiento), también por WhatsApp. La API de WhatsApp tiene costo por conversación.
 
 ## 7. Permisos de carpetas
 
