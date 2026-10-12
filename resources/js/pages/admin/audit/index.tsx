@@ -45,7 +45,7 @@ function show(value: unknown): string {
         return '—';
     }
 
-    return typeof value === 'object' ? JSON.stringify(value) : String(value);
+    return typeof value === 'string' ? value : JSON.stringify(value);
 }
 
 function Changes({ log }: { log: LogRow }) {

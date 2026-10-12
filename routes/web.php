@@ -118,6 +118,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('pagos', [BillingController::class, 'index'])->name('billing.index');
         Route::post('pagos/generar', [BillingController::class, 'generate'])->name('billing.generate');
+        Route::post('pagos/cargos', [BillingController::class, 'storeBulkCharge'])->name('billing.charges.bulk');
         Route::post('pagos', [BillingController::class, 'storePayment'])->name('billing.payments.store');
         Route::post('pagos/{payment}/confirmar', [BillingController::class, 'confirm'])->name('billing.payments.confirm');
         Route::post('pagos/{payment}/rechazar', [BillingController::class, 'reject'])->name('billing.payments.reject');

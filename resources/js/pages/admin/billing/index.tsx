@@ -1,19 +1,141 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { AlertTriangle, CalendarPlus, Check, Search, X } from 'lucide-react';
+import { Form, Head, Link, router } from '@inertiajs/react';
+import {
+    AlertTriangle,
+    CalendarPlus,
+    Check,
+    Layers,
+    Search,
+    X,
+} from 'lucide-react';
+import BillingController from '@/actions/App/Http/Controllers/Admin/BillingController';
 import { useState } from 'react';
 import { ChargeStatusBadge } from '@/components/billing/charge-status';
 import { day, money } from '@/components/billing/format';
 import { PaymentHistory } from '@/components/billing/payment-history';
 import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
 import { NativeSelect } from '@/components/school/native-select';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     confirm as confirmPayment,
     reject as rejectPayment,
 } from '@/routes/admin/billing/payments';
 import { debtors, generate, index, student } from '@/routes/admin/billing';
 import type { Charge, PaymentRecord } from '@/types';
+
+function BulkChargeDialog({
+    classrooms,
+}: {
+    classrooms: { value: number; label: string }[];
+}) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline">
+                    <Layers /> Cargo masivo
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>
+                        Cargo para un salón o todo el colegio
+                    </DialogTitle>
+                </DialogHeader>
+                <Form
+                    {...BillingController.storeBulkCharge.form()}
+                    options={{ preserveScroll: true }}
+                    onSuccess={() => setOpen(false)}
+                    className="grid gap-3"
+                >
+                    {({ errors, processing }) => (
+                        <>
+                            <div className="grid gap-1">
+                                <Label htmlFor="bulk-classroom">Para</Label>
+                                <NativeSelect
+                                    id="bulk-classroom"
+                                    name="classroom_id"
+                                    placeholder="Todo el colegio"
+                                    options={classrooms}
+                                />
+                            </div>
+                            <div className="grid gap-1">
+                                <Label htmlFor="bulk-concept">Concepto</Label>
+                                <NativeSelect
+                                    id="bulk-concept"
+                                    name="concept"
+                                    defaultValue="otro"
+                                    options={[
+                                        {
+                                            value: 'otro',
+                                            label: 'Otro (materiales, uniforme, paseo…)',
+                                        },
+                                        {
+                                            value: 'matricula',
+                                            label: 'Matrícula',
+                                        },
+                                    ]}
+                                />
+                            </div>
+                            <div className="grid gap-1">
+                                <Label htmlFor="bulk-description">
+                                    Descripción
+                                </Label>
+                                <Input
+                                    id="bulk-description"
+                                    name="description"
+                                    placeholder="Materiales educativos 2026"
+                                />
+                                <InputError message={errors.description} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="grid gap-1">
+                                    <Label htmlFor="bulk-amount">
+                                        Monto (S/)
+                                    </Label>
+                                    <Input
+                                        id="bulk-amount"
+                                        name="amount"
+                                        type="number"
+                                        min={0}
+                                        step="0.01"
+                                    />
+                                    <InputError message={errors.amount} />
+                                </div>
+                                <div className="grid gap-1">
+                                    <Label htmlFor="bulk-due">Vence el</Label>
+                                    <Input
+                                        id="bulk-due"
+                                        name="due_on"
+                                        type="date"
+                                    />
+                                    <InputError message={errors.due_on} />
+                                </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Se omite a quien ya tenga un cargo vigente con
+                                la misma descripción.
+                            </p>
+                            <Button type="submit" disabled={processing}>
+                                Agregar cargo
+                            </Button>
+                        </>
+                    )}
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 type Row = Charge & {
     student: { id: number; name: string };
@@ -89,6 +211,7 @@ export default function BillingIndex({
                                 <AlertTriangle /> Morosos
                             </Link>
                         </Button>
+                        <BulkChargeDialog classrooms={classrooms} />
                         <Button
                             onClick={() =>
                                 router.post(

@@ -225,4 +225,24 @@ class BillingTest extends TestCase
         $this->artisan('morosos:recordar')->expectsOutputToContain('omitidos: 1');
         $this->assertSame(2, Reminder::count());
     }
+
+    public function test_individual_and_bulk_extra_charges_do_not_collide_or_duplicate(): void
+    {
+        $this->actingAs($this->admin)->post(route('admin.billing.charges.store', $this->sofia), [
+            'concept' => 'otro', 'description' => 'Uniforme', 'amount' => 80, 'due_on' => '2026-10-30',
+        ])->assertSessionHasNoErrors();
+        $this->actingAs($this->admin)->post(route('admin.billing.charges.store', $this->sofia), [
+            'concept' => 'otro', 'description' => 'Paseo', 'amount' => 25, 'due_on' => '2026-10-30',
+        ])->assertSessionHasNoErrors();
+
+        $bulk = ['concept' => 'otro', 'description' => 'Materiales 2026', 'amount' => 120, 'due_on' => '2026-11-05'];
+        $this->actingAs($this->admin)->post(route('admin.billing.charges.bulk'), $bulk)->assertSessionHasNoErrors();
+        $this->actingAs($this->admin)->post(route('admin.billing.charges.bulk'), $bulk)->assertSessionHasNoErrors();
+
+        $this->assertSame(1, Charge::where('description', 'Materiales 2026')->count());
+        $this->assertSame(3, Charge::where('concept', 'otro')->count());
+
+        $this->actingAs($this->admin)->get(route('admin.billing.index', ['period' => '2026-10']))
+            ->assertInertia(fn (Assert $page) => $page->has('charges', 2));
+    }
 }

@@ -6,13 +6,15 @@ import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
 import { ModuleCard } from '@/components/school/module-card';
 import { ClassroomTile } from '@/pages/classrooms/index';
-import { show } from '@/routes/classrooms';
 import { dashboard } from '@/routes';
 import { index as billing } from '@/routes/admin/billing';
+import { index as complaints } from '@/routes/admin/complaints';
 import { index as adminDocuments } from '@/routes/admin/documents';
+import { index as leads } from '@/routes/admin/leads';
 import { index as announcementsRoute } from '@/routes/announcements';
 import { mine as myInduction } from '@/routes/induction';
 import { index as myPayments } from '@/routes/payments';
+import { show as showStudent } from '@/routes/students';
 import type {
     AlbumCard as Album,
     Announcement,
@@ -38,6 +40,8 @@ type Props = {
         overdue: number;
         pending_vouchers: number;
         expiring_documents: number;
+        new_leads: number;
+        open_complaints: number;
     } | null;
 };
 
@@ -105,6 +109,30 @@ export default function Dashboard({
                     </Link>
                 )}
 
+                {finance &&
+                    (finance.new_leads > 0 || finance.open_complaints > 0) && (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            {finance.new_leads > 0 && (
+                                <Link
+                                    href={leads({ query: { status: 'nuevo' } })}
+                                    className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 text-sm font-medium text-sky-950 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100"
+                                >
+                                    🎒 {finance.new_leads} familia(s) nuevas
+                                    pidieron información de admisión.
+                                </Link>
+                            )}
+                            {finance.open_complaints > 0 && (
+                                <Link
+                                    href={complaints()}
+                                    className="rounded-2xl border-2 border-red-300 bg-red-50 p-4 text-sm font-medium text-red-950 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100"
+                                >
+                                    📕 {finance.open_complaints} reclamo(s) por
+                                    responder en el Libro de Reclamaciones.
+                                </Link>
+                            )}
+                        </div>
+                    )}
+
                 {finance && finance.expiring_documents > 0 && (
                     <Link
                         href={adminDocuments({ query: { expiring: 1 } })}
@@ -164,7 +192,7 @@ export default function Dashboard({
                                 child.classroom ? (
                                     <Link
                                         key={child.id}
-                                        href={show(child.classroom.id)}
+                                        href={showStudent(child.id)}
                                         className="flex items-center gap-4 rounded-2xl border p-4 shadow-sm transition hover:shadow-md"
                                         style={{
                                             backgroundColor: `${child.classroom.color}1f`,

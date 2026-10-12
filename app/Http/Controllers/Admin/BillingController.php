@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentRequest;
 use App\Models\Charge;
 use App\Models\Classroom;
+use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Models\Reminder;
 use App\Models\SchoolYear;
@@ -20,6 +21,7 @@ use App\Services\PaymentReminders;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -163,12 +165,57 @@ class BillingController extends Controller
         $enrollment->charges()->create([
             ...$data,
             'student_id' => $student->id,
-            // Las cuotas "otro" llevan un periodo único para no chocar con la regla de no duplicar.
-            'period' => $data['concept'] === ChargeConcept::Enrollment->value ? null : now()->format('YmdHis'),
+            // Sin periodo: la regla de "una mensualidad por mes" solo aplica a mensualidades.
+            'period' => null,
             'created_by' => $request->user()->id,
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Cuota agregada.']);
+
+        return back();
+    }
+
+    /**
+     * Cargo para todo el salón o todo el colegio (materiales, uniforme, paseo…).
+     * No duplica: omite a quien ya tiene un cargo vigente con la misma descripción.
+     */
+    public function storeBulkCharge(Request $request): RedirectResponse
+    {
+        $year = SchoolYear::current();
+        abort_unless($year, 422, 'No hay un año escolar activo.');
+
+        $data = $request->validate([
+            'classroom_id' => ['nullable', 'integer', Rule::exists('classrooms', 'id')->where('school_year_id', $year->id)],
+            'concept' => ['required', Rule::in([ChargeConcept::Enrollment->value, ChargeConcept::Other->value])],
+            'description' => ['required', 'string', 'max:150'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:99999'],
+            'due_on' => ['required', 'date'],
+        ], [], ['description' => 'descripción', 'amount' => 'monto', 'due_on' => 'vencimiento', 'classroom_id' => 'salón']);
+
+        $created = DB::transaction(function () use ($data, $year, $request) {
+            $enrollments = Enrollment::query()
+                ->where('school_year_id', $year->id)
+                ->where('status', 'active')
+                ->when($data['classroom_id'] ?? null, fn ($q, $id) => $q->where('classroom_id', $id))
+                ->whereDoesntHave('charges', fn ($q) => $q->whereNull('voided_at')->where('description', $data['description']))
+                ->get();
+
+            foreach ($enrollments as $enrollment) {
+                $enrollment->charges()->create([
+                    'student_id' => $enrollment->student_id,
+                    'concept' => $data['concept'],
+                    'description' => $data['description'],
+                    'amount' => $data['amount'],
+                    'due_on' => $data['due_on'],
+                    'period' => null,
+                    'created_by' => $request->user()->id,
+                ]);
+            }
+
+            return $enrollments->count();
+        });
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Cargo agregado a {$created} alumno(s)."]);
 
         return back();
     }

@@ -9,7 +9,9 @@ use App\Enums\Role;
 use App\Models\Announcement;
 use App\Models\Charge;
 use App\Models\Classroom;
+use App\Models\Complaint;
 use App\Models\Document;
+use App\Models\Lead;
 use App\Models\LearningModule;
 use App\Models\Payment;
 use App\Models\SchoolYear;
@@ -94,6 +96,8 @@ class DashboardController extends Controller
                 ->sum(fn (Charge $charge) => max(0, $charge->balance())), 2),
             'pending_vouchers' => Payment::where('status', PaymentStatus::Pending)->count(),
             'expiring_documents' => Document::whereNotNull('expires_on')->where('expires_on', '<=', today()->addDays(30))->count(),
+            'new_leads' => Lead::where('status', 'nuevo')->count(),
+            'open_complaints' => Complaint::whereNull('responded_at')->count(),
         ] : null;
 
         return Inertia::render('dashboard', [
