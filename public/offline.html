@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Sin conexión · Villa Jardín</title>
+        <style>
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: grid;
+                place-items: center;
+                background: #fffaf0;
+                color: #1e293b;
+                font-family: system-ui, sans-serif;
+                text-align: center;
+                padding: 16px;
+            }
+            img {
+                width: 96px;
+                height: 96px;
+            }
+            button {
+                margin-top: 16px;
+                border: 0;
+                border-radius: 999px;
+                background: #16a34a;
+                color: #fff;
+                padding: 12px 24px;
+                font-size: 16px;
+                font-weight: 600;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <img src="/icon-192.png" alt="" />
+            <h1>Sin conexión a internet</h1>
+            <p>Revisa tu conexión y vuelve a intentarlo.</p>
+            <button onclick="location.reload()">Reintentar</button>
+        </main>
+    </body>
+</html>

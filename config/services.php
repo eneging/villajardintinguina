@@ -41,4 +41,13 @@ return [
         'folder' => env('CLOUDINARY_FOLDER', 'villajardin/local'),
     ],
 
+    // WhatsApp Cloud API (opcional, con costo por mensaje y plantilla aprobada por Meta).
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_number_id' => env('WHATSAPP_PHONE_NUMBER_ID'),
+        'payment_template' => env('WHATSAPP_PAYMENT_TEMPLATE', 'recordatorio_pago'),
+        'language' => env('WHATSAPP_LANGUAGE', 'es'),
+        'api_version' => env('WHATSAPP_API_VERSION', 'v21.0'),
+    ],
+
 ];

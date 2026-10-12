@@ -16,6 +16,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\BillingService;
 use App\Services\CloudinaryService;
+use App\Services\PaymentReminders;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -263,6 +264,19 @@ class BillingController extends Controller
             ]),
             'school' => config('school.name'),
         ]);
+    }
+
+    /**
+     * Envía de una vez el recordatorio por correo (y WhatsApp API si está configurado)
+     * a todas las familias morosas que no recibieron uno en los últimos días.
+     */
+    public function remindAll(Request $request, PaymentReminders $reminders): RedirectResponse
+    {
+        $result = $reminders->sendAll($request->user());
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Recordatorios enviados: {$result['sent']}. Omitidos por envío reciente: {$result['skipped']}. Sin correo ni WhatsApp: {$result['failed']}."]);
+
+        return back();
     }
 
     /**

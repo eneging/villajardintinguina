@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
+import BillingController from '@/actions/App/Http/Controllers/Admin/BillingController';
 import { day, money } from '@/components/billing/format';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
@@ -57,10 +58,29 @@ export default function Debtors({
         <>
             <Head title="Morosos" />
             <div className="space-y-6 p-4">
-                <Heading
-                    title="Morosos"
-                    description={`${debtors.length} familia${debtors.length === 1 ? '' : 's'} con cuotas vencidas · ${money(total)} por cobrar.`}
-                />
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                    <Heading
+                        title="Morosos"
+                        description={`${debtors.length} familia${debtors.length === 1 ? '' : 's'} con cuotas vencidas · ${money(total)} por cobrar.`}
+                    />
+                    {debtors.length > 0 && (
+                        <Button
+                            variant="outline"
+                            onClick={() =>
+                                confirm(
+                                    'Se enviará un recordatorio por correo (y por WhatsApp automático si está configurado) a las familias que no recibieron uno en los últimos días. ¿Continuar?',
+                                ) &&
+                                router.post(
+                                    BillingController.remindAll.url(),
+                                    {},
+                                    { preserveScroll: true },
+                                )
+                            }
+                        >
+                            <Send /> Recordar a todos
+                        </Button>
+                    )}
+                </div>
 
                 {debtors.length === 0 && (
                     <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">

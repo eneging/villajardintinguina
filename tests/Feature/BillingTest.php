@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\PaymentStatus;
+use App\Mail\PaymentReminder;
 use App\Models\Charge;
 use App\Models\Classroom;
 use App\Models\Enrollment;
 use App\Models\Media;
 use App\Models\Payment;
+use App\Models\Reminder;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\BillingService;
@@ -16,6 +18,8 @@ use Carbon\CarbonImmutable;
 use Database\Seeders\DemoSeeder;
 use Database\Seeders\SchoolSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -197,5 +201,28 @@ class BillingTest extends TestCase
 
         $this->actingAs($this->admin)->post(route('admin.billing.charges.annul', $charge))->assertStatus(422);
         $this->assertNull($charge->fresh()->voided_at);
+    }
+
+    public function test_automatic_reminders_by_email_and_whatsapp_respect_interval(): void
+    {
+        Mail::fake();
+        Http::fake(['graph.facebook.com/*' => Http::response(['messages' => [['id' => 'wamid.1']]])]);
+        config(['services.whatsapp.token' => 't', 'services.whatsapp.phone_number_id' => '123', 'services.whatsapp.payment_template' => 'recordatorio_pago']);
+        $this->parent->update(['phone' => '987 654 321']);
+        $this->billing()->generateMonthly('2026-09');
+
+        $this->artisan('morosos:recordar')->expectsOutputToContain('desactivados');
+        Mail::assertNothingSent();
+
+        $this->actingAs($this->admin)->post(route('admin.billing.remind-all'))->assertRedirect();
+
+        Mail::assertSent(PaymentReminder::class, fn ($mail) => $mail->hasTo($this->parent->email));
+        Http::assertSent(fn ($request) => $request['to'] === '51987654321' && $request['template']['name'] === 'recordatorio_pago');
+        $this->assertSame(2, Reminder::count());
+
+        // Dentro del intervalo no se vuelve a enviar.
+        config(['school.auto_reminders' => true]);
+        $this->artisan('morosos:recordar')->expectsOutputToContain('omitidos: 1');
+        $this->assertSame(2, Reminder::count());
     }
 }

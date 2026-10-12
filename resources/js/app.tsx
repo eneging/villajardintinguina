@@ -38,3 +38,10 @@ void createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+// PWA: permite instalar la plataforma en el celular (solo en producción).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        void navigator.serviceWorker.register('/sw.js');
+    });
+}

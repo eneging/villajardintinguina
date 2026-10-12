@@ -6,6 +6,7 @@ use App\Models\Complaint;
 use App\Models\Document;
 use App\Services\BillingService;
 use App\Services\DatabaseBackup;
+use App\Services\PaymentReminders;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schedule;
@@ -70,3 +71,16 @@ Artisan::command('respaldo:crear', function (DatabaseBackup $backup) {
 })->purpose('Respalda la base de datos en storage/app/private/backups (se conservan los últimos)');
 
 Schedule::command('respaldo:crear')->dailyAt('02:00');
+
+Artisan::command('morosos:recordar {--forzar : Envía aunque AUTO_REMINDERS esté desactivado}', function (PaymentReminders $reminders) {
+    if (! config('school.auto_reminders') && ! $this->option('forzar')) {
+        $this->info('Recordatorios automáticos desactivados (AUTO_REMINDERS=false).');
+
+        return;
+    }
+
+    $result = $reminders->sendAll();
+    $this->info("Recordatorios enviados: {$result['sent']} · omitidos: {$result['skipped']} · sin canal: {$result['failed']}");
+})->purpose('Envía recordatorios de pago a las familias con cuotas vencidas');
+
+Schedule::command('morosos:recordar')->weekdays()->at('09:00');

@@ -61,6 +61,10 @@ return [
 
     // Plazo legal de respuesta del Libro de Reclamaciones (días hábiles).
     // Respaldos diarios de la base de datos que se conservan en el servidor.
+    // Recordatorios automáticos a morosos (correo y WhatsApp API si está configurado).
+    'auto_reminders' => (bool) env('AUTO_REMINDERS', false),
+    'reminder_interval_days' => (int) env('REMINDER_INTERVAL_DAYS', 7),
+
     'backups_keep' => (int) env('BACKUPS_KEEP', 14),
     'backups_path' => env('BACKUPS_PATH'),
 

@@ -125,6 +125,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('pagos/alumno/{student}/cuotas', [BillingController::class, 'storeCharge'])->name('billing.charges.store');
         Route::post('cuotas/{charge}/anular', [BillingController::class, 'voidCharge'])->name('billing.charges.annul');
         Route::get('morosos', [BillingController::class, 'debtors'])->name('billing.debtors');
+        Route::post('morosos/recordatorios', [BillingController::class, 'remindAll'])->middleware('throttle:3,1')->name('billing.remind-all');
         Route::post('morosos/{user}/recordatorio', [BillingController::class, 'remind'])->name('billing.remind');
 
         Route::get('asistencia-personal', [AdminStaffAttendanceController::class, 'index'])->name('staff-attendance.index');
