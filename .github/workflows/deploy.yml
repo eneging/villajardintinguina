@@ -1,0 +1,105 @@
+name: deploy
+
+# Publica en el hosting compartido por FTP.
+# Secretos necesarios (Settings → Secrets and variables → Actions):
+#   FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
+#   FTP_APP_DIR      carpeta del proyecto en el servidor, p. ej. /villajardin/
+#   FTP_PUBLIC_DIR   (opcional) p. ej. /public_html/ si el hosting obliga a usar public_html
+#   APP_URL          p. ej. https://villajardin.edu.pe
+#   DEPLOY_TOKEN     el mismo valor que DEPLOY_TOKEN en el .env del servidor
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      FTP_PUBLIC_DIR: ${{ secrets.FTP_PUBLIC_DIR }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, gd, intl, zip, bcmath
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+
+      - name: Install PHP dependencies (producción)
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-scripts
+
+      - name: Build assets
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          npm ci
+          npm run build
+          rm .env
+
+      - name: Upload application
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_APP_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
+            tests/**
+            deploy/**
+            .env
+            storage/logs/*.log
+            storage/framework/sessions/*
+            storage/framework/cache/data/*
+            storage/framework/views/*.php
+            database/database.sqlite
+
+      - name: Prepare public_html (opcional)
+        if: ${{ env.FTP_PUBLIC_DIR != '' }}
+        run: |
+          mkdir -p dist-public
+          cp -r public/. dist-public/
+          cp deploy/public_html/index.php dist-public/index.php
+
+      - name: Sync public_html
+        if: ${{ env.FTP_PUBLIC_DIR != '' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist-public/
+          server-dir: ${{ env.FTP_PUBLIC_DIR }}
+
+      - name: Post-deploy (migraciones y cachés)
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          curl --fail-with-body -sS -X POST "$APP_URL/_deploy" \
+            -H "X-Deploy-Token: $DEPLOY_TOKEN" -H "Accept: application/json"

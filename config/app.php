@@ -16,6 +16,13 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
+    | Token para ejecutar las tareas de despliegue por HTTP (hosting sin SSH).
+    | Vacío = ruta desactivada.
+    */
+
+    'deploy_token' => env('DEPLOY_TOKEN', ''),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------

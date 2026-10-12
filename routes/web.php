@@ -16,6 +16,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\InductionController;
@@ -25,9 +26,16 @@ use App\Http\Controllers\Parent\PaymentController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+// Tareas de despliegue en hosting sin SSH (protegido por DEPLOY_TOKEN).
+Route::post('_deploy', DeployController::class)
+    ->withoutMiddleware(ValidateCsrfToken::class)
+    ->middleware('throttle:5,1')
+    ->name('deploy');
 
 // Libro de Reclamaciones Virtual (público, obligatorio por INDECOPI).
 Route::get('libro-de-reclamaciones', [ComplaintController::class, 'create'])->name('complaints.create');

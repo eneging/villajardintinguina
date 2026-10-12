@@ -52,6 +52,13 @@ return [
         'fee_retention_threshold' => 1500,
     ],
 
+    // Primera administradora (la crea `php artisan escuela:instalar`).
+    'install' => [
+        'admin_email' => env('INSTALL_ADMIN_EMAIL'),
+        'admin_name' => env('INSTALL_ADMIN_NAME', 'Administradora'),
+        'admin_password' => env('INSTALL_ADMIN_PASSWORD'),
+    ],
+
     // Plazo legal de respuesta del Libro de Reclamaciones (días hábiles).
     'complaint_response_days' => 15,
 

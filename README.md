@@ -5,6 +5,7 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 **Stack:** Laravel 13 · Inertia.js · React 19 + TypeScript · Tailwind · **MySQL / MariaDB** · Cloudinary — pensado para desplegarse en un **hosting compartido** (cPanel, PHP 8.3+).
 
 - Arquitectura, módulos y plan por fases: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
+- **Publicar en el hosting (cPanel):** [`docs/DESPLIEGUE.md`](docs/DESPLIEGUE.md)
 
 ## Qué hay implementado
 
@@ -18,6 +19,9 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 - **Pagos y morosidad**: mensualidades automáticas (con descuento por alumno), matrícula y otros cobros; pagos en efectivo, transferencia, Yape, Plin o tarjeta que pueden cubrir varios meses; foto del voucher y de la boleta/factura; los padres reportan su pago con voucher y la administradora lo confirma o rechaza; panel de morosos con recordatorio por WhatsApp registrado.
 - **Asistencia**: alumnos por salón (presente, tardanza, falta, justificada; hora de llegada, salida y quién lo recogió), reporte mensual y calendario para los padres; marcación de entrada y salida del personal con tardanza automática y ubicación opcional, resumen mensual y registro manual de la administradora.
 - **Planilla y balance**: trabajadores (planilla, honorarios o prácticas; ONP/AFP), planilla mensual calculada con la asistencia (faltas = sueldo ÷ 30, tardanzas opcionales), bonos y descuentos, aprobación, pago con voucher y boleta imprimible (el personal ve las suyas); gastos por categoría, otros ingresos (sorteos, eventos) y balance mensual con gráfico de 12 meses y exportación a Excel.
+- **Eventos y sorteos**: eventos con tema festivo y formulario personalizable (respuestas exportables), sorteos con tickets numerados y sorteo en vivo verificable; lo recaudado entra al balance.
+- **Documentos** del colegio, de alumnos y del personal, con permisos, enlace temporal y avisos de vencimiento.
+- **Comunicados** generales o por salón, reenviables por WhatsApp.
 - **Subida directa a Cloudinary** firmada por Laravel (archivos de salones e inducción con entrega `authenticated`).
 
 ## Desarrollo local
