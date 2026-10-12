@@ -8,13 +8,15 @@ import type { AlbumCard as Album } from '@/types';
 export function AlbumCard({
     album,
     color = '#16a34a',
+    href,
 }: {
     album: Album;
     color?: string;
+    href?: string;
 }) {
     return (
         <Link
-            href={show(album.id)}
+            href={href ?? show(album.id)}
             className="group overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
         >
             <div

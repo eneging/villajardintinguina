@@ -93,7 +93,7 @@ class MediaController extends Controller
     private function contextRules(): array
     {
         return [
-            'context' => ['sometimes', 'in:classroom,induction,payment,event,document'],
+            'context' => ['sometimes', 'in:classroom,induction,payment,event,document,site'],
             'classroom_id' => ['required_if:context,classroom', 'required_without:context', 'nullable', 'integer', 'exists:classrooms,id'],
         ];
     }
@@ -103,10 +103,14 @@ class MediaController extends Controller
      */
     private function authorizedFolder(Request $request, array $data): string
     {
-        if (in_array($data['context'] ?? null, ['event', 'document'], true)) {
+        if (in_array($data['context'] ?? null, ['event', 'document', 'site'], true)) {
             abort_unless($request->user()->isAdmin(), 403);
 
-            return $data['context'] === 'event' ? 'eventos' : 'documentos';
+            return match ($data['context']) {
+                'event' => 'eventos',
+                'site' => 'sitio',
+                default => 'documentos',
+            };
         }
 
         if (($data['context'] ?? 'classroom') === 'payment') {

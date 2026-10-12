@@ -53,3 +53,8 @@ export const areaColors: Record<string, string> = {
     ingles: 'bg-indigo-100 text-indigo-800',
     arte: 'bg-yellow-100 text-yellow-800',
 };
+
+/** Mapa de Google embebido sin API key a partir de una dirección o nombre. */
+export function mapEmbedUrl(query: string): string {
+    return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
+}

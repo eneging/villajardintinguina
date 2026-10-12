@@ -1,332 +1,432 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
-    BookOpen,
-    Camera,
-    HeartHandshake,
+    ArrowRight,
+    Clock,
     MessageCircle,
-    Music,
-    ShieldCheck,
-    Soup,
+    PlayCircle,
+    Quote,
     Sparkles,
 } from 'lucide-react';
-import AppLogoIcon from '@/components/app-logo-icon';
-import { dashboard, login } from '@/routes';
-import { create as complaintsCreate } from '@/routes/complaints';
+import { AlbumCard } from '@/components/gallery/album-card';
+import { PublicLayout, whatsappLink } from '@/components/school/public-layout';
+import { SiteIcon } from '@/components/school/site-icon';
+import { mapEmbedUrl, youtubeEmbedUrl } from '@/lib/school';
+import { about, admission, photos, services, videos } from '@/routes';
+import { show as photoAlbum } from '@/routes/photos';
+import { show as videoShow } from '@/routes/videos';
+import type {
+    AlbumCard as Album,
+    PublicLessonCard,
+    SiteHero,
+    SiteIconItem,
+    SiteLevel,
+    SiteScheduleItem,
+    SiteTestimonial,
+} from '@/types';
 
-// Textos provisionales: se reemplazarán por contenido editable desde la intranet.
-const levels = [
-    {
-        name: 'Guardería / Cuna',
-        age: 'Desde los 6 meses',
-        mascot: '🐣',
-        color: '#f59e0b',
-        text: 'Cuidado amoroso, estimulación temprana y rutinas de sueño y alimentación.',
-    },
-    {
-        name: 'Inicial 3 años',
-        age: 'Salón Patitos',
-        mascot: '🐥',
-        color: '#0ea5e9',
-        text: 'Autonomía, lenguaje y juego libre para descubrir el mundo.',
-    },
-    {
-        name: 'Inicial 4 años',
-        age: 'Salón Ositos',
-        mascot: '🐻',
-        color: '#22c55e',
-        text: 'Proyectos, arte y psicomotricidad para crecer con confianza.',
-    },
-    {
-        name: 'Inicial 5 años',
-        age: 'Salón Leoncitos',
-        mascot: '🦁',
-        color: '#ef4444',
-        text: 'Preparación para primaria: pre-escritura, lógica y valores.',
-    },
-];
+type Props = {
+    content: {
+        hero: SiteHero;
+        levels: { items: SiteLevel[] };
+        services: { items: SiteIconItem[] };
+        testimonials: { items: SiteTestimonial[] };
+        schedule: { items: SiteScheduleItem[] };
+        admission: { open: boolean };
+    };
+    videos: PublicLessonCard[];
+    albums: Album[];
+};
 
-const features = [
-    {
-        icon: HeartHandshake,
-        title: 'Maestras con vocación',
-        text: 'Docentes tituladas que acompañan a cada niño con cariño y paciencia.',
-    },
-    {
-        icon: BookOpen,
-        title: 'Papás informados',
-        text: 'Cada semana publicamos en la plataforma lo que aprenderán sus hijos.',
-    },
-    {
-        icon: Music,
-        title: 'Talleres',
-        text: 'Música, inglés, arte y psicomotricidad como parte de la jornada.',
-    },
-    {
-        icon: Soup,
-        title: 'Alimentación',
-        text: 'Loncheras y menús balanceados pensados para su edad.',
-    },
-    {
-        icon: ShieldCheck,
-        title: 'Ambiente seguro',
-        text: 'Protocolo de recojo con personas autorizadas y espacios adaptados.',
-    },
-    {
-        icon: Camera,
-        title: 'Momentos compartidos',
-        text: 'Fotos y videos de las actividades en la galería privada de cada salón.',
-    },
-];
-
-export default function Welcome() {
-    const { auth, school } = usePage().props;
-    const whatsapp = `https://wa.me/${school.whatsapp}?text=${encodeURIComponent('¡Hola! Quisiera información sobre la matrícula en EP Villa Jardín.')}`;
+export default function Welcome({ content, videos: lessons, albums }: Props) {
+    const { school, contact } = usePage().props;
+    const { hero, levels, testimonials, schedule } = content;
+    const whatsapp = whatsappLink(
+        school.whatsapp,
+        '¡Hola! Quisiera información sobre la matrícula en EP Villa Jardín.',
+    );
+    const youtube = hero.video_url ? youtubeEmbedUrl(hero.video_url) : null;
 
     return (
-        <>
+        <PublicLayout width="full">
             <Head title="Educación inicial y guardería en Ica" />
 
-            <div className="min-h-screen bg-[#fffaf0] text-slate-800">
-                <header className="sticky top-0 z-20 border-b border-amber-100 bg-[#fffaf0]/90 backdrop-blur">
-                    <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-                        <a href="#inicio" className="flex items-center gap-2">
-                            <AppLogoIcon className="size-9 fill-green-600" />
-                            <span className="font-display text-xl leading-none font-bold text-green-700">
-                                Villa Jardín
+            <section id="inicio" className="relative overflow-hidden">
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute -top-24 -left-24 size-72 rounded-full bg-amber-200/60 blur-3xl"
+                />
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute top-40 -right-20 size-72 rounded-full bg-sky-200/60 blur-3xl"
+                />
+                <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
+                    <div className="space-y-6">
+                        {hero.badge && (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm font-medium text-green-700 shadow-sm">
+                                <Sparkles className="size-4" /> {hero.badge}
                             </span>
-                        </a>
-                        <div className="hidden items-center gap-6 text-sm font-medium md:flex">
-                            <a href="#niveles" className="hover:text-green-700">
-                                Niveles
-                            </a>
-                            <a href="#por-que" className="hover:text-green-700">
-                                ¿Por qué elegirnos?
-                            </a>
-                            <a
-                                href="#conocenos"
-                                className="hover:text-green-700"
-                            >
-                                Conócenos
-                            </a>
-                            <a
-                                href="#contacto"
-                                className="hover:text-green-700"
-                            >
-                                Contacto
-                            </a>
-                        </div>
-                        <Link
-                            href={auth.user ? dashboard() : login()}
-                            className="rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
-                        >
-                            {auth.user ? 'Mi plataforma' : 'Ingresar'}
-                        </Link>
-                    </nav>
-                </header>
-
-                <main>
-                    <section id="inicio" className="relative overflow-hidden">
-                        <div
-                            aria-hidden
-                            className="pointer-events-none absolute -top-24 -left-24 size-72 rounded-full bg-amber-200/60 blur-3xl"
-                        />
-                        <div
-                            aria-hidden
-                            className="pointer-events-none absolute top-40 -right-20 size-72 rounded-full bg-sky-200/60 blur-3xl"
-                        />
-                        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
-                            <div className="space-y-6">
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-sm font-medium text-green-700 shadow-sm">
-                                    <Sparkles className="size-4" /> Matrículas
-                                    abiertas
+                        )}
+                        <h1 className="font-display text-4xl leading-[1.05] font-extrabold text-slate-900 sm:text-5xl lg:text-6xl">
+                            {hero.title}{' '}
+                            {hero.highlight && (
+                                <span className="text-green-600">
+                                    {hero.highlight}
                                 </span>
-                                <h1 className="font-display text-4xl leading-[1.05] font-extrabold text-slate-900 sm:text-5xl lg:text-6xl">
-                                    Donde los niños{' '}
-                                    <span className="text-green-600">
-                                        florecen
-                                    </span>{' '}
-                                    jugando y aprendiendo
-                                </h1>
-                                <p className="max-w-lg text-lg text-slate-600">
-                                    Colegio de educación inicial y guardería en
-                                    Ica. Un segundo hogar lleno de color, cariño
-                                    y aprendizaje para tus hijos de 0 a 5 años.
-                                </p>
-                                <div className="flex flex-wrap gap-3">
-                                    <a
-                                        href={whatsapp}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="inline-flex items-center gap-2 rounded-full bg-[#25d366] px-6 py-3 font-semibold text-white shadow-md transition hover:brightness-95"
-                                    >
-                                        <MessageCircle className="size-5" />{' '}
-                                        Agenda tu visita
-                                    </a>
-                                    <a
-                                        href="#niveles"
-                                        className="inline-flex items-center rounded-full border-2 border-slate-800 px-6 py-3 font-semibold transition hover:bg-slate-800 hover:text-white"
-                                    >
-                                        Ver niveles
-                                    </a>
-                                </div>
-                            </div>
-                            <div className="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4">
-                                {levels.map((level, index) => (
-                                    <div
-                                        key={level.name}
-                                        className="flex aspect-square flex-col items-center justify-center rounded-[2rem] text-center shadow-lg transition hover:-translate-y-1"
-                                        style={{
-                                            backgroundColor: level.color,
-                                            transform: `rotate(${index % 2 === 0 ? -3 : 3}deg)`,
-                                        }}
-                                    >
-                                        <span className="text-6xl" aria-hidden>
-                                            {level.mascot}
-                                        </span>
-                                        <span className="mt-2 font-display text-lg font-bold text-white">
-                                            {level.age}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="niveles" className="bg-white py-20">
-                        <div className="mx-auto max-w-6xl space-y-10 px-4">
-                            <div className="mx-auto max-w-2xl space-y-3 text-center">
-                                <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-                                    Nuestros niveles
-                                </h2>
-                                <p className="text-slate-600">
-                                    Cada salón tiene su mascota, su color y una
-                                    maestra que conoce a cada niño por su
-                                    nombre.
-                                </p>
-                            </div>
-                            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                                {levels.map((level) => (
-                                    <article
-                                        key={level.name}
-                                        className="rounded-3xl border-b-8 bg-[#fffaf0] p-6 shadow-sm"
-                                        style={{ borderColor: level.color }}
-                                    >
-                                        <div
-                                            className="mb-4 text-5xl"
-                                            aria-hidden
-                                        >
-                                            {level.mascot}
-                                        </div>
-                                        <h3 className="font-display text-xl font-bold">
-                                            {level.name}
-                                        </h3>
-                                        <p
-                                            className="mb-2 text-sm font-medium"
-                                            style={{ color: level.color }}
-                                        >
-                                            {level.age}
-                                        </p>
-                                        <p className="text-sm text-slate-600">
-                                            {level.text}
-                                        </p>
-                                    </article>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="por-que" className="py-20">
-                        <div className="mx-auto max-w-6xl space-y-10 px-4">
-                            <h2 className="text-center font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-                                ¿Por qué Villa Jardín?
-                            </h2>
-                            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                                {features.map(({ icon: Icon, title, text }) => (
-                                    <div
-                                        key={title}
-                                        className="flex gap-4 rounded-3xl bg-white p-6 shadow-sm"
-                                    >
-                                        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700">
-                                            <Icon className="size-6" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold">
-                                                {title}
-                                            </h3>
-                                            <p className="text-sm text-slate-600">
-                                                {text}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-
-                    <section
-                        id="conocenos"
-                        className="bg-green-600 py-20 text-white"
-                    >
-                        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 md:grid-cols-2">
-                            <div className="space-y-4">
-                                <h2 className="font-display text-3xl font-bold sm:text-4xl">
-                                    Conócenos en video
-                                </h2>
-                                <p className="text-green-50">
-                                    Recorre nuestras aulas, conoce a las
-                                    maestras y descubre cómo es un día en Villa
-                                    Jardín. Las familias matriculadas reciben
-                                    además una inducción completa en la
-                                    plataforma.
-                                </p>
-                            </div>
-                            {/* Video de presentación: se configurará desde la intranet (Cloudinary). */}
-                            <div className="flex aspect-video items-center justify-center rounded-3xl bg-green-700/60 text-center text-green-100 ring-4 ring-white/30">
-                                <span className="px-6">
-                                    🎬 Aquí irá el video de presentación del
-                                    colegio
-                                </span>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="contacto" className="py-20">
-                        <div className="mx-auto max-w-3xl space-y-6 px-4 text-center">
-                            <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
-                                ¿Listos para ser parte de la familia?
-                            </h2>
-                            <p className="text-slate-600">
-                                Escríbenos y agenda una visita para conocer el
-                                colegio.
+                            )}{' '}
+                            {hero.title_end}
+                        </h1>
+                        {hero.subtitle && (
+                            <p className="max-w-lg text-lg text-slate-600">
+                                {hero.subtitle}
                             </p>
+                        )}
+                        <div className="flex flex-wrap gap-3">
                             <a
                                 href={whatsapp}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 rounded-full bg-[#25d366] px-8 py-4 text-lg font-semibold text-white shadow-md transition hover:brightness-95"
+                                className="inline-flex items-center gap-2 rounded-full bg-[#25d366] px-6 py-3 font-semibold text-white shadow-md transition hover:brightness-95"
                             >
-                                <MessageCircle className="size-6" /> Escríbenos
-                                por WhatsApp
+                                <MessageCircle className="size-5" /> Agenda tu
+                                visita
                             </a>
+                            {content.admission.open && (
+                                <Link
+                                    href={admission()}
+                                    className="inline-flex items-center rounded-full border-2 border-slate-800 px-6 py-3 font-semibold transition hover:bg-slate-800 hover:text-white"
+                                >
+                                    Solicitar vacante
+                                </Link>
+                            )}
                         </div>
-                    </section>
-                </main>
+                    </div>
+                    {hero.video ? (
+                        <video
+                            src={hero.video.url}
+                            poster={hero.video.thumbnail ?? undefined}
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            className="aspect-[4/3] w-full rounded-[2rem] object-cover shadow-xl ring-8 ring-white"
+                        />
+                    ) : hero.image ? (
+                        <img
+                            src={hero.image.url}
+                            alt=""
+                            className="aspect-[4/3] w-full rotate-1 rounded-[2rem] object-cover shadow-xl ring-8 ring-white"
+                        />
+                    ) : (
+                        <div className="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4">
+                            {levels.items.slice(0, 4).map((level, index) => (
+                                <div
+                                    key={level.name}
+                                    className="flex aspect-square flex-col items-center justify-center rounded-[2rem] text-center shadow-lg transition hover:-translate-y-1"
+                                    style={{
+                                        backgroundColor: level.color,
+                                        transform: `rotate(${index % 2 === 0 ? -3 : 3}deg)`,
+                                    }}
+                                >
+                                    <span className="text-6xl" aria-hidden>
+                                        {level.mascot}
+                                    </span>
+                                    <span className="mt-2 px-2 font-display text-lg font-bold text-white">
+                                        {level.age}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </section>
 
-                <footer className="border-t border-amber-100 bg-white">
-                    <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-slate-500 sm:flex-row">
-                        <p>
-                            © {new Date().getFullYear()} EP Villa Jardín · Ica,
-                            Perú
+            <section id="niveles" className="bg-white py-20">
+                <div className="mx-auto max-w-6xl space-y-10 px-4">
+                    <div className="mx-auto max-w-2xl space-y-3 text-center">
+                        <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+                            Nuestros niveles
+                        </h2>
+                        <p className="text-slate-600">
+                            Cada salón tiene su mascota, su color y una maestra
+                            que conoce a cada niño por su nombre.
                         </p>
+                    </div>
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        {levels.items.map((level) => (
+                            <article
+                                key={level.name}
+                                className="rounded-3xl border-b-8 bg-[#fffaf0] p-6 shadow-sm transition hover:-translate-y-1"
+                                style={{ borderColor: level.color }}
+                            >
+                                <div className="mb-4 text-5xl" aria-hidden>
+                                    {level.mascot}
+                                </div>
+                                <h3 className="font-display text-xl font-bold">
+                                    {level.name}
+                                </h3>
+                                <p
+                                    className="mb-2 text-sm font-medium"
+                                    style={{ color: level.color }}
+                                >
+                                    {level.age}
+                                </p>
+                                <p className="text-sm text-slate-600">
+                                    {level.text}
+                                </p>
+                            </article>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section id="por-que" className="py-20">
+                <div className="mx-auto max-w-6xl space-y-10 px-4">
+                    <h2 className="text-center font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+                        ¿Por qué Villa Jardín?
+                    </h2>
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {content.services.items.slice(0, 6).map((item) => (
+                            <div
+                                key={item.title}
+                                className="flex gap-4 rounded-3xl bg-white p-6 shadow-sm"
+                            >
+                                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700">
+                                    <SiteIcon
+                                        name={item.icon}
+                                        className="size-6"
+                                    />
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold">
+                                        {item.title}
+                                    </h3>
+                                    <p className="text-sm text-slate-600">
+                                        {item.text}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="text-center">
                         <Link
-                            href={complaintsCreate()}
-                            className="inline-flex items-center gap-2 font-medium text-slate-700 hover:underline"
+                            href={services()}
+                            className="inline-flex items-center gap-1 font-semibold text-green-700 hover:underline"
                         >
-                            📕 Libro de Reclamaciones
+                            Ver todos los servicios{' '}
+                            <ArrowRight className="size-4" />
                         </Link>
                     </div>
-                </footer>
-            </div>
-        </>
+                </div>
+            </section>
+
+            <section id="conocenos" className="bg-green-600 py-20 text-white">
+                <div className="mx-auto max-w-6xl space-y-10 px-4">
+                    <div className="grid items-center gap-10 md:grid-cols-2">
+                        <div className="space-y-4">
+                            <h2 className="font-display text-3xl font-bold sm:text-4xl">
+                                Conócenos en video
+                            </h2>
+                            <p className="text-green-50">
+                                Recorre nuestras aulas, conoce a las maestras y
+                                descubre cómo es un día en Villa Jardín. Las
+                                familias matriculadas reciben además una
+                                inducción completa en la plataforma.
+                            </p>
+                            <Link
+                                href={about()}
+                                className="inline-flex items-center gap-1 rounded-full bg-white px-5 py-2 font-semibold text-green-700 transition hover:bg-green-50"
+                            >
+                                Nuestra historia{' '}
+                                <ArrowRight className="size-4" />
+                            </Link>
+                        </div>
+                        {youtube ? (
+                            <iframe
+                                src={youtube}
+                                title="Video de presentación"
+                                className="aspect-video w-full rounded-3xl ring-4 ring-white/30"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        ) : lessons[0] ? (
+                            <Link
+                                href={videoShow(lessons[0].id)}
+                                className="group relative block aspect-video overflow-hidden rounded-3xl bg-green-700/60 ring-4 ring-white/30"
+                            >
+                                {lessons[0].cover?.thumbnail && (
+                                    <img
+                                        src={lessons[0].cover.thumbnail}
+                                        alt=""
+                                        className="size-full object-cover"
+                                    />
+                                )}
+                                <span className="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/30">
+                                    <PlayCircle className="size-16" />
+                                </span>
+                            </Link>
+                        ) : (
+                            <div className="flex aspect-video items-center justify-center rounded-3xl bg-green-700/60 text-center text-green-100 ring-4 ring-white/30">
+                                <span className="px-6">
+                                    🎬 Muy pronto: el video de presentación del
+                                    colegio
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                    {lessons.length > 0 && (
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            {lessons.map((lesson) => (
+                                <Link
+                                    key={lesson.id}
+                                    href={videoShow(lesson.id)}
+                                    className="flex items-center gap-3 rounded-2xl bg-white/10 p-3 transition hover:bg-white/20"
+                                >
+                                    <PlayCircle className="size-8 shrink-0" />
+                                    <span className="font-medium">
+                                        {lesson.title}
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                    {lessons.length > 0 && (
+                        <div className="text-center">
+                            <Link
+                                href={videos()}
+                                className="font-semibold underline-offset-4 hover:underline"
+                            >
+                                Ver todos los videos →
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {albums.length > 0 && (
+                <section id="fotos" className="py-20">
+                    <div className="mx-auto max-w-6xl space-y-10 px-4">
+                        <h2 className="text-center font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+                            Momentos en Villa Jardín
+                        </h2>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            {albums.map((album) => (
+                                <AlbumCard
+                                    key={album.id}
+                                    album={album}
+                                    href={photoAlbum(album.id).url}
+                                />
+                            ))}
+                        </div>
+                        <div className="text-center">
+                            <Link
+                                href={photos()}
+                                className="inline-flex items-center gap-1 font-semibold text-green-700 hover:underline"
+                            >
+                                Ver galería <ArrowRight className="size-4" />
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {testimonials.items.length > 0 && (
+                <section id="testimonios" className="bg-amber-50 py-20">
+                    <div className="mx-auto max-w-6xl space-y-10 px-4">
+                        <h2 className="text-center font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+                            Lo que dicen las familias
+                        </h2>
+                        <div className="grid gap-6 md:grid-cols-3">
+                            {testimonials.items.map((testimonial) => (
+                                <figure
+                                    key={testimonial.name + testimonial.text}
+                                    className="flex flex-col justify-between gap-4 rounded-3xl bg-white p-6 shadow-sm"
+                                >
+                                    <blockquote className="space-y-2">
+                                        <Quote className="size-6 text-amber-400" />
+                                        <p className="text-slate-700">
+                                            {testimonial.text}
+                                        </p>
+                                    </blockquote>
+                                    <figcaption className="text-sm">
+                                        <span className="font-semibold">
+                                            {testimonial.name}
+                                        </span>
+                                        {testimonial.relation && (
+                                            <span className="text-slate-500">
+                                                {' '}
+                                                · {testimonial.relation}
+                                            </span>
+                                        )}
+                                    </figcaption>
+                                </figure>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            <section id="contacto" className="py-20">
+                <div className="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-2">
+                    <div className="space-y-6">
+                        <h2 className="font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+                            ¿Listos para ser parte de la familia?
+                        </h2>
+                        <p className="text-slate-600">
+                            Escríbenos y agenda una visita para conocer el
+                            colegio.
+                        </p>
+                        {schedule.items.length > 0 && (
+                            <ul className="space-y-2">
+                                {schedule.items.map((item) => (
+                                    <li
+                                        key={item.label}
+                                        className="flex gap-3 rounded-2xl bg-white p-3 shadow-sm"
+                                    >
+                                        <Clock className="mt-0.5 size-5 shrink-0 text-green-600" />
+                                        <span>
+                                            <span className="font-semibold">
+                                                {item.label}
+                                            </span>
+                                            <br />
+                                            <span className="text-sm text-slate-600">
+                                                {item.hours}
+                                            </span>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        <div className="flex flex-wrap gap-3">
+                            <a
+                                href={whatsapp}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-2 rounded-full bg-[#25d366] px-6 py-3 font-semibold text-white shadow-md transition hover:brightness-95"
+                            >
+                                <MessageCircle className="size-5" /> Escríbenos
+                                por WhatsApp
+                            </a>
+                            {content.admission.open && (
+                                <Link
+                                    href={admission()}
+                                    className="inline-flex items-center rounded-full border-2 border-slate-800 px-6 py-3 font-semibold transition hover:bg-slate-800 hover:text-white"
+                                >
+                                    Formulario de admisión
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                    {contact.map_query && (
+                        <iframe
+                            title="Ubicación de Villa Jardín"
+                            src={mapEmbedUrl(contact.map_query)}
+                            className="min-h-80 w-full rounded-3xl border-0 shadow-sm"
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                        />
+                    )}
+                </div>
+            </section>
+        </PublicLayout>
     );
 }

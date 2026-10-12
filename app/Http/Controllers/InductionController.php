@@ -270,6 +270,8 @@ class InductionController extends Controller
             'description' => $request->validated('description'),
             'audience' => $request->validated('audience'),
             'is_required' => $request->boolean('is_required'),
+            // Solo la administradora decide qué se muestra en el sitio público.
+            ...($request->user()->isAdmin() ? ['is_public' => $request->boolean('is_public')] : []),
             'status' => $request->validated('status'),
             'position' => $request->validated('position') ?? 0,
             'cover_media_id' => $request->validated('cover_media_id'),
@@ -306,6 +308,7 @@ class InductionController extends Controller
             'description' => $lesson->description,
             'audience' => $lesson->audience->value,
             'is_required' => $lesson->is_required,
+            'is_public' => $lesson->is_public,
             'status' => $lesson->status->value,
             'cover' => $lesson->cover?->toClient(),
             'targets' => $this->targets($lesson),

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
-#[Fillable(['author_id', 'title', 'description', 'audience', 'is_required', 'status', 'position', 'cover_media_id'])]
+#[Fillable(['author_id', 'title', 'description', 'audience', 'is_required', 'is_public', 'status', 'position', 'cover_media_id'])]
 class InductionLesson extends Model
 {
     protected function casts(): array
@@ -21,6 +21,7 @@ class InductionLesson extends Model
             'audience' => InductionAudience::class,
             'status' => ModuleStatus::class,
             'is_required' => 'boolean',
+            'is_public' => 'boolean',
         ];
     }
 

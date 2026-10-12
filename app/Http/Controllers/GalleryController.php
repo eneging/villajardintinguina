@@ -111,9 +111,32 @@ class GalleryController extends Controller
 
         $album->update($data['published']
             ? ['published' => true, 'consent_confirmed_by' => $request->user()->id, 'consent_confirmed_at' => now()]
-            : ['published' => false]);
+            : ['published' => false, 'is_public' => false]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => $data['published'] ? 'Álbum publicado para las familias del salón.' : 'Álbum ocultado.']);
+
+        return back();
+    }
+
+    /**
+     * Mostrar el álbum en la galería del sitio web (solo la administradora).
+     */
+    public function togglePublic(Request $request, Album $album): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        $data = $request->validate([
+            'is_public' => ['required', 'boolean'],
+            'consent_confirmed' => ['exclude_unless:is_public,true', 'accepted'],
+        ], ['consent_confirmed.accepted' => 'Confirma que todas las familias que aparecen autorizaron el uso de imagen en el sitio web.']);
+
+        if ($data['is_public'] && ! $album->published) {
+            throw ValidationException::withMessages(['is_public' => 'Primero publica el álbum para las familias del salón.']);
+        }
+
+        $album->update(['is_public' => $data['is_public']]);
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => $data['is_public'] ? 'El álbum ahora se ve en el sitio web.' : 'El álbum ya no se muestra en el sitio web.']);
 
         return back();
     }

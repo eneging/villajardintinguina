@@ -87,6 +87,7 @@ export type InductionLessonCard = {
     description: string | null;
     audience: 'parents' | 'staff';
     is_required: boolean;
+    is_public?: boolean;
     status: ModuleStatus;
     cover: MediaItem | null;
     targets: InductionTargets;
@@ -213,6 +214,7 @@ export type AlbumCard = {
     description: string | null;
     date: string;
     published: boolean;
+    is_public?: boolean;
     items_count: number;
     cover: MediaItem | null;
     classroom: { id: number; name: string; mascot: string | null } | null;

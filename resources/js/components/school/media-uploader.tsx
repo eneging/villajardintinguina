@@ -12,7 +12,8 @@ export type UploadTarget =
     | { context: 'induction' }
     | { context: 'payment' }
     | { context: 'event' }
-    | { context: 'document' };
+    | { context: 'document' }
+    | { context: 'site' };
 
 type SignedUpload = {
     upload_url: string;

@@ -1,8 +1,9 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     Eye,
     EyeOff,
+    Globe,
     Play,
     ShieldCheck,
     Trash2,
@@ -47,6 +48,7 @@ export default function AlbumShow({
     withoutConsent,
     cloudinaryEnabled,
 }: Props) {
+    const isAdmin = usePage().props.auth.roles.includes('admin');
     const [open, setOpen] = useState<number | null>(null);
     const [captions, setCaptions] = useState<Record<number, string>>(() =>
         Object.fromEntries(items.map((i) => [i.id, i.caption ?? ''])),
@@ -137,18 +139,65 @@ export default function AlbumShow({
                         )}
 
                         {album.published ? (
-                            <Button
-                                variant="outline"
-                                onClick={() =>
-                                    router.post(
-                                        GalleryController.publish.url(album.id),
-                                        { published: false },
-                                        { preserveScroll: true },
-                                    )
-                                }
-                            >
-                                <EyeOff /> Ocultar a las familias
-                            </Button>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() =>
+                                        router.post(
+                                            GalleryController.publish.url(
+                                                album.id,
+                                            ),
+                                            { published: false },
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                >
+                                    <EyeOff /> Ocultar a las familias
+                                </Button>
+                                {isAdmin &&
+                                    (album.is_public ? (
+                                        <Button
+                                            variant="outline"
+                                            onClick={() =>
+                                                router.post(
+                                                    GalleryController.togglePublic.url(
+                                                        album.id,
+                                                    ),
+                                                    { is_public: false },
+                                                    { preserveScroll: true },
+                                                )
+                                            }
+                                        >
+                                            <Globe /> Quitar del sitio web
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="outline"
+                                            onClick={() =>
+                                                confirm(
+                                                    '¿Mostrar este álbum en el sitio web público? Confirma que todas las familias de los niños que aparecen autorizaron el uso de su imagen.',
+                                                ) &&
+                                                router.post(
+                                                    GalleryController.togglePublic.url(
+                                                        album.id,
+                                                    ),
+                                                    {
+                                                        is_public: true,
+                                                        consent_confirmed: true,
+                                                    },
+                                                    { preserveScroll: true },
+                                                )
+                                            }
+                                        >
+                                            <Globe /> Mostrar en el sitio web
+                                        </Button>
+                                    ))}
+                                {album.is_public && (
+                                    <Badge variant="secondary">
+                                        Visible en el sitio web
+                                    </Badge>
+                                )}
+                            </div>
                         ) : (
                             <form
                                 className="flex flex-wrap items-center gap-3 border-t pt-3"

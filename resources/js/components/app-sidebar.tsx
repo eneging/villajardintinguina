@@ -15,6 +15,7 @@ import {
     Megaphone,
     School,
     Settings2,
+    UserPlus,
     Users,
     Wallet,
 } from 'lucide-react';
@@ -39,7 +40,9 @@ import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
 import { index as adminDocuments } from '@/routes/admin/documents';
 import { index as finance } from '@/routes/admin/finance';
+import { index as leads } from '@/routes/admin/leads';
 import { index as payroll } from '@/routes/admin/payroll';
+import { index as siteEditor } from '@/routes/admin/site';
 import { index as staffAttendance } from '@/routes/admin/staff-attendance';
 import { index as students } from '@/routes/admin/students';
 import { index as users } from '@/routes/admin/users';
@@ -59,7 +62,7 @@ import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Sitio web',
+        title: 'Ver sitio público',
         href: home(),
         icon: Globe,
     },
@@ -86,6 +89,7 @@ export function AppSidebar() {
                       href: myAttendance(),
                       icon: ClipboardCheck,
                   },
+                  { title: 'Mis boletas', href: payslips(), icon: FileText },
               ]
             : []),
         ...(hasRole(auth.roles, 'parent')
@@ -110,26 +114,32 @@ export function AppSidebar() {
                   },
               ]
             : []),
-        ...(hasRole(auth.roles, 'admin')
-            ? [
-                  { title: 'Pagos', href: billing(), icon: Wallet },
-                  { title: 'Planilla', href: payroll(), icon: Banknote },
-                  { title: 'Finanzas', href: finance(), icon: ChartColumn },
-                  { title: 'Alumnos', href: students(), icon: Baby },
-                  {
-                      title: 'Asistencia del personal',
-                      href: staffAttendance(),
-                      icon: ClipboardCheck,
-                  },
-                  { title: 'Personas', href: users(), icon: Users },
-                  {
-                      title: 'Libro de Reclamaciones',
-                      href: complaints(),
-                      icon: BookX,
-                  },
-              ]
-            : []),
     ];
+    const adminNavItems: NavItem[] = hasRole(auth.roles, 'admin')
+        ? [
+              { title: 'Alumnos', href: students(), icon: Baby },
+              { title: 'Pagos', href: billing(), icon: Wallet },
+              { title: 'Planilla', href: payroll(), icon: Banknote },
+              { title: 'Finanzas', href: finance(), icon: ChartColumn },
+              {
+                  title: 'Asistencia del personal',
+                  href: staffAttendance(),
+                  icon: ClipboardCheck,
+              },
+              { title: 'Personas', href: users(), icon: Users },
+              {
+                  title: 'Libro de Reclamaciones',
+                  href: complaints(),
+                  icon: BookX,
+              },
+          ]
+        : [];
+    const siteNavItems: NavItem[] = hasRole(auth.roles, 'admin')
+        ? [
+              { title: 'Sitio web', href: siteEditor(), icon: Globe },
+              { title: 'Admisiones', href: leads(), icon: UserPlus },
+          ]
+        : [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -147,6 +157,12 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
+                {adminNavItems.length > 0 && (
+                    <NavMain items={adminNavItems} label="Administración" />
+                )}
+                {siteNavItems.length > 0 && (
+                    <NavMain items={siteNavItems} label="Sitio y admisiones" />
+                )}
             </SidebarContent>
 
             <SidebarFooter>

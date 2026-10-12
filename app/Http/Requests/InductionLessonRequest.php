@@ -33,6 +33,7 @@ class InductionLessonRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:2000'],
             'audience' => ['required', Rule::enum(InductionAudience::class)],
             'is_required' => ['boolean'],
+            'is_public' => ['boolean'],
             'status' => ['required', Rule::enum(ModuleStatus::class)],
             'position' => ['nullable', 'integer', 'min:0', 'max:999'],
             'targets' => ['required', 'array'],

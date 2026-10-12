@@ -36,6 +36,7 @@ type LessonForm = {
     description: string;
     audience: 'parents' | 'staff';
     is_required: boolean;
+    is_public: boolean;
     status: ModuleStatus;
     position: number;
     cover_media_id: number | null;
@@ -60,6 +61,7 @@ export default function InductionForm({
         description: lesson?.description ?? '',
         audience: lesson?.audience ?? 'parents',
         is_required: lesson?.is_required ?? false,
+        is_public: lesson?.is_public ?? false,
         status: lesson?.status ?? 'draft',
         position: lesson?.position ?? 0,
         cover_media_id: lesson?.cover_media_id ?? null,
@@ -143,6 +145,22 @@ export default function InductionForm({
                             Obligatoria (aparece en el tablero de avance)
                         </Label>
                     </div>
+
+                    {isAdmin && (
+                        <div className="flex items-center gap-3">
+                            <Checkbox
+                                id="is_public"
+                                checked={data.is_public}
+                                onCheckedChange={(checked) =>
+                                    setData('is_public', checked === true)
+                                }
+                            />
+                            <Label htmlFor="is_public">
+                                Mostrar también en el sitio web público (sección
+                                Videos)
+                            </Label>
+                        </div>
+                    )}
 
                     <div className="grid gap-2 sm:w-40">
                         <Label htmlFor="position">Orden</Label>

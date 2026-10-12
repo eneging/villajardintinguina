@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SiteContent;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,6 +49,8 @@ class HandleInertiaRequests extends Middleware
                 'name' => config('school.name'),
                 'whatsapp' => config('school.whatsapp'),
             ],
+            // Datos de contacto del pie de página del sitio público (en caché).
+            'contact' => fn () => SiteContent::section('contact'),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

@@ -7,8 +7,10 @@ use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\FinanceController;
+use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\RaffleController;
+use App\Http\Controllers\Admin\SiteContentController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\UserController;
@@ -25,12 +27,24 @@ use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Parent\PaymentController;
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\Public\SiteController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+// Sitio público para las familias (contenido editable desde Admin › Sitio web).
+Route::get('/', [SiteController::class, 'home'])->name('home');
+Route::get('nosotros', [SiteController::class, 'about'])->name('about');
+Route::get('servicios', [SiteController::class, 'services'])->name('services');
+Route::get('videos', [SiteController::class, 'videos'])->name('videos');
+Route::get('videos/{lesson}', [SiteController::class, 'video'])->name('videos.show');
+Route::get('fotos', [SiteController::class, 'gallery'])->name('photos');
+Route::get('fotos/{album}', [SiteController::class, 'album'])->name('photos.show');
+Route::get('admision', [SiteController::class, 'admission'])->name('admission');
+Route::post('admision', [SiteController::class, 'storeLead'])
+    ->middleware('throttle:5,10')
+    ->name('admission.store');
 
 // Tareas de despliegue en hosting sin SSH (protegido por DEPLOY_TOKEN).
 Route::post('_deploy', DeployController::class)
@@ -152,6 +166,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
         Route::put('salones/{classroom}', [AdminClassroomController::class, 'update'])->name('classrooms.update');
 
+        Route::get('sitio-web', [SiteContentController::class, 'index'])->name('site.index');
+        Route::put('sitio-web/{section}', [SiteContentController::class, 'update'])->name('site.update');
+
+        Route::get('admisiones', [LeadController::class, 'index'])->name('leads.index');
+        Route::post('admisiones', [LeadController::class, 'store'])->name('leads.store');
+        Route::put('admisiones/{lead}', [LeadController::class, 'update'])->name('leads.update');
+        Route::delete('admisiones/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
+
         Route::get('reclamos', [AdminComplaintController::class, 'index'])->name('complaints.index');
         Route::get('reclamos/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
         Route::post('reclamos/{complaint}/respuesta', [AdminComplaintController::class, 'respond'])->name('complaints.respond');
@@ -174,6 +196,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('galeria/{album}', [GalleryController::class, 'show'])->name('gallery.show');
     Route::put('galeria/{album}', [GalleryController::class, 'update'])->name('gallery.update');
     Route::post('galeria/{album}/publicar', [GalleryController::class, 'publish'])->name('gallery.publish');
+    Route::post('galeria/{album}/sitio-web', [GalleryController::class, 'togglePublic'])->name('gallery.public');
     Route::delete('galeria/{album}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
     Route::post('galeria/{album}/fotos', [GalleryController::class, 'addItems'])->name('gallery.items.store');
     Route::put('galeria/fotos/{item}', [GalleryController::class, 'updateItem'])->name('gallery.items.update');

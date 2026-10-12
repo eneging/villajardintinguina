@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['classroom_id', 'title', 'description', 'date', 'published', 'consent_confirmed_by', 'consent_confirmed_at', 'created_by'])]
+#[Fillable(['classroom_id', 'title', 'description', 'date', 'published', 'is_public', 'consent_confirmed_by', 'consent_confirmed_at', 'created_by'])]
 class Album extends Model
 {
     protected function casts(): array
@@ -16,6 +16,7 @@ class Album extends Model
         return [
             'date' => 'date',
             'published' => 'boolean',
+            'is_public' => 'boolean',
             'consent_confirmed_at' => 'datetime',
         ];
     }
@@ -55,6 +56,7 @@ class Album extends Model
             'description' => $this->description,
             'date' => $this->date->toDateString(),
             'published' => $this->published,
+            'is_public' => $this->is_public,
             'items_count' => $this->items_count ?? $this->items()->count(),
             'cover' => $this->coverItem?->media?->toClient(),
             'classroom' => $this->relationLoaded('classroom') ? ['id' => $this->classroom->id, 'name' => $this->classroom->name, 'mascot' => $this->classroom->mascot] : null,

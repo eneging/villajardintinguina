@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { SiteContact } from '@/types/site';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -13,6 +14,7 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             school: { name: string; whatsapp: string };
+            contact: SiteContact;
             [key: string]: unknown;
         };
     }
