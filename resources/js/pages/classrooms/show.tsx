@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ClipboardCheck, ListChecks, Pencil, Plus } from 'lucide-react';
+import { AnnouncementCard } from '@/components/school/announcement-card';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
 import { moduleTiming } from '@/lib/school';
@@ -8,7 +9,12 @@ import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
 import { progress } from '@/routes/induction';
 import { create } from '@/routes/modules';
-import type { ClassroomSummary, LearningModuleCard, MediaItem } from '@/types';
+import type {
+    Announcement,
+    ClassroomSummary,
+    LearningModuleCard,
+    MediaItem,
+} from '@/types';
 
 type Props = {
     classroom: ClassroomSummary & {
@@ -19,6 +25,7 @@ type Props = {
     children: { id: number; name: string }[];
     canManage: boolean;
     canTakeAttendance: boolean;
+    announcements: Announcement[];
 };
 
 const staffLabels = {
@@ -39,6 +46,7 @@ export default function ClassroomShow({
     children,
     canManage,
     canTakeAttendance,
+    announcements,
 }: Props) {
     const { auth } = usePage().props;
     const drafts = modules.filter((m) => m.status === 'draft');
@@ -138,6 +146,20 @@ export default function ClassroomShow({
                         </div>
                     )}
                 </header>
+
+                {announcements.length > 0 && (
+                    <section className="space-y-3">
+                        <h2 className="text-xl font-semibold">
+                            Comunicados del salón
+                        </h2>
+                        {announcements.map((announcement) => (
+                            <AnnouncementCard
+                                key={announcement.id}
+                                announcement={announcement}
+                            />
+                        ))}
+                    </section>
+                )}
 
                 <section className="space-y-6">
                     <h2 className="text-xl font-semibold">

@@ -195,3 +195,14 @@ export type RaffleSummary = {
     seed?: string | null;
     winner?: { number: number; name: string | null } | null;
 };
+
+export type Announcement = {
+    id: number;
+    title: string;
+    body: string;
+    pinned: boolean;
+    classroom: { id: number; name: string; mascot: string | null } | null;
+    author: string | null;
+    created_at: string;
+    can_delete: boolean;
+};

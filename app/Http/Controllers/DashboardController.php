@@ -6,6 +6,7 @@ use App\Enums\InductionAudience;
 use App\Enums\ModuleStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\Role;
+use App\Models\Announcement;
 use App\Models\Charge;
 use App\Models\Classroom;
 use App\Models\Document;
@@ -96,6 +97,9 @@ class DashboardController extends Controller
         ] : null;
 
         return Inertia::render('dashboard', [
+            'announcements' => Announcement::query()->visibleTo($user)->with(['classroom', 'author'])
+                ->orderByDesc('pinned')->latest()->limit(3)->get()
+                ->map(fn (Announcement $announcement) => $announcement->toClient($user)),
             'debt' => $debt === null ? null : round($debt, 2),
             'finance' => $finance,
             'induction' => $inductionSummary,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LearningArea;
+use App\Models\Announcement;
 use App\Models\Classroom;
 use App\Models\LearningModule;
 use App\Models\SchoolYear;
@@ -62,6 +63,9 @@ class ClassroomController extends Controller
                 ->map(fn ($student) => ['id' => $student->id, 'name' => $student->fullName()]),
             'canManage' => $canManage,
             'canTakeAttendance' => $user->can('takeAttendance', $classroom),
+            'announcements' => Announcement::query()->where('classroom_id', $classroom->id)->with(['classroom', 'author'])
+                ->orderByDesc('pinned')->latest()->limit(5)->get()
+                ->map(fn (Announcement $announcement) => $announcement->toClient($user)),
         ]);
     }
 

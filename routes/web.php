@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\RaffleController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
@@ -157,6 +158,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('mi-asistencia/entrada', [StaffAttendanceController::class, 'checkIn'])->middleware('throttle:10,1')->name('attendance.check-in');
         Route::post('mi-asistencia/salida', [StaffAttendanceController::class, 'checkOut'])->middleware('throttle:10,1')->name('attendance.check-out');
     });
+
+    // Comunicados generales y por salón.
+    Route::get('comunicados', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('comunicados', [AnnouncementController::class, 'store'])->middleware('role:admin,teacher')->name('announcements.store');
+    Route::delete('comunicados/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
     // Eventos y fechas festivas (formularios y sorteos).
     Route::get('eventos', [EventController::class, 'index'])->name('events.index');

@@ -2,15 +2,21 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { BookHeart, Wallet } from 'lucide-react';
 import { money } from '@/components/billing/format';
 import Heading from '@/components/heading';
+import { AnnouncementCard } from '@/components/school/announcement-card';
 import { ModuleCard } from '@/components/school/module-card';
 import { ClassroomTile } from '@/pages/classrooms/index';
 import { show } from '@/routes/classrooms';
 import { dashboard } from '@/routes';
 import { index as billing } from '@/routes/admin/billing';
 import { index as adminDocuments } from '@/routes/admin/documents';
+import { index as announcementsRoute } from '@/routes/announcements';
 import { mine as myInduction } from '@/routes/induction';
 import { index as myPayments } from '@/routes/payments';
-import type { ClassroomSummary, LearningModuleCard } from '@/types';
+import type {
+    Announcement,
+    ClassroomSummary,
+    LearningModuleCard,
+} from '@/types';
 
 type Child = {
     id: number;
@@ -24,6 +30,7 @@ type Props = {
     managedClassrooms: ClassroomSummary[];
     induction: { required: number; completed: number } | null;
     debt: number | null;
+    announcements: Announcement[];
     finance: {
         overdue: number;
         pending_vouchers: number;
@@ -38,6 +45,7 @@ export default function Dashboard({
     induction,
     debt,
     finance,
+    announcements,
 }: Props) {
     const { auth } = usePage().props;
     const firstName = auth.user.name.split(' ')[0];
@@ -120,6 +128,28 @@ export default function Dashboard({
                             </span>
                         </span>
                     </Link>
+                )}
+
+                {announcements.length > 0 && (
+                    <section className="space-y-3">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-semibold">
+                                Comunicados
+                            </h2>
+                            <Link
+                                href={announcementsRoute()}
+                                className="text-sm underline-offset-4 hover:underline"
+                            >
+                                Ver todos
+                            </Link>
+                        </div>
+                        {announcements.map((announcement) => (
+                            <AnnouncementCard
+                                key={announcement.id}
+                                announcement={announcement}
+                            />
+                        ))}
+                    </section>
                 )}
 
                 {children.length > 0 && (

@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Announcement;
+use App\Models\Classroom;
 use App\Models\Event;
 use App\Models\User;
 use App\Services\RaffleService;
@@ -47,6 +49,17 @@ class EventSeeder extends Seeder
             'total_tickets' => 100,
             'draw_at' => now()->addDays(18)->setTime(12, 0),
         ], $admin);
+
+        Announcement::create(['author_id' => $admin->id, 'title' => 'Reunión de padres', 'body' => "Los esperamos este viernes a las 6:00 p. m. en el patio.\nTemas: festival criollo y paseo de fin de año.", 'pinned' => true]);
+
+        if ($patitos = Classroom::where('slug', 'patitos')->first()) {
+            Announcement::create([
+                'classroom_id' => $patitos->id,
+                'author_id' => User::where('email', 'maestra@villajardin.test')->value('id'),
+                'title' => 'Mañana traer un títere',
+                'body' => 'Para el módulo de animales de la granja, traigan un títere hecho con una media. ¡Gracias!',
+            ]);
+        }
 
         foreach ($raffle->tickets()->whereIn('number', [7, 8, 15, 23, 42])->get() as $ticket) {
             $raffles->assign($ticket, $ticket->number <= 8 ? $parent?->id : null, $ticket->number <= 8 ? null : 'Vecino '.$ticket->number, $ticket->number !== 42, $admin);

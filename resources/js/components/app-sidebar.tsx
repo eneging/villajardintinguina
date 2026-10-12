@@ -12,6 +12,7 @@ import {
     BookX,
     Globe,
     LayoutGrid,
+    Megaphone,
     School,
     Settings2,
     Users,
@@ -46,6 +47,7 @@ import {
     mine as childrenAttendance,
     staff as myAttendance,
 } from '@/routes/attendance';
+import { index as announcements } from '@/routes/announcements';
 import { index as classrooms } from '@/routes/classrooms';
 import { index as documents } from '@/routes/documents';
 import { index as events } from '@/routes/events';
@@ -67,6 +69,7 @@ export function AppSidebar() {
     const { auth } = usePage().props;
     const mainNavItems: NavItem[] = [
         { title: 'Inicio', href: dashboard(), icon: LayoutGrid },
+        { title: 'Comunicados', href: announcements(), icon: Megaphone },
         { title: 'Eventos', href: events(), icon: PartyPopper },
         {
             title: 'Documentos',
