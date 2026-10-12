@@ -4,14 +4,17 @@ use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\PayrollController;
+use App\Http\Controllers\Admin\RaffleController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
@@ -114,6 +117,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('finanzas/ingresos', [FinanceController::class, 'storeIncome'])->name('finance.incomes.store');
         Route::delete('finanzas/ingresos/{income}', [FinanceController::class, 'destroyIncome'])->name('finance.incomes.destroy');
 
+        Route::get('eventos', [AdminEventController::class, 'index'])->name('events.index');
+        Route::get('eventos/crear', [AdminEventController::class, 'create'])->name('events.create');
+        Route::post('eventos', [AdminEventController::class, 'store'])->name('events.store');
+        Route::get('eventos/{event}/editar', [AdminEventController::class, 'edit'])->name('events.edit');
+        Route::put('eventos/{event}', [AdminEventController::class, 'update'])->name('events.update');
+        Route::get('eventos/{event}/respuestas', [AdminEventController::class, 'submissions'])->name('events.submissions');
+        Route::get('eventos/{event}/respuestas/descargar', [AdminEventController::class, 'download'])->name('events.download');
+
+        Route::post('sorteos', [RaffleController::class, 'store'])->name('raffles.store');
+        Route::get('sorteos/{raffle}', [RaffleController::class, 'show'])->name('raffles.show');
+        Route::put('sorteos/tickets/{ticket}', [RaffleController::class, 'assign'])->name('raffles.tickets.assign');
+        Route::post('sorteos/{raffle}/sortear', [RaffleController::class, 'draw'])->name('raffles.draw');
+        Route::get('sorteos/{raffle}/en-vivo', [RaffleController::class, 'live'])->name('raffles.live');
+
         Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
@@ -134,6 +151,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('mi-asistencia/entrada', [StaffAttendanceController::class, 'checkIn'])->middleware('throttle:10,1')->name('attendance.check-in');
         Route::post('mi-asistencia/salida', [StaffAttendanceController::class, 'checkOut'])->middleware('throttle:10,1')->name('attendance.check-out');
     });
+
+    // Eventos y fechas festivas (formularios y sorteos).
+    Route::get('eventos', [EventController::class, 'index'])->name('events.index');
+    Route::get('eventos/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::post('eventos/{event}/respuesta', [EventController::class, 'submit'])
+        ->middleware('throttle:20,1')
+        ->name('events.submit');
 
     // Personal: sus boletas de pago.
     Route::get('mis-boletas', [PayslipController::class, 'index'])->name('payslips.index');

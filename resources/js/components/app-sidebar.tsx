@@ -4,6 +4,7 @@ import {
     Banknote,
     ChartColumn,
     FileText,
+    PartyPopper,
     CalendarCheck,
     ClipboardCheck,
     BookHeart,
@@ -44,6 +45,7 @@ import {
     staff as myAttendance,
 } from '@/routes/attendance';
 import { index as classrooms } from '@/routes/classrooms';
+import { index as events } from '@/routes/events';
 import {
     index as manageInduction,
     mine as myInduction,
@@ -62,6 +64,7 @@ export function AppSidebar() {
     const { auth } = usePage().props;
     const mainNavItems: NavItem[] = [
         { title: 'Inicio', href: dashboard(), icon: LayoutGrid },
+        { title: 'Eventos', href: events(), icon: PartyPopper },
         ...(hasRole(auth.roles, 'admin', 'teacher')
             ? [{ title: 'Salones', href: classrooms(), icon: School }]
             : []),

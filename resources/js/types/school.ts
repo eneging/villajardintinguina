@@ -170,3 +170,28 @@ export type PaymentRecord = {
     payer: string | null;
     concepts: string[];
 };
+
+export type EventTheme = {
+    color: string;
+    accent: string;
+    emoji?: string | null;
+};
+
+export type FormField = {
+    key?: string;
+    label: string;
+    type: 'text' | 'textarea' | 'number' | 'select' | 'checkbox';
+    required: boolean;
+    options: string[];
+};
+
+export type RaffleSummary = {
+    id: number;
+    title: string;
+    prize: string;
+    ticket_price: number;
+    status: 'abierto' | 'sorteado';
+    draw_at?: string | null;
+    seed?: string | null;
+    winner?: { number: number; name: string | null } | null;
+};

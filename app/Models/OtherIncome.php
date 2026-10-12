@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['date', 'source', 'description', 'amount', 'created_by'])]
+#[Fillable(['date', 'source', 'raffle_id', 'description', 'amount', 'created_by'])]
 class OtherIncome extends Model
 {
     public const SOURCES = [

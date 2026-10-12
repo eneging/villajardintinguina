@@ -10,7 +10,9 @@ type ResourceType = 'image' | 'video' | 'raw';
 export type UploadTarget =
     | { context: 'classroom'; classroom_id: number }
     | { context: 'induction' }
-    | { context: 'payment' };
+    | { context: 'payment' }
+    | { context: 'event' }
+    | { context: 'document' };
 
 type SignedUpload = {
     upload_url: string;
@@ -172,7 +174,9 @@ export function MediaUploader({
                 ref={input}
                 type="file"
                 accept={
-                    target.context === 'payment' && resourceType === 'image'
+                    (target.context === 'payment' ||
+                        target.context === 'document') &&
+                    resourceType === 'image'
                         ? imageOrPdf
                         : accepts[resourceType]
                 }
