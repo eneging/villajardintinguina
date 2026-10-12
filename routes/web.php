@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassroomController;
+use App\Http\Controllers\ClassroomInfoController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeployController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\Public\SiteController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
+use App\Http\Controllers\StudentProfileController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +71,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('role:admin,teacher')
         ->name('classrooms.index');
     Route::get('salones/{classroom}', [ClassroomController::class, 'show'])->name('classrooms.show');
+    Route::get('salones/{classroom}/informacion', [ClassroomInfoController::class, 'edit'])->name('classrooms.info.edit');
+    Route::put('salones/{classroom}/informacion', [ClassroomInfoController::class, 'update'])->name('classrooms.info.update');
+    Route::post('salones/{classroom}/actividades', [ClassroomInfoController::class, 'storeActivity'])->name('classrooms.activities.store');
+    Route::delete('actividades/{activity}', [ClassroomInfoController::class, 'destroyActivity'])->name('classrooms.activities.destroy');
 
     Route::get('salones/{classroom}/modulos/crear', [LearningModuleController::class, 'create'])->name('modules.create');
     Route::post('salones/{classroom}/modulos', [LearningModuleController::class, 'store'])->name('modules.store');
@@ -229,6 +235,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->middleware('throttle:20,1')
             ->name('payments.store');
     });
+
+    // Fichas de alumnos: padres (Mis hijos), maestras del salón y administradora.
+    Route::get('mis-hijos', [StudentProfileController::class, 'children'])->middleware('role:parent')->name('children.index');
+    Route::get('alumnos/{student}', [StudentProfileController::class, 'show'])->name('students.show');
+    Route::put('alumnos/{student}/foto', [StudentProfileController::class, 'updatePhoto'])->name('students.photo');
+    Route::post('alumnos/{student}/autorizados', [StudentProfileController::class, 'storePickup'])->name('students.pickups.store');
+    Route::delete('autorizados/{pickup}', [StudentProfileController::class, 'destroyPickup'])->name('students.pickups.destroy');
 
     // Cloudinary: firma de subida directa y registro del archivo subido.
     Route::post('media/firma', [MediaController::class, 'signature'])

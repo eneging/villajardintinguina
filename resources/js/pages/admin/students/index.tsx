@@ -8,6 +8,7 @@ import type { Paginated } from '@/components/school/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { create, edit, index } from '@/routes/admin/students';
+import { show } from '@/routes/students';
 
 type StudentRow = {
     id: number;
@@ -98,10 +99,16 @@ export default function StudentsIndex({
                                 >
                                     <td className="p-3">
                                         <Link
-                                            href={edit(student.id)}
+                                            href={show(student.id)}
                                             className="font-medium underline-offset-4 hover:underline"
                                         >
                                             {student.name}
+                                        </Link>{' '}
+                                        <Link
+                                            href={edit(student.id)}
+                                            className="text-xs text-muted-foreground hover:underline"
+                                        >
+                                            Editar
                                         </Link>
                                         {student.dni && (
                                             <div className="text-muted-foreground">

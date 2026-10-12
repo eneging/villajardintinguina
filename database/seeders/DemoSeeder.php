@@ -41,6 +41,43 @@ class DemoSeeder extends Seeder
             ['school_year_id' => $year->id],
             ['classroom_id' => $patitos->id, 'monthly_fee' => 350],
         );
+        $student->authorizedPickups()->firstOrCreate(
+            ['dni' => '21456789'],
+            ['name' => 'Rosa Huamán', 'relationship' => 'Abuela', 'phone' => '956 111 222'],
+        );
+
+        if (! $patitos->schedule) {
+            $patitos->update([
+                'schedule' => [
+                    ['time' => '8:15', 'activity' => 'Recepción y juego libre en sectores'],
+                    ['time' => '9:00', 'activity' => 'Asamblea y canción de bienvenida'],
+                    ['time' => '9:30', 'activity' => 'Actividad del módulo de aprendizaje'],
+                    ['time' => '10:30', 'activity' => 'Lonchera y recreo'],
+                    ['time' => '11:15', 'activity' => 'Psicomotricidad, música o inglés'],
+                    ['time' => '12:30', 'activity' => 'Despedida y salida'],
+                ],
+                'supplies' => [
+                    ['item' => 'Cuaderno cuadriculado A4 (tapa verde)', 'quantity' => '1'],
+                    ['item' => 'Crayones jumbo', 'quantity' => '1 caja'],
+                    ['item' => 'Plastilina', 'quantity' => '3 barras'],
+                    ['item' => 'Papel bond A4', 'quantity' => '1 millar'],
+                    ['item' => 'Muda de ropa con nombre', 'quantity' => '1'],
+                ],
+                'weekly_menu' => [
+                    'lunes' => ['snack' => 'Fruta picada y agua', 'lunch' => null],
+                    'martes' => ['snack' => 'Pan con queso y refresco de manzana', 'lunch' => null],
+                    'miercoles' => ['snack' => 'Yogurt con avena', 'lunch' => null],
+                    'jueves' => ['snack' => 'Galletas de quinua y leche', 'lunch' => null],
+                    'viernes' => ['snack' => 'Lonchera libre saludable', 'lunch' => null],
+                ],
+                'menu_week_of' => now()->startOfWeek(),
+            ]);
+            $patitos->activities()->createMany([
+                ['date' => now()->addWeek()->startOfWeek()->addDays(2), 'title' => 'Paseo a la granja', 'type' => 'salida', 'description' => 'Traer gorro, bloqueador y lonchera.'],
+                ['date' => now()->addWeeks(2)->startOfWeek()->addDays(3), 'title' => 'Reunión de padres', 'type' => 'reunion', 'description' => '6:00 p. m. en el salón.'],
+                ['date' => now()->addWeeks(3)->startOfWeek()->addDays(4), 'title' => 'Día de la Canción Criolla', 'type' => 'celebracion', 'description' => null],
+            ]);
+        }
 
         if ($patitos->learningModules()->doesntExist()) {
             $module = $patitos->learningModules()->create([

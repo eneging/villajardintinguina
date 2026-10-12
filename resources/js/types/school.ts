@@ -219,3 +219,49 @@ export type AlbumCard = {
     cover: MediaItem | null;
     classroom: { id: number; name: string; mascot: string | null } | null;
 };
+
+export type ClassroomInfo = {
+    schedule: { time: string; activity: string }[];
+    supplies: { item: string; quantity: string | null }[];
+    weekly_menu: Record<string, { snack: string | null; lunch: string | null }>;
+    menu_week_of: string | null;
+};
+
+export type ClassroomActivity = {
+    id: number;
+    date: string;
+    title: string;
+    description: string | null;
+    type: string;
+    type_label: string;
+};
+
+export type StudentSummary = {
+    id: number;
+    name: string;
+    first_name: string;
+    age: string | null;
+    photo: MediaItem | null;
+    classroom: {
+        id: number;
+        name: string;
+        level: string | null;
+        color: string;
+        mascot: string | null;
+    } | null;
+};
+
+export type AuthorizedPickup = {
+    id: number;
+    name: string;
+    dni: string | null;
+    relationship: string;
+    phone: string | null;
+    photo: MediaItem | null;
+};
+
+export type AttendanceStatus =
+    | 'presente'
+    | 'tardanza'
+    | 'falta'
+    | 'justificada';

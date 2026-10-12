@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuthorizedPickup;
 use App\Models\Classroom;
 use App\Models\Enrollment;
 use App\Models\StudentAttendance;
@@ -53,11 +54,14 @@ class StudentAttendanceController extends Controller
 
                 return [
                     'enrollment_id' => $enrollment->id,
+                    'student_id' => $enrollment->student_id,
                     'name' => $enrollment->student->fullName(),
                     'allergies' => $enrollment->student->allergies,
+                    'photo' => $enrollment->student->photo?->url('f_auto,q_auto,w_160,h_160,c_fill,g_face'),
                     'pickups' => $enrollment->student->guardians
                         ->filter(fn (User $guardian) => $guardian->pivot->can_pick_up)
                         ->map(fn (User $guardian) => "{$guardian->name} ({$guardian->pivot->relationship})")
+                        ->concat($enrollment->student->authorizedPickups->map(fn (AuthorizedPickup $pickup) => $pickup->label()))
                         ->values(),
                     'record' => $record ? [
                         'status' => $record->status,
@@ -194,7 +198,7 @@ class StudentAttendanceController extends Controller
     {
         return $classroom->enrollments()
             ->where('status', 'active')
-            ->with('student.guardians')
+            ->with(['student.guardians', 'student.authorizedPickups', 'student.photo'])
             ->get()
             ->sortBy(fn (Enrollment $enrollment) => $enrollment->student->last_name.' '.$enrollment->student->first_name)
             ->values();

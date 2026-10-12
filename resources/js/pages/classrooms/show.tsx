@@ -2,18 +2,22 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { ClipboardCheck, ListChecks, Pencil, Plus } from 'lucide-react';
 import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
+import { ClassroomInfoCards } from '@/components/school/classroom-info';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
 import { moduleTiming } from '@/lib/school';
 import { edit as editClassroom } from '@/routes/admin/classrooms';
 import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
+import { edit as editInfo } from '@/routes/classrooms/info';
 import { index as gallery } from '@/routes/gallery';
 import { progress } from '@/routes/induction';
 import { create } from '@/routes/modules';
 import type {
     AlbumCard as Album,
     Announcement,
+    ClassroomActivity,
+    ClassroomInfo,
     ClassroomSummary,
     LearningModuleCard,
     MediaItem,
@@ -30,6 +34,9 @@ type Props = {
     canTakeAttendance: boolean;
     announcements: Announcement[];
     albums: Album[];
+    info: ClassroomInfo;
+    weekdays: Record<string, string>;
+    activities: ClassroomActivity[];
 };
 
 const staffLabels = {
@@ -52,6 +59,9 @@ export default function ClassroomShow({
     canTakeAttendance,
     announcements,
     albums,
+    info,
+    weekdays,
+    activities,
 }: Props) {
     const { auth } = usePage().props;
     const drafts = modules.filter((m) => m.status === 'draft');
@@ -151,6 +161,16 @@ export default function ClassroomShow({
                         </div>
                     )}
                 </header>
+
+                <ClassroomInfoCards
+                    info={info}
+                    weekdays={weekdays}
+                    activities={activities}
+                    color={classroom.color}
+                    editHref={
+                        canManage ? editInfo(classroom.id).url : undefined
+                    }
+                />
 
                 {announcements.length > 0 && (
                     <section className="space-y-3">

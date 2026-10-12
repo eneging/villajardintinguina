@@ -15,6 +15,7 @@ import {
     Megaphone,
     School,
     Settings2,
+    Smile,
     UserPlus,
     Users,
     Wallet,
@@ -51,6 +52,7 @@ import {
     staff as myAttendance,
 } from '@/routes/attendance';
 import { index as announcements } from '@/routes/announcements';
+import { index as myChildren } from '@/routes/children';
 import { index as classrooms } from '@/routes/classrooms';
 import { index as documents } from '@/routes/documents';
 import { index as events } from '@/routes/events';
@@ -94,6 +96,7 @@ export function AppSidebar() {
             : []),
         ...(hasRole(auth.roles, 'parent')
             ? [
+                  { title: 'Mis hijos', href: myChildren(), icon: Smile },
                   {
                       title: 'Asistencia',
                       href: childrenAttendance(),

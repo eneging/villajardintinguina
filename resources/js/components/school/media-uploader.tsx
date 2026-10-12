@@ -13,7 +13,8 @@ export type UploadTarget =
     | { context: 'payment' }
     | { context: 'event' }
     | { context: 'document' }
-    | { context: 'site' };
+    | { context: 'site' }
+    | { context: 'student'; student_id: number };
 
 type SignedUpload = {
     upload_url: string;

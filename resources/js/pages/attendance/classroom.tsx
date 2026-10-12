@@ -14,13 +14,16 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { classroom as classroomRoute, report } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
+import { show as showStudent } from '@/routes/students';
 
 type Status = 'presente' | 'tardanza' | 'falta' | 'justificada';
 
 type StudentRow = {
     enrollment_id: number;
+    student_id: number;
     name: string;
     allergies: string | null;
+    photo: string | null;
     pickups: string[];
     record: {
         status: Status;
@@ -253,15 +256,34 @@ export default function ClassroomAttendance({
                                 className="space-y-3 rounded-2xl border bg-card p-4"
                             >
                                 <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <div>
-                                        <p className="font-semibold">
-                                            {student.name}
-                                        </p>
-                                        {student.allergies && (
-                                            <p className="text-xs text-red-700">
-                                                ⚠ Alergias: {student.allergies}
-                                            </p>
+                                    <div className="flex items-center gap-3">
+                                        {student.photo ? (
+                                            <img
+                                                src={student.photo}
+                                                alt=""
+                                                className="size-11 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="flex size-11 items-center justify-center rounded-full bg-muted font-semibold text-muted-foreground">
+                                                {student.name[0]}
+                                            </span>
                                         )}
+                                        <div>
+                                            <Link
+                                                href={showStudent(
+                                                    student.student_id,
+                                                )}
+                                                className="font-semibold hover:underline"
+                                            >
+                                                {student.name}
+                                            </Link>
+                                            {student.allergies && (
+                                                <p className="text-xs text-red-700">
+                                                    ⚠ Alergias:{' '}
+                                                    {student.allergies}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex flex-wrap gap-1">
                                         {statuses.map((s) => (

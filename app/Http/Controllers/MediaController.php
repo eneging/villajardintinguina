@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\Role;
 use App\Models\Classroom;
 use App\Models\Media;
+use App\Models\Student;
 use App\Services\CloudinaryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -93,8 +94,9 @@ class MediaController extends Controller
     private function contextRules(): array
     {
         return [
-            'context' => ['sometimes', 'in:classroom,induction,payment,event,document,site'],
+            'context' => ['sometimes', 'in:classroom,induction,payment,event,document,site,student'],
             'classroom_id' => ['required_if:context,classroom', 'required_without:context', 'nullable', 'integer', 'exists:classrooms,id'],
+            'student_id' => ['required_if:context,student', 'nullable', 'integer', 'exists:students,id'],
         ];
     }
 
@@ -111,6 +113,14 @@ class MediaController extends Controller
                 'site' => 'sitio',
                 default => 'documentos',
             };
+        }
+
+        if (($data['context'] ?? null) === 'student') {
+            // Foto del alumno o de sus personas autorizadas.
+            $student = Student::findOrFail($data['student_id']);
+            abort_unless($request->user()->can('updatePhoto', $student), 403);
+
+            return "alumnos/{$student->id}";
         }
 
         if (($data['context'] ?? 'classroom') === 'payment') {

@@ -6,6 +6,7 @@ use App\Enums\LearningArea;
 use App\Models\Album;
 use App\Models\Announcement;
 use App\Models\Classroom;
+use App\Models\ClassroomActivity;
 use App\Models\LearningModule;
 use App\Models\SchoolYear;
 use Illuminate\Http\Request;
@@ -68,6 +69,13 @@ class ClassroomController extends Controller
                 ->unless($user->can('uploadMedia', $classroom) || $classroom->hasStaffMember($user), fn ($q) => $q->where('published', true))
                 ->with('coverItem.media')->withCount('items')->orderByDesc('date')->limit(4)->get()
                 ->map(fn (Album $album) => $album->toCard()),
+            'info' => ClassroomInfoController::info($classroom),
+            'weekdays' => Classroom::WEEKDAYS,
+            'activities' => $classroom->activities()
+                ->whereDate('date', '>=', today())
+                ->whereDate('date', '<=', today()->addDays(60))
+                ->get()
+                ->map(fn (ClassroomActivity $activity) => $activity->toClient()),
             'announcements' => Announcement::query()->where('classroom_id', $classroom->id)->with(['classroom', 'author'])
                 ->orderByDesc('pinned')->latest()->limit(5)->get()
                 ->map(fn (Announcement $announcement) => $announcement->toClient($user)),

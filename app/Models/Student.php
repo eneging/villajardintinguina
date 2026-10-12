@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -47,6 +48,32 @@ class Student extends Model
         return $this->hasOne(Enrollment::class)
             ->where('status', 'active')
             ->whereHas('schoolYear', fn ($query) => $query->where('is_active', true));
+    }
+
+    /** @return HasMany<AuthorizedPickup, $this> */
+    public function authorizedPickups(): HasMany
+    {
+        return $this->hasMany(AuthorizedPickup::class)->orderBy('name');
+    }
+
+    /** @return BelongsTo<Media, $this> */
+    public function photo(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'photo_media_id');
+    }
+
+    /** Edad en texto ("3 años y 2 meses"). */
+    public function age(): ?string
+    {
+        if (! $this->birth_date) {
+            return null;
+        }
+
+        $diff = $this->birth_date->diff(now());
+        $years = $diff->y ? $diff->y.' '.($diff->y === 1 ? 'año' : 'años') : null;
+        $months = $diff->m ? $diff->m.' '.($diff->m === 1 ? 'mes' : 'meses') : null;
+
+        return collect([$years, $months])->filter()->implode(' y ') ?: 'Recién nacido';
     }
 
     /** @return HasMany<Charge, $this> */

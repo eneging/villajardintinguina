@@ -11,9 +11,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['school_year_id', 'level_id', 'name', 'slug', 'shift', 'capacity', 'color', 'mascot', 'description', 'cover_media_id'])]
+#[Fillable(['school_year_id', 'level_id', 'name', 'slug', 'shift', 'capacity', 'color', 'mascot', 'description', 'cover_media_id', 'schedule', 'supplies', 'weekly_menu', 'menu_week_of'])]
 class Classroom extends Model
 {
+    public const WEEKDAYS = ['lunes' => 'Lunes', 'martes' => 'Martes', 'miercoles' => 'Miércoles', 'jueves' => 'Jueves', 'viernes' => 'Viernes'];
+
+    protected function casts(): array
+    {
+        return [
+            'schedule' => 'array',
+            'supplies' => 'array',
+            'weekly_menu' => 'array',
+            'menu_week_of' => 'date',
+        ];
+    }
+
+    /** @return HasMany<ClassroomActivity, $this> */
+    public function activities(): HasMany
+    {
+        return $this->hasMany(ClassroomActivity::class)->orderBy('date');
+    }
+
     /** @return BelongsTo<SchoolYear, $this> */
     public function schoolYear(): BelongsTo
     {
