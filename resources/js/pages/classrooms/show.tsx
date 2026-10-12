@@ -1,8 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
-import { ListChecks, Plus } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ListChecks, Pencil, Plus } from 'lucide-react';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
 import { moduleTiming } from '@/lib/school';
+import { edit as editClassroom } from '@/routes/admin/classrooms';
 import { show } from '@/routes/classrooms';
 import { progress } from '@/routes/induction';
 import { create } from '@/routes/modules';
@@ -36,6 +37,7 @@ export default function ClassroomShow({
     children,
     canManage,
 }: Props) {
+    const { auth } = usePage().props;
     const drafts = modules.filter((m) => m.status === 'draft');
     const published = modules.filter((m) => m.status === 'published');
 
@@ -74,6 +76,15 @@ export default function ClassroomShow({
                         </div>
                         {canManage && (
                             <div className="flex flex-wrap gap-2">
+                                {auth.roles.includes('admin') && (
+                                    <Button variant="outline" asChild>
+                                        <Link
+                                            href={editClassroom(classroom.id)}
+                                        >
+                                            <Pencil /> Editar salón
+                                        </Link>
+                                    </Button>
+                                )}
                                 <Button variant="outline" asChild>
                                     <Link href={progress(classroom.id)}>
                                         <ListChecks /> Avance de inducción

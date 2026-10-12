@@ -1,11 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
+    Baby,
     BookHeart,
     BookX,
     Globe,
     LayoutGrid,
     School,
     Settings2,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -23,6 +25,8 @@ import {
 import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
 import { index as complaints } from '@/routes/admin/complaints';
+import { index as students } from '@/routes/admin/students';
+import { index as users } from '@/routes/admin/users';
 import { index as classrooms } from '@/routes/classrooms';
 import {
     index as manageInduction,
@@ -59,6 +63,8 @@ export function AppSidebar() {
             : []),
         ...(hasRole(auth.roles, 'admin')
             ? [
+                  { title: 'Alumnos', href: students(), icon: Baby },
+                  { title: 'Personas', href: users(), icon: Users },
                   {
                       title: 'Libro de Reclamaciones',
                       href: complaints(),

@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
@@ -50,8 +53,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('induccion/{lesson}/completar', [InductionController::class, 'complete'])->name('induction.complete');
     Route::get('salones/{classroom}/induccion', [InductionController::class, 'classroomProgress'])->name('induction.progress');
 
-    // Administración del Libro de Reclamaciones.
+    // Administración: personas, alumnos, salones y Libro de Reclamaciones.
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('personas', [UserController::class, 'index'])->name('users.index');
+        Route::get('personas/crear', [UserController::class, 'create'])->name('users.create');
+        Route::post('personas', [UserController::class, 'store'])->name('users.store');
+        Route::get('personas/{user}/editar', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('personas/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::post('personas/{user}/acceso', [UserController::class, 'sendAccess'])
+            ->middleware('throttle:10,1')
+            ->name('users.access');
+
+        Route::get('alumnos', [StudentController::class, 'index'])->name('students.index');
+        Route::get('alumnos/crear', [StudentController::class, 'create'])->name('students.create');
+        Route::post('alumnos', [StudentController::class, 'store'])->name('students.store');
+        Route::get('alumnos/{student}/editar', [StudentController::class, 'edit'])->name('students.edit');
+        Route::put('alumnos/{student}', [StudentController::class, 'update'])->name('students.update');
+
+        Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
+        Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
+        Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
+        Route::put('salones/{classroom}', [AdminClassroomController::class, 'update'])->name('classrooms.update');
+
         Route::get('reclamos', [AdminComplaintController::class, 'index'])->name('complaints.index');
         Route::get('reclamos/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
         Route::post('reclamos/{complaint}/respuesta', [AdminComplaintController::class, 'respond'])->name('complaints.respond');

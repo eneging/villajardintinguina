@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -39,6 +41,15 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+
+        // Las cuentas desactivadas por la administración no pueden iniciar sesión.
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where('email', $request->string(Fortify::username()))->first();
+
+            return $user && $user->active && Hash::check($request->string('password'), $user->password)
+                ? $user
+                : null;
+        });
     }
 
     /**

@@ -1,6 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
-import { BookOpen, Users } from 'lucide-react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { BookOpen, Plus, Users } from 'lucide-react';
 import Heading from '@/components/heading';
+import { Button } from '@/components/ui/button';
+import { create } from '@/routes/admin/classrooms';
 import { index, show } from '@/routes/classrooms';
 import type { ClassroomSummary } from '@/types';
 
@@ -9,14 +11,25 @@ export default function ClassroomsIndex({
 }: {
     classrooms: ClassroomSummary[];
 }) {
+    const { auth } = usePage().props;
+
     return (
         <>
             <Head title="Salones" />
             <div className="space-y-6 p-4">
-                <Heading
-                    title="Salones"
-                    description="Elige un salón para publicar módulos de aprendizaje y ver su información."
-                />
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                    <Heading
+                        title="Salones"
+                        description="Elige un salón para publicar módulos de aprendizaje y ver su información."
+                    />
+                    {auth.roles.includes('admin') && (
+                        <Button asChild>
+                            <Link href={create()}>
+                                <Plus /> Nuevo salón
+                            </Link>
+                        </Button>
+                    )}
+                </div>
                 {classrooms.length === 0 && (
                     <p className="text-muted-foreground">
                         Aún no tienes salones asignados este año.
