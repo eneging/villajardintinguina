@@ -60,6 +60,10 @@ return [
     ],
 
     // Plazo legal de respuesta del Libro de Reclamaciones (días hábiles).
+    // Respaldos diarios de la base de datos que se conservan en el servidor.
+    'backups_keep' => (int) env('BACKUPS_KEEP', 14),
+    'backups_path' => env('BACKUPS_PATH'),
+
     'complaint_response_days' => 15,
 
     // Feriados nacionales fijos (mes-día). Revisar cada año por si el Estado agrega o mueve alguno.

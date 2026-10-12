@@ -12,6 +12,7 @@ import {
     BookHeart,
     BookX,
     Globe,
+    History,
     LayoutGrid,
     Megaphone,
     School,
@@ -38,6 +39,7 @@ import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
 import { index as payslips } from '@/routes/payslips';
 import { index as myPayments } from '@/routes/payments';
+import { index as audit } from '@/routes/admin/audit';
 import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
 import { index as adminDocuments } from '@/routes/admin/documents';
@@ -137,6 +139,7 @@ export function AppSidebar() {
                   href: complaints(),
                   icon: BookX,
               },
+              { title: 'Auditoría', href: audit(), icon: History },
               { title: 'Configuración', href: settings(), icon: Cog },
           ]
         : [];

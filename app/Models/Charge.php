@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ChargeConcept;
 use App\Enums\PaymentStatus;
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['enrollment_id', 'student_id', 'concept', 'description', 'period', 'amount', 'due_on', 'voided_at', 'created_by'])]
 class Charge extends Model
 {
+    use Auditable;
+
     protected function casts(): array
     {
         return [

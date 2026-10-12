@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ComplaintType;
+use App\Models\Concerns\Auditable;
 use App\Support\PeruCalendar;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,8 @@ use LogicException;
 ])]
 class Complaint extends Model
 {
+    use Auditable;
+
     /** Campos que pueden cambiar después del registro. */
     private const RESPONSE_FIELDS = ['response', 'responded_at', 'responded_by', 'updated_at'];
 

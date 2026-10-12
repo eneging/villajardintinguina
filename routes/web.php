@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
@@ -177,7 +178,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
         Route::put('salones/{classroom}', [AdminClassroomController::class, 'update'])->name('classrooms.update');
 
+        Route::get('auditoria', [AuditLogController::class, 'index'])->name('audit.index');
+
         Route::get('configuracion', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('configuracion/respaldos', [SettingsController::class, 'storeBackup'])->middleware('throttle:3,1')->name('settings.backups.store');
+        Route::get('configuracion/respaldos/{name}', [SettingsController::class, 'downloadBackup'])->name('settings.backups.download');
         Route::post('configuracion/anios', [SettingsController::class, 'storeYear'])->name('settings.years.store');
         Route::put('configuracion/anios/{year}', [SettingsController::class, 'updateYear'])->name('settings.years.update');
         Route::post('configuracion/anios/{year}/activar', [SettingsController::class, 'activateYear'])->name('settings.years.activate');

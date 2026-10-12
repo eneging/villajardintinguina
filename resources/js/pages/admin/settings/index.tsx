@@ -1,5 +1,14 @@
 import { Form, Head, router, usePage } from '@inertiajs/react';
-import { CalendarRange, Check, Plus, Tags, Trash2, Layers } from 'lucide-react';
+import {
+    CalendarRange,
+    Check,
+    DatabaseBackup,
+    Download,
+    Layers,
+    Plus,
+    Tags,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import SettingsController from '@/actions/App/Http/Controllers/Admin/SettingsController';
 import { day } from '@/components/billing/format';
@@ -33,7 +42,19 @@ type Level = {
 
 type Category = { id: number; name: string; expenses_count: number };
 
-type Props = { years: Year[]; levels: Level[]; categories: Category[] };
+type Backup = { name: string; size: number; created_at: string };
+
+type Props = {
+    years: Year[];
+    levels: Level[];
+    categories: Category[];
+    backups: Backup[];
+};
+
+const stamp = new Intl.DateTimeFormat('es-PE', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+});
 
 function ages(months: number): string {
     return months < 12
@@ -173,7 +194,12 @@ function CategoryRow({ category }: { category: Category }) {
     );
 }
 
-export default function Settings({ years, levels, categories }: Props) {
+export default function Settings({
+    years,
+    levels,
+    categories,
+    backups,
+}: Props) {
     const errors = usePage().props.errors as Record<string, string>;
     const active = years.find((year) => year.is_active);
     const nextYear = (years[0]?.year ?? new Date().getFullYear()) + 1;
@@ -184,7 +210,7 @@ export default function Settings({ years, levels, categories }: Props) {
             <div className="mx-auto w-full max-w-4xl space-y-8 p-4">
                 <Heading
                     title="Configuración del colegio"
-                    description="Años escolares, niveles y categorías de gastos."
+                    description="Años escolares, niveles, categorías de gastos y respaldos."
                 />
 
                 <section className="space-y-4 rounded-2xl border bg-card p-5">
@@ -419,6 +445,70 @@ export default function Settings({ years, levels, categories }: Props) {
                             </>
                         )}
                     </Form>
+                </section>
+                <section className="space-y-3 rounded-2xl border bg-card p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h2 className="flex items-center gap-2 font-semibold">
+                            <DatabaseBackup className="size-5" /> Respaldos de
+                            la base de datos
+                        </h2>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                                router.post(
+                                    SettingsController.storeBackup.url(),
+                                    {},
+                                    { preserveScroll: true },
+                                )
+                            }
+                        >
+                            <Plus /> Respaldar ahora
+                        </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        Se crea uno automático cada día a las 2:00 a. m. y se
+                        guardan los últimos. Descarga uno cada mes y guárdalo en
+                        tu Google Drive.
+                    </p>
+                    {backups.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                            Aún no hay respaldos.
+                        </p>
+                    ) : (
+                        <ul className="divide-y text-sm">
+                            {backups.map((backup) => (
+                                <li
+                                    key={backup.name}
+                                    className="flex items-center justify-between gap-2 py-2"
+                                >
+                                    <span>
+                                        {stamp.format(
+                                            new Date(backup.created_at),
+                                        )}
+                                        <span className="text-muted-foreground">
+                                            {' '}
+                                            ·{' '}
+                                            {Math.max(
+                                                1,
+                                                Math.round(backup.size / 1024),
+                                            )}{' '}
+                                            KB
+                                        </span>
+                                    </span>
+                                    <a
+                                        href={SettingsController.downloadBackup.url(
+                                            backup.name,
+                                        )}
+                                        className="inline-flex items-center gap-1 font-medium hover:underline"
+                                    >
+                                        <Download className="size-4" />{' '}
+                                        Descargar
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </section>
             </div>
         </>

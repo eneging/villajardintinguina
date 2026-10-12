@@ -8,6 +8,7 @@ use App\Models\ExpenseCategory;
 use App\Models\InductionAssignment;
 use App\Models\Level;
 use App\Models\SchoolYear;
+use App\Services\DatabaseBackup;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,15 +16,17 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Configuración del colegio: años escolares, niveles y categorías de gastos.
  */
 class SettingsController extends Controller
 {
-    public function index(): Response
+    public function index(DatabaseBackup $backup): Response
     {
         return Inertia::render('admin/settings/index', [
+            'backups' => $backup->list(),
             'years' => SchoolYear::query()
                 ->withCount(['classrooms', 'enrollments'])
                 ->orderByDesc('year')
@@ -51,6 +54,22 @@ class SettingsController extends Controller
                 'expenses_count' => $category->expenses_count,
             ]),
         ]);
+    }
+
+    public function storeBackup(DatabaseBackup $backup): RedirectResponse
+    {
+        $name = basename($backup->create());
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Respaldo {$name} creado."]);
+
+        return back();
+    }
+
+    public function downloadBackup(DatabaseBackup $backup, string $name): BinaryFileResponse
+    {
+        $path = $backup->path($name);
+        abort_unless($path, 404);
+
+        return response()->download($path);
     }
 
     /**

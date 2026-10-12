@@ -5,6 +5,7 @@ use App\Mail\DocumentExpirations;
 use App\Models\Complaint;
 use App\Models\Document;
 use App\Services\BillingService;
+use App\Services\DatabaseBackup;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schedule;
@@ -62,3 +63,10 @@ Artisan::command('documentos:alertar-vencimientos', function () {
 })->purpose('Avisa a la administración de documentos vencidos o que vencen en 30 días');
 
 Schedule::command('documentos:alertar-vencimientos')->weeklyOn(1, '08:15');
+
+Artisan::command('respaldo:crear', function (DatabaseBackup $backup) {
+    $path = $backup->create();
+    $this->info('Respaldo creado: '.basename($path).' ('.round(filesize($path) / 1024).' KB)');
+})->purpose('Respalda la base de datos en storage/app/private/backups (se conservan los últimos)');
+
+Schedule::command('respaldo:crear')->dailyAt('02:00');

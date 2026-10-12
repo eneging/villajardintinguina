@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['expense_category_id', 'date', 'description', 'amount', 'method', 'receipt_media_id', 'created_by'])]
 class Expense extends Model
 {
+    use Auditable;
+
     protected function casts(): array
     {
         return [

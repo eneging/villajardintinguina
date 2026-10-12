@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[Fillable(['user_id', 'name', 'dni', 'position', 'regime', 'pension_system', 'base_salary', 'bank', 'account_number', 'hired_on', 'active'])]
 class Employee extends Model
 {
+    use Auditable;
+
     public const POSITIONS = [
         'maestra' => 'Maestra',
         'auxiliar' => 'Auxiliar',
