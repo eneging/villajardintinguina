@@ -7,6 +7,7 @@ import { ClassroomTile } from '@/pages/classrooms/index';
 import { show } from '@/routes/classrooms';
 import { dashboard } from '@/routes';
 import { index as billing } from '@/routes/admin/billing';
+import { index as adminDocuments } from '@/routes/admin/documents';
 import { mine as myInduction } from '@/routes/induction';
 import { index as myPayments } from '@/routes/payments';
 import type { ClassroomSummary, LearningModuleCard } from '@/types';
@@ -23,7 +24,11 @@ type Props = {
     managedClassrooms: ClassroomSummary[];
     induction: { required: number; completed: number } | null;
     debt: number | null;
-    finance: { overdue: number; pending_vouchers: number } | null;
+    finance: {
+        overdue: number;
+        pending_vouchers: number;
+        expiring_documents: number;
+    } | null;
 };
 
 export default function Dashboard({
@@ -85,6 +90,16 @@ export default function Dashboard({
                                 {finance.pending_vouchers}
                             </span>
                         </span>
+                    </Link>
+                )}
+
+                {finance && finance.expiring_documents > 0 && (
+                    <Link
+                        href={adminDocuments({ query: { expiring: 1 } })}
+                        className="block rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+                    >
+                        ⚠ {finance.expiring_documents} documento(s) vencidos o
+                        por vencer en los próximos 30 días.
                     </Link>
                 )}
 

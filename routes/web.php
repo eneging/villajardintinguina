@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\FinanceController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
@@ -131,6 +133,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('sorteos/{raffle}/sortear', [RaffleController::class, 'draw'])->name('raffles.draw');
         Route::get('sorteos/{raffle}/en-vivo', [RaffleController::class, 'live'])->name('raffles.live');
 
+        Route::get('documentos', [AdminDocumentController::class, 'index'])->name('documents.index');
+        Route::post('documentos', [AdminDocumentController::class, 'store'])->name('documents.store');
+        Route::delete('documentos/{document}', [AdminDocumentController::class, 'destroy'])->name('documents.destroy');
+
         Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
@@ -158,6 +164,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('eventos/{event}/respuesta', [EventController::class, 'submit'])
         ->middleware('throttle:20,1')
         ->name('events.submit');
+
+    // Documentos visibles para cada persona (se abren con enlace temporal).
+    Route::get('documentos', [DocumentController::class, 'index'])->name('documents.index');
+    Route::get('documentos/{document}/abrir', [DocumentController::class, 'open'])->name('documents.open');
 
     // Personal: sus boletas de pago.
     Route::get('mis-boletas', [PayslipController::class, 'index'])->name('payslips.index');

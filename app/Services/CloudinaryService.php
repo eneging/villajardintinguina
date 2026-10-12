@@ -102,6 +102,27 @@ class CloudinaryService
         return "https://res.cloudinary.com/{$this->cloudName}/{$media->resource_type}/{$media->delivery_type}/".implode('/', $segments);
     }
 
+    /**
+     * Enlace de descarga que vence (para documentos sensibles). Usa la API de
+     * descarga privada de Cloudinary, válida para archivos "authenticated".
+     */
+    public function temporaryDownloadUrl(Media $media, int $minutes = 10): string
+    {
+        $this->ensureConfigured();
+
+        $params = [
+            'public_id' => $media->public_id,
+            'format' => $media->format,
+            'type' => $media->delivery_type,
+            'expires_at' => time() + $minutes * 60,
+            'timestamp' => time(),
+        ];
+        $params['signature'] = $this->sign($params);
+        $params['api_key'] = $this->apiKey;
+
+        return "https://api.cloudinary.com/v1_1/{$this->cloudName}/{$media->resource_type}/download?".http_build_query(array_filter($params, fn ($value) => $value !== null && $value !== ''));
+    }
+
     public function videoPosterUrl(Media $media): string
     {
         return $this->deliveryUrl($media, 'so_auto,f_jpg,q_auto,w_640', 'jpg');

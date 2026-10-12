@@ -4,6 +4,7 @@ import {
     Banknote,
     ChartColumn,
     FileText,
+    FolderOpen,
     PartyPopper,
     CalendarCheck,
     ClipboardCheck,
@@ -35,6 +36,7 @@ import { index as payslips } from '@/routes/payslips';
 import { index as myPayments } from '@/routes/payments';
 import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
+import { index as adminDocuments } from '@/routes/admin/documents';
 import { index as finance } from '@/routes/admin/finance';
 import { index as payroll } from '@/routes/admin/payroll';
 import { index as staffAttendance } from '@/routes/admin/staff-attendance';
@@ -45,6 +47,7 @@ import {
     staff as myAttendance,
 } from '@/routes/attendance';
 import { index as classrooms } from '@/routes/classrooms';
+import { index as documents } from '@/routes/documents';
 import { index as events } from '@/routes/events';
 import {
     index as manageInduction,
@@ -65,6 +68,11 @@ export function AppSidebar() {
     const mainNavItems: NavItem[] = [
         { title: 'Inicio', href: dashboard(), icon: LayoutGrid },
         { title: 'Eventos', href: events(), icon: PartyPopper },
+        {
+            title: 'Documentos',
+            href: auth.roles.includes('admin') ? adminDocuments() : documents(),
+            icon: FolderOpen,
+        },
         ...(hasRole(auth.roles, 'admin', 'teacher')
             ? [{ title: 'Salones', href: classrooms(), icon: School }]
             : []),
