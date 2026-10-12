@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\InductionAudience;
 use App\Enums\ModuleStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\Role;
+use App\Models\Charge;
 use App\Models\Classroom;
 use App\Models\LearningModule;
+use App\Models\Payment;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Services\InductionService;
@@ -75,7 +78,24 @@ class DashboardController extends Controller
             ];
         }
 
+        $debt = $user->hasRole(Role::Parent)
+            ? Charge::query()->active()->withPaidAmount()
+                ->whereIn('student_id', $user->children()->pluck('students.id'))
+                ->get()
+                ->sum(fn (Charge $charge) => max(0, $charge->balance() - (float) $charge->pending_amount))
+            : null;
+
+        $finance = $user->isAdmin() ? [
+            'overdue' => round(Charge::query()->active()->withPaidAmount()
+                ->where('due_on', '<', today()->subDays(config('school.grace_days')))
+                ->get()
+                ->sum(fn (Charge $charge) => max(0, $charge->balance())), 2),
+            'pending_vouchers' => Payment::where('status', PaymentStatus::Pending)->count(),
+        ] : null;
+
         return Inertia::render('dashboard', [
+            'debt' => $debt === null ? null : round($debt, 2),
+            'finance' => $finance,
             'induction' => $inductionSummary,
             'children' => $children,
             'latestModules' => $latestModules,

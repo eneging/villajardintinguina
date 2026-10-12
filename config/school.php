@@ -19,6 +19,12 @@ return [
     'email' => env('SCHOOL_EMAIL', 'contacto@villajardin.edu.pe'),
     'whatsapp' => env('SCHOOL_WHATSAPP', '51999999999'),
 
+    // Pensiones: día de vencimiento de cada mes, días de tolerancia antes de
+    // considerar moroso y meses en que se cobra mensualidad (marzo a diciembre).
+    'fee_due_day' => (int) env('SCHOOL_FEE_DUE_DAY', 10),
+    'grace_days' => (int) env('SCHOOL_GRACE_DAYS', 0),
+    'billing_months' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+
     // Plazo legal de respuesta del Libro de Reclamaciones (días hábiles).
     'complaint_response_days' => 15,
 

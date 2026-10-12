@@ -510,14 +510,15 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 
 ### Estado actual (octubre 2026)
 
-| Módulo                                                       | Estado                                                                                      |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| Sitio público                                                | ✅ Base lista (textos provisionales)                                                        |
-| Roles, salones, alumnos, matrículas                          | ✅ Modelo y permisos (falta pantalla para que la administradora cree usuarios y matrículas) |
-| Módulos de aprendizaje                                       | ✅                                                                                          |
-| Inducción general / por nivel / por salón                    | ✅                                                                                          |
-| Libro de Reclamaciones                                       | ✅                                                                                          |
-| Pagos y morosidad, asistencia, planilla, sorteos, documentos | ⏳ Pendiente                                                                                |
+| Módulo                                              | Estado                                                                           |
+| --------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Sitio público                                       | ✅ Base lista (textos provisionales)                                             |
+| Roles, salones, alumnos, matrículas                 | ✅ Con pantallas de administración                                               |
+| Módulos de aprendizaje                              | ✅                                                                               |
+| Inducción general / por nivel / por salón           | ✅                                                                               |
+| Libro de Reclamaciones                              | ✅                                                                               |
+| Pagos y morosidad                                   | ✅ Recordatorio por enlace de WhatsApp (WhatsApp Cloud API automático pendiente) |
+| Asistencia, planilla y balance, sorteos, documentos | ⏳ Pendiente                                                                     |
 
 ## 7. Plan por fases
 

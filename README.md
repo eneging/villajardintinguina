@@ -14,6 +14,8 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 - **Módulos de aprendizaje**: la maestra publica en su salón qué aprenderán los niños (texto, imagen, video, PDF, actividad para casa). Los padres solo ven los publicados del salón de su hijo.
 - **Inducción**: lecciones con video, imágenes y texto dirigidas a todos, a niveles o a salones (y al personal). Casilla de aceptación, avance por padre y tablero por salón con recordatorio por WhatsApp.
 - **Libro de Reclamaciones Virtual** (INDECOPI): hoja con correlativo anual, constancia por correo e imprimible, plazo de 15 días hábiles (sin fines de semana ni feriados), respuesta de la administradora y aviso diario de plazos. Las hojas no se editan ni se borran.
+- **Administración**: personas (cuentas y roles, activar/desactivar, enlace de acceso por correo), alumnos con apoderados y matrícula, salones con su personal.
+- **Pagos y morosidad**: mensualidades automáticas (con descuento por alumno), matrícula y otros cobros; pagos en efectivo, transferencia, Yape, Plin o tarjeta que pueden cubrir varios meses; foto del voucher y de la boleta/factura; los padres reportan su pago con voucher y la administradora lo confirma o rechaza; panel de morosos con recordatorio por WhatsApp registrado.
 - **Subida directa a Cloudinary** firmada por Laravel (archivos de salones e inducción con entrega `authenticated`).
 
 ## Desarrollo local
@@ -43,7 +45,7 @@ Completa en `.env` la razón social, RUC, dirección y correo (`SCHOOL_*`): apar
 
 ### Tareas programadas
 
-En el hosting compartido configura un solo cron cada minuto: `php artisan schedule:run`. Hoy ejecuta el aviso diario de reclamos por vencer (`reclamos:alertar-plazos`).
+En el hosting compartido configura un solo cron cada minuto: `php artisan schedule:run`. Ejecuta la generación de mensualidades el día 1 (`cuotas:generar`) y el aviso diario de reclamos por vencer (`reclamos:alertar-plazos`). El día de vencimiento y la tolerancia se configuran con `SCHOOL_FEE_DUE_DAY` y `SCHOOL_GRACE_DAYS`.
 
 ### Cloudinary
 

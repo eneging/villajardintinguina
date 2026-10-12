@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\StudentController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\Parent\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -70,6 +72,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('alumnos/{student}/editar', [StudentController::class, 'edit'])->name('students.edit');
         Route::put('alumnos/{student}', [StudentController::class, 'update'])->name('students.update');
 
+        Route::get('pagos', [BillingController::class, 'index'])->name('billing.index');
+        Route::post('pagos/generar', [BillingController::class, 'generate'])->name('billing.generate');
+        Route::post('pagos', [BillingController::class, 'storePayment'])->name('billing.payments.store');
+        Route::post('pagos/{payment}/confirmar', [BillingController::class, 'confirm'])->name('billing.payments.confirm');
+        Route::post('pagos/{payment}/rechazar', [BillingController::class, 'reject'])->name('billing.payments.reject');
+        Route::get('pagos/alumno/{student}', [BillingController::class, 'student'])->name('billing.student');
+        Route::post('pagos/alumno/{student}/cuotas', [BillingController::class, 'storeCharge'])->name('billing.charges.store');
+        Route::post('cuotas/{charge}/anular', [BillingController::class, 'voidCharge'])->name('billing.charges.annul');
+        Route::get('morosos', [BillingController::class, 'debtors'])->name('billing.debtors');
+        Route::post('morosos/{user}/recordatorio', [BillingController::class, 'remind'])->name('billing.remind');
+
         Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
@@ -78,6 +91,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('reclamos', [AdminComplaintController::class, 'index'])->name('complaints.index');
         Route::get('reclamos/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
         Route::post('reclamos/{complaint}/respuesta', [AdminComplaintController::class, 'respond'])->name('complaints.respond');
+    });
+
+    // Padres: estado de cuenta y reporte de pagos con voucher.
+    Route::middleware('role:parent')->group(function () {
+        Route::get('mis-pagos', [PaymentController::class, 'index'])->name('payments.index');
+        Route::post('mis-pagos', [PaymentController::class, 'store'])
+            ->middleware('throttle:20,1')
+            ->name('payments.store');
     });
 
     // Cloudinary: firma de subida directa y registro del archivo subido.

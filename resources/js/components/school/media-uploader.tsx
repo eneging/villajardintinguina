@@ -9,7 +9,8 @@ type ResourceType = 'image' | 'video' | 'raw';
 /** Dónde se guarda el archivo: contenido de un salón o lecciones de inducción. */
 export type UploadTarget =
     | { context: 'classroom'; classroom_id: number }
-    | { context: 'induction' };
+    | { context: 'induction' }
+    | { context: 'payment' };
 
 type SignedUpload = {
     upload_url: string;
@@ -25,6 +26,9 @@ const accepts: Record<ResourceType, string> = {
     video: 'video/*',
     raw: 'application/pdf',
 };
+
+// Cloudinary guarda los PDF como "image": sirve para vouchers y boletas escaneadas.
+const imageOrPdf = 'image/*,application/pdf';
 
 const maxBytes: Record<ResourceType, number> = {
     image: 10 * 1024 * 1024,
@@ -167,7 +171,11 @@ export function MediaUploader({
             <input
                 ref={input}
                 type="file"
-                accept={accepts[resourceType]}
+                accept={
+                    target.context === 'payment' && resourceType === 'image'
+                        ? imageOrPdf
+                        : accepts[resourceType]
+                }
                 className="hidden"
                 onChange={(event) => {
                     const file = event.target.files?.[0];

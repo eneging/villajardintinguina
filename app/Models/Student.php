@@ -48,4 +48,10 @@ class Student extends Model
             ->where('status', 'active')
             ->whereHas('schoolYear', fn ($query) => $query->where('is_active', true));
     }
+
+    /** @return HasMany<Charge, $this> */
+    public function charges(): HasMany
+    {
+        return $this->hasMany(Charge::class);
+    }
 }

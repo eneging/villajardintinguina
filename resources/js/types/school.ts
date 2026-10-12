@@ -131,3 +131,42 @@ export type Complaint = {
     response: string | null;
     responded_at: string | null;
 };
+
+export type ChargeStatus =
+    | 'pendiente'
+    | 'parcial'
+    | 'vencida'
+    | 'pagada'
+    | 'anulada';
+
+export type Charge = {
+    id: number;
+    concept: 'matricula' | 'mensualidad' | 'otro';
+    description: string;
+    period: string | null;
+    amount: number;
+    paid: number;
+    pending: number;
+    balance: number;
+    due_on: string;
+    status: ChargeStatus;
+    days_late: number;
+};
+
+export type PaymentRecord = {
+    id: number;
+    paid_on: string;
+    amount: string;
+    method: string;
+    method_label: string;
+    operation_number: string | null;
+    status: 'confirmed' | 'pending' | 'rejected';
+    receipt_type: 'boleta' | 'factura' | null;
+    receipt_number: string | null;
+    voucher: MediaItem | null;
+    receipt: MediaItem | null;
+    notes: string | null;
+    rejection_reason: string | null;
+    payer: string | null;
+    concepts: string[];
+};

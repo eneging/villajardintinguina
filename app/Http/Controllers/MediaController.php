@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Gate;
  * carpeta y tipo de entrega) y luego registra el archivo verificando la firma
  * que devuelve Cloudinary.
  *
- * Contextos: "classroom" (módulos y contenido de un salón) e "induction".
+ * Contextos: "classroom" (módulos y contenido de un salón), "induction" y
+ * "payment" (vouchers y comprobantes).
  */
 class MediaController extends Controller
 {
@@ -92,8 +93,8 @@ class MediaController extends Controller
     private function contextRules(): array
     {
         return [
-            'context' => ['sometimes', 'in:classroom,induction'],
-            'classroom_id' => ['required_unless:context,induction', 'nullable', 'integer', 'exists:classrooms,id'],
+            'context' => ['sometimes', 'in:classroom,induction,payment'],
+            'classroom_id' => ['required_if:context,classroom', 'required_without:context', 'nullable', 'integer', 'exists:classrooms,id'],
         ];
     }
 
@@ -102,6 +103,18 @@ class MediaController extends Controller
      */
     private function authorizedFolder(Request $request, array $data): string
     {
+        if (($data['context'] ?? 'classroom') === 'payment') {
+            $user = $request->user();
+
+            if ($user->isAdmin()) {
+                return 'pagos';
+            }
+
+            abort_unless($user->hasRole(Role::Parent), 403);
+
+            return "pagos/padres/{$user->id}";
+        }
+
         if (($data['context'] ?? 'classroom') === 'induction') {
             abort_unless($request->user()->hasRole(Role::Admin, Role::Teacher), 403);
 

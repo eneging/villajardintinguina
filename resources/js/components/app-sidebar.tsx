@@ -8,6 +8,7 @@ import {
     School,
     Settings2,
     Users,
+    Wallet,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -24,6 +25,8 @@ import {
 } from '@/components/ui/sidebar';
 import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
+import { index as myPayments } from '@/routes/payments';
+import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
 import { index as students } from '@/routes/admin/students';
 import { index as users } from '@/routes/admin/users';
@@ -49,6 +52,9 @@ export function AppSidebar() {
         ...(hasRole(auth.roles, 'admin', 'teacher')
             ? [{ title: 'Salones', href: classrooms(), icon: School }]
             : []),
+        ...(hasRole(auth.roles, 'parent')
+            ? [{ title: 'Mis pagos', href: myPayments(), icon: Wallet }]
+            : []),
         ...(hasRole(auth.roles, 'parent', 'teacher', 'intern')
             ? [{ title: 'Mi inducción', href: myInduction(), icon: BookHeart }]
             : []),
@@ -63,6 +69,7 @@ export function AppSidebar() {
             : []),
         ...(hasRole(auth.roles, 'admin')
             ? [
+                  { title: 'Pagos', href: billing(), icon: Wallet },
                   { title: 'Alumnos', href: students(), icon: Baby },
                   { title: 'Personas', href: users(), icon: Users },
                   {

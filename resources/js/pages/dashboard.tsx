@@ -1,11 +1,14 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { BookHeart } from 'lucide-react';
+import { BookHeart, Wallet } from 'lucide-react';
+import { money } from '@/components/billing/format';
 import Heading from '@/components/heading';
 import { ModuleCard } from '@/components/school/module-card';
 import { ClassroomTile } from '@/pages/classrooms/index';
 import { show } from '@/routes/classrooms';
 import { dashboard } from '@/routes';
+import { index as billing } from '@/routes/admin/billing';
 import { mine as myInduction } from '@/routes/induction';
+import { index as myPayments } from '@/routes/payments';
 import type { ClassroomSummary, LearningModuleCard } from '@/types';
 
 type Child = {
@@ -19,6 +22,8 @@ type Props = {
     latestModules: LearningModuleCard[];
     managedClassrooms: ClassroomSummary[];
     induction: { required: number; completed: number } | null;
+    debt: number | null;
+    finance: { overdue: number; pending_vouchers: number } | null;
 };
 
 export default function Dashboard({
@@ -26,6 +31,8 @@ export default function Dashboard({
     latestModules,
     managedClassrooms,
     induction,
+    debt,
+    finance,
 }: Props) {
     const { auth } = usePage().props;
     const firstName = auth.user.name.split(' ')[0];
@@ -38,6 +45,48 @@ export default function Dashboard({
                     title={`¡Hola, ${firstName}! 👋`}
                     description="Bienvenida/o a la plataforma de EP Villa Jardín."
                 />
+
+                {debt !== null && debt > 0 && (
+                    <Link
+                        href={myPayments()}
+                        className="flex items-center gap-4 rounded-2xl border-2 border-red-200 bg-red-50 p-5 transition hover:shadow-md dark:border-red-900 dark:bg-red-950/40"
+                    >
+                        <Wallet className="size-10 shrink-0 text-red-600" />
+                        <span>
+                            <span className="block font-semibold">
+                                Tienes {money(debt)} por pagar
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                                Revisa tus cuotas y envía tu voucher desde Mis
+                                pagos.
+                            </span>
+                        </span>
+                    </Link>
+                )}
+
+                {finance && (
+                    <Link
+                        href={billing()}
+                        className="grid gap-4 rounded-2xl border bg-card p-5 transition hover:shadow-md sm:grid-cols-2"
+                    >
+                        <span>
+                            <span className="block text-sm text-muted-foreground">
+                                Pensiones vencidas por cobrar
+                            </span>
+                            <span className="text-2xl font-bold text-red-700 tabular-nums">
+                                {money(finance.overdue)}
+                            </span>
+                        </span>
+                        <span>
+                            <span className="block text-sm text-muted-foreground">
+                                Vouchers por verificar
+                            </span>
+                            <span className="text-2xl font-bold text-amber-700 tabular-nums">
+                                {finance.pending_vouchers}
+                            </span>
+                        </span>
+                    </Link>
+                )}
 
                 {induction && induction.required > induction.completed && (
                     <Link
