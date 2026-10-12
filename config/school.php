@@ -25,6 +25,19 @@ return [
     'grace_days' => (int) env('SCHOOL_GRACE_DAYS', 0),
     'billing_months' => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 
+    // Asistencia del personal: hora de ingreso y minutos de tolerancia.
+    // Si se define la ubicación del colegio, la marcación exige estar dentro del radio (metros).
+    'staff_start_time' => env('SCHOOL_STAFF_START_TIME', '07:45'),
+    'staff_tolerance_minutes' => (int) env('SCHOOL_STAFF_TOLERANCE', 5),
+    'location' => [
+        'latitude' => env('SCHOOL_LATITUDE'),
+        'longitude' => env('SCHOOL_LONGITUDE'),
+        'radius' => (int) env('SCHOOL_LOCATION_RADIUS', 150),
+    ],
+
+    // Asistencia de alumnos: hora de entrada (después se marca tardanza).
+    'student_start_time' => env('SCHOOL_STUDENT_START_TIME', '08:15'),
+
     // Plazo legal de respuesta del Libro de Reclamaciones (días hábiles).
     'complaint_response_days' => 15,
 

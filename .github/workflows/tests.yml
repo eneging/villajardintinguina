@@ -13,6 +13,29 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
+    # Mismo motor que el hosting compartido: MySQL / MariaDB.
+    services:
+      mysql:
+        image: mariadb:10.11
+        env:
+          MARIADB_DATABASE: villajardin_test
+          MARIADB_USER: villajardin
+          MARIADB_PASSWORD: secret
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=5
+
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: villajardin_test
+      DB_USERNAME: villajardin
+      DB_PASSWORD: secret
+
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -23,6 +46,7 @@ jobs:
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.3'
+          extensions: pdo_mysql
           tools: composer:v2
           coverage: none
 

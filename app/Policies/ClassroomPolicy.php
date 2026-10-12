@@ -20,4 +20,12 @@ class ClassroomPolicy
         return $user->isAdmin()
             || ($user->hasRole(Role::Teacher) && $classroom->hasStaffMember($user));
     }
+
+    /**
+     * Toma de asistencia: administradora y todo el personal del salón (incluidas practicantes).
+     */
+    public function takeAttendance(User $user, Classroom $classroom): bool
+    {
+        return $user->isAdmin() || $classroom->hasStaffMember($user);
+    }
 }

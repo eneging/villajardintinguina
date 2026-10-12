@@ -1,6 +1,8 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Baby,
+    CalendarCheck,
+    ClipboardCheck,
     BookHeart,
     BookX,
     Globe,
@@ -28,8 +30,13 @@ import { dashboard, home } from '@/routes';
 import { index as myPayments } from '@/routes/payments';
 import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
+import { index as staffAttendance } from '@/routes/admin/staff-attendance';
 import { index as students } from '@/routes/admin/students';
 import { index as users } from '@/routes/admin/users';
+import {
+    mine as childrenAttendance,
+    staff as myAttendance,
+} from '@/routes/attendance';
 import { index as classrooms } from '@/routes/classrooms';
 import {
     index as manageInduction,
@@ -52,8 +59,24 @@ export function AppSidebar() {
         ...(hasRole(auth.roles, 'admin', 'teacher')
             ? [{ title: 'Salones', href: classrooms(), icon: School }]
             : []),
+        ...(hasRole(auth.roles, 'teacher', 'intern')
+            ? [
+                  {
+                      title: 'Mi asistencia',
+                      href: myAttendance(),
+                      icon: ClipboardCheck,
+                  },
+              ]
+            : []),
         ...(hasRole(auth.roles, 'parent')
-            ? [{ title: 'Mis pagos', href: myPayments(), icon: Wallet }]
+            ? [
+                  {
+                      title: 'Asistencia',
+                      href: childrenAttendance(),
+                      icon: CalendarCheck,
+                  },
+                  { title: 'Mis pagos', href: myPayments(), icon: Wallet },
+              ]
             : []),
         ...(hasRole(auth.roles, 'parent', 'teacher', 'intern')
             ? [{ title: 'Mi inducción', href: myInduction(), icon: BookHeart }]
@@ -71,6 +94,11 @@ export function AppSidebar() {
             ? [
                   { title: 'Pagos', href: billing(), icon: Wallet },
                   { title: 'Alumnos', href: students(), icon: Baby },
+                  {
+                      title: 'Asistencia del personal',
+                      href: staffAttendance(),
+                      icon: ClipboardCheck,
+                  },
                   { title: 'Personas', href: users(), icon: Users },
                   {
                       title: 'Libro de Reclamaciones',

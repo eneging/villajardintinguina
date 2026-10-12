@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ClassroomController;
@@ -12,6 +13,8 @@ use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Parent\PaymentController;
+use App\Http\Controllers\StaffAttendanceController;
+use App\Http\Controllers\StudentAttendanceController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -83,6 +86,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('morosos', [BillingController::class, 'debtors'])->name('billing.debtors');
         Route::post('morosos/{user}/recordatorio', [BillingController::class, 'remind'])->name('billing.remind');
 
+        Route::get('asistencia-personal', [AdminStaffAttendanceController::class, 'index'])->name('staff-attendance.index');
+        Route::post('asistencia-personal', [AdminStaffAttendanceController::class, 'store'])->name('staff-attendance.store');
+
         Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
@@ -91,6 +97,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('reclamos', [AdminComplaintController::class, 'index'])->name('complaints.index');
         Route::get('reclamos/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
         Route::post('reclamos/{complaint}/respuesta', [AdminComplaintController::class, 'respond'])->name('complaints.respond');
+    });
+
+    // Asistencia de alumnos (personal del salón) y del personal (marcación propia).
+    Route::get('salones/{classroom}/asistencia', [StudentAttendanceController::class, 'show'])->name('attendance.classroom');
+    Route::post('salones/{classroom}/asistencia', [StudentAttendanceController::class, 'store'])->name('attendance.classroom.store');
+    Route::get('salones/{classroom}/asistencia/reporte', [StudentAttendanceController::class, 'report'])->name('attendance.report');
+    Route::get('asistencia', [StudentAttendanceController::class, 'mine'])->middleware('role:parent')->name('attendance.mine');
+    Route::middleware('role:teacher,intern')->group(function () {
+        Route::get('mi-asistencia', [StaffAttendanceController::class, 'index'])->name('attendance.staff');
+        Route::post('mi-asistencia/entrada', [StaffAttendanceController::class, 'checkIn'])->middleware('throttle:10,1')->name('attendance.check-in');
+        Route::post('mi-asistencia/salida', [StaffAttendanceController::class, 'checkOut'])->middleware('throttle:10,1')->name('attendance.check-out');
     });
 
     // Padres: estado de cuenta y reporte de pagos con voucher.

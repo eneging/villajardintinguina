@@ -1,9 +1,10 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ListChecks, Pencil, Plus } from 'lucide-react';
+import { ClipboardCheck, ListChecks, Pencil, Plus } from 'lucide-react';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
 import { moduleTiming } from '@/lib/school';
 import { edit as editClassroom } from '@/routes/admin/classrooms';
+import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
 import { progress } from '@/routes/induction';
 import { create } from '@/routes/modules';
@@ -17,6 +18,7 @@ type Props = {
     modules: LearningModuleCard[];
     children: { id: number; name: string }[];
     canManage: boolean;
+    canTakeAttendance: boolean;
 };
 
 const staffLabels = {
@@ -36,6 +38,7 @@ export default function ClassroomShow({
     modules,
     children,
     canManage,
+    canTakeAttendance,
 }: Props) {
     const { auth } = usePage().props;
     const drafts = modules.filter((m) => m.status === 'draft');
@@ -74,8 +77,20 @@ export default function ClassroomShow({
                                 </p>
                             )}
                         </div>
+                        {canTakeAttendance && !canManage && (
+                            <Button asChild>
+                                <Link href={attendance(classroom.id)}>
+                                    <ClipboardCheck /> Asistencia de hoy
+                                </Link>
+                            </Button>
+                        )}
                         {canManage && (
                             <div className="flex flex-wrap gap-2">
+                                <Button variant="outline" asChild>
+                                    <Link href={attendance(classroom.id)}>
+                                        <ClipboardCheck /> Asistencia
+                                    </Link>
+                                </Button>
                                 {auth.roles.includes('admin') && (
                                     <Button variant="outline" asChild>
                                         <Link

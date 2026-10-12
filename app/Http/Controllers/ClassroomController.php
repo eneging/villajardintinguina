@@ -61,6 +61,7 @@ class ClassroomController extends Controller
                 ->get()
                 ->map(fn ($student) => ['id' => $student->id, 'name' => $student->fullName()]),
             'canManage' => $canManage,
+            'canTakeAttendance' => $user->can('takeAttendance', $classroom),
         ]);
     }
 

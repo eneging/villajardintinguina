@@ -41,4 +41,10 @@ class Enrollment extends Model
     {
         return $this->hasMany(Charge::class);
     }
+
+    /** @return HasMany<StudentAttendance, $this> */
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(StudentAttendance::class);
+    }
 }

@@ -103,6 +103,12 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
         return $this->hasMany(InductionProgress::class);
     }
 
+    /** @return HasMany<StaffAttendance, $this> */
+    public function staffAttendances(): HasMany
+    {
+        return $this->hasMany(StaffAttendance::class);
+    }
+
     /** @return BelongsToMany<Classroom, $this> */
     public function classrooms(): BelongsToMany
     {

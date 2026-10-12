@@ -2,7 +2,7 @@
 
 Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Villa Jardín** (Ica, Perú).
 
-**Stack:** Laravel 13 · Inertia.js · React 19 + TypeScript · Tailwind · MySQL · Cloudinary — pensado para desplegarse en un **hosting compartido** (cPanel, PHP 8.3+).
+**Stack:** Laravel 13 · Inertia.js · React 19 + TypeScript · Tailwind · **MySQL / MariaDB** · Cloudinary — pensado para desplegarse en un **hosting compartido** (cPanel, PHP 8.3+).
 
 - Arquitectura, módulos y plan por fases: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
 
@@ -16,6 +16,7 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 - **Libro de Reclamaciones Virtual** (INDECOPI): hoja con correlativo anual, constancia por correo e imprimible, plazo de 15 días hábiles (sin fines de semana ni feriados), respuesta de la administradora y aviso diario de plazos. Las hojas no se editan ni se borran.
 - **Administración**: personas (cuentas y roles, activar/desactivar, enlace de acceso por correo), alumnos con apoderados y matrícula, salones con su personal.
 - **Pagos y morosidad**: mensualidades automáticas (con descuento por alumno), matrícula y otros cobros; pagos en efectivo, transferencia, Yape, Plin o tarjeta que pueden cubrir varios meses; foto del voucher y de la boleta/factura; los padres reportan su pago con voucher y la administradora lo confirma o rechaza; panel de morosos con recordatorio por WhatsApp registrado.
+- **Asistencia**: alumnos por salón (presente, tardanza, falta, justificada; hora de llegada, salida y quién lo recogió), reporte mensual y calendario para los padres; marcación de entrada y salida del personal con tardanza automática y ubicación opcional, resumen mensual y registro manual de la administradora.
 - **Subida directa a Cloudinary** firmada por Laravel (archivos de salones e inducción con entrega `authenticated`).
 
 ## Desarrollo local
@@ -24,7 +25,7 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 composer install
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite        # o configura MySQL en .env
+# Crea la base de datos MySQL/MariaDB (utf8mb4) y pon usuario y contraseña en .env (DB_*)
 php artisan migrate --seed
 npm install
 composer dev                          # servidor + Vite
@@ -53,6 +54,8 @@ En `.env`: `CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME` y `CLOUDI
 En la consola de Cloudinary activa _"Allow delivery of PDF and ZIP files"_. Sin Cloudinary configurado, los módulos aceptan texto, actividades y videos de YouTube.
 
 ## Pruebas
+
+Las pruebas usan MySQL/MariaDB (base `villajardin_test`, el mismo motor del hosting). Créala con el mismo usuario de `.env`.
 
 ```bash
 php artisan test
