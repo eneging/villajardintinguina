@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\Media;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 /**
  * Integración mínima con Cloudinary sin SDK: firma subidas directas desde el
@@ -121,6 +123,39 @@ class CloudinaryService
         $params['api_key'] = $this->apiKey;
 
         return "https://api.cloudinary.com/v1_1/{$this->cloudName}/{$media->resource_type}/download?".http_build_query(array_filter($params, fn ($value) => $value !== null && $value !== ''));
+    }
+
+    /**
+     * URL que fuerza la descarga del archivo (foto o video de la galería).
+     */
+    public function downloadUrl(Media $media): string
+    {
+        return $this->deliveryUrl($media, 'fl_attachment');
+    }
+
+    /**
+     * Elimina el archivo en Cloudinary (si falla, no interrumpe: queda huérfano y se puede limpiar luego).
+     */
+    public function destroy(Media $media): bool
+    {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $params = ['public_id' => $media->public_id, 'timestamp' => time(), 'type' => $media->delivery_type];
+
+        try {
+            return Http::asForm()
+                ->timeout(10)
+                ->post("https://api.cloudinary.com/v1_1/{$this->cloudName}/{$media->resource_type}/destroy", [
+                    ...$params,
+                    'signature' => $this->sign($params),
+                    'api_key' => $this->apiKey,
+                ])
+                ->json('result') === 'ok';
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function videoPosterUrl(Media $media): string

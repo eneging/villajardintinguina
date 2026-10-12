@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ClipboardCheck, ListChecks, Pencil, Plus } from 'lucide-react';
+import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
@@ -7,9 +8,11 @@ import { moduleTiming } from '@/lib/school';
 import { edit as editClassroom } from '@/routes/admin/classrooms';
 import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
+import { index as gallery } from '@/routes/gallery';
 import { progress } from '@/routes/induction';
 import { create } from '@/routes/modules';
 import type {
+    AlbumCard as Album,
     Announcement,
     ClassroomSummary,
     LearningModuleCard,
@@ -26,6 +29,7 @@ type Props = {
     canManage: boolean;
     canTakeAttendance: boolean;
     announcements: Announcement[];
+    albums: Album[];
 };
 
 const staffLabels = {
@@ -47,6 +51,7 @@ export default function ClassroomShow({
     canManage,
     canTakeAttendance,
     announcements,
+    albums,
 }: Props) {
     const { auth } = usePage().props;
     const drafts = modules.filter((m) => m.status === 'draft');
@@ -160,6 +165,35 @@ export default function ClassroomShow({
                         ))}
                     </section>
                 )}
+
+                <section className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                        <h2 className="text-xl font-semibold">📸 Galería</h2>
+                        <Link
+                            href={gallery(classroom.id)}
+                            className="text-sm underline-offset-4 hover:underline"
+                        >
+                            {canManage
+                                ? 'Gestionar galería'
+                                : 'Ver todos los álbumes'}
+                        </Link>
+                    </div>
+                    {albums.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                            {albums.map((album) => (
+                                <AlbumCard
+                                    key={album.id}
+                                    album={album}
+                                    color={classroom.color}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground">
+                            Aún no hay fotos publicadas.
+                        </p>
+                    )}
+                </section>
 
                 <section className="space-y-6">
                     <h2 className="text-xl font-semibold">

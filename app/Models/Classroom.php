@@ -92,4 +92,10 @@ class Classroom extends Model
             ->whereKey($user->id)
             ->whereIn('classroom_staff.role', [ClassroomStaffRole::Lead->value, ClassroomStaffRole::Assistant->value]));
     }
+
+    /** @return HasMany<Album, $this> */
+    public function albums(): HasMany
+    {
+        return $this->hasMany(Album::class);
+    }
 }

@@ -510,19 +510,20 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 
 ### Estado actual (octubre 2026)
 
-| Módulo                                                         | Estado                                                                           |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Sitio público                                                  | ✅ Base lista (textos provisionales)                                             |
-| Roles, salones, alumnos, matrículas                            | ✅ Con pantallas de administración                                               |
-| Módulos de aprendizaje                                         | ✅                                                                               |
-| Inducción general / por nivel / por salón                      | ✅                                                                               |
-| Libro de Reclamaciones                                         | ✅                                                                               |
-| Pagos y morosidad                                              | ✅ Recordatorio por enlace de WhatsApp (WhatsApp Cloud API automático pendiente) |
-| Asistencia de alumnos y del personal                           | ✅                                                                               |
-| Planilla y balance                                             | ✅ Retenciones referenciales (validar con el contador)                           |
-| Eventos, sorteos, documentos y comunicados                     | ✅                                                                               |
-| Despliegue en hosting compartido                               | ✅ GitHub Actions + FTP + `POST /_deploy` (ver `docs/DESPLIEGUE.md`)             |
-| WhatsApp Cloud API automático, galería privada, PWA instalable | ⏳ Próximas mejoras                                                              |
+| Módulo                                        | Estado                                                                           |
+| --------------------------------------------- | -------------------------------------------------------------------------------- |
+| Sitio público                                 | ✅ Base lista (textos provisionales)                                             |
+| Roles, salones, alumnos, matrículas           | ✅ Con pantallas de administración                                               |
+| Módulos de aprendizaje                        | ✅                                                                               |
+| Inducción general / por nivel / por salón     | ✅                                                                               |
+| Libro de Reclamaciones                        | ✅                                                                               |
+| Pagos y morosidad                             | ✅ Recordatorio por enlace de WhatsApp (WhatsApp Cloud API automático pendiente) |
+| Asistencia de alumnos y del personal          | ✅                                                                               |
+| Planilla y balance                            | ✅ Retenciones referenciales (validar con el contador)                           |
+| Eventos, sorteos, documentos y comunicados    | ✅                                                                               |
+| Despliegue en hosting compartido              | ✅ GitHub Actions + FTP + `POST /_deploy` (ver `docs/DESPLIEGUE.md`)             |
+| Galería privada por salón                     | ✅                                                                               |
+| WhatsApp Cloud API automático, PWA instalable | ⏳ Próximas mejoras                                                              |
 
 ## 7. Plan por fases
 

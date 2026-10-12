@@ -19,6 +19,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
@@ -166,6 +167,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('mi-asistencia/entrada', [StaffAttendanceController::class, 'checkIn'])->middleware('throttle:10,1')->name('attendance.check-in');
         Route::post('mi-asistencia/salida', [StaffAttendanceController::class, 'checkOut'])->middleware('throttle:10,1')->name('attendance.check-out');
     });
+
+    // Galería privada por salón.
+    Route::get('salones/{classroom}/galeria', [GalleryController::class, 'index'])->name('gallery.index');
+    Route::post('salones/{classroom}/galeria', [GalleryController::class, 'store'])->name('gallery.store');
+    Route::get('galeria/{album}', [GalleryController::class, 'show'])->name('gallery.show');
+    Route::put('galeria/{album}', [GalleryController::class, 'update'])->name('gallery.update');
+    Route::post('galeria/{album}/publicar', [GalleryController::class, 'publish'])->name('gallery.publish');
+    Route::delete('galeria/{album}', [GalleryController::class, 'destroy'])->name('gallery.destroy');
+    Route::post('galeria/{album}/fotos', [GalleryController::class, 'addItems'])->name('gallery.items.store');
+    Route::put('galeria/fotos/{item}', [GalleryController::class, 'updateItem'])->name('gallery.items.update');
+    Route::delete('galeria/fotos/{item}', [GalleryController::class, 'destroyItem'])->name('gallery.items.destroy');
 
     // Comunicados generales y por salón.
     Route::get('comunicados', [AnnouncementController::class, 'index'])->name('announcements.index');

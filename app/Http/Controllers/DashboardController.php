@@ -97,6 +97,7 @@ class DashboardController extends Controller
         ] : null;
 
         return Inertia::render('dashboard', [
+            'latestAlbums' => GalleryController::latestForParent($user),
             'announcements' => Announcement::query()->visibleTo($user)->with(['classroom', 'author'])
                 ->orderByDesc('pinned')->latest()->limit(3)->get()
                 ->map(fn (Announcement $announcement) => $announcement->toClient($user)),

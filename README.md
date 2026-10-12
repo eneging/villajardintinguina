@@ -22,6 +22,7 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 - **Eventos y sorteos**: eventos con tema festivo y formulario personalizable (respuestas exportables), sorteos con tickets numerados y sorteo en vivo verificable; lo recaudado entra al balance.
 - **Documentos** del colegio, de alumnos y del personal, con permisos, enlace temporal y avisos de vencimiento.
 - **Comunicados** generales o por salón, reenviables por WhatsApp.
+- **Galería privada por salón**: álbumes de fotos y videos (subida múltiple a Cloudinary), visibles solo para las familias y el personal del salón; publicar exige confirmar la autorización de imagen (se avisa qué niños no la tienen); visor a pantalla completa y descarga.
 - **Subida directa a Cloudinary** firmada por Laravel (archivos de salones e inducción con entrega `authenticated`).
 
 ## Desarrollo local

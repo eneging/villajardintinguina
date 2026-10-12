@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LearningArea;
+use App\Models\Album;
 use App\Models\Announcement;
 use App\Models\Classroom;
 use App\Models\LearningModule;
@@ -63,6 +64,10 @@ class ClassroomController extends Controller
                 ->map(fn ($student) => ['id' => $student->id, 'name' => $student->fullName()]),
             'canManage' => $canManage,
             'canTakeAttendance' => $user->can('takeAttendance', $classroom),
+            'albums' => $classroom->albums()
+                ->unless($user->can('uploadMedia', $classroom) || $classroom->hasStaffMember($user), fn ($q) => $q->where('published', true))
+                ->with('coverItem.media')->withCount('items')->orderByDesc('date')->limit(4)->get()
+                ->map(fn (Album $album) => $album->toCard()),
             'announcements' => Announcement::query()->where('classroom_id', $classroom->id)->with(['classroom', 'author'])
                 ->orderByDesc('pinned')->latest()->limit(5)->get()
                 ->map(fn (Announcement $announcement) => $announcement->toClient($user)),

@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { BookHeart, Wallet } from 'lucide-react';
 import { money } from '@/components/billing/format';
 import Heading from '@/components/heading';
+import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
 import { ModuleCard } from '@/components/school/module-card';
 import { ClassroomTile } from '@/pages/classrooms/index';
@@ -13,6 +14,7 @@ import { index as announcementsRoute } from '@/routes/announcements';
 import { mine as myInduction } from '@/routes/induction';
 import { index as myPayments } from '@/routes/payments';
 import type {
+    AlbumCard as Album,
     Announcement,
     ClassroomSummary,
     LearningModuleCard,
@@ -31,6 +33,7 @@ type Props = {
     induction: { required: number; completed: number } | null;
     debt: number | null;
     announcements: Announcement[];
+    latestAlbums: Album[];
     finance: {
         overdue: number;
         pending_vouchers: number;
@@ -46,6 +49,7 @@ export default function Dashboard({
     debt,
     finance,
     announcements,
+    latestAlbums,
 }: Props) {
     const { auth } = usePage().props;
     const firstName = auth.user.name.split(' ')[0];
@@ -188,6 +192,19 @@ export default function Dashboard({
                                     </div>
                                 ),
                             )}
+                        </div>
+                    </section>
+                )}
+
+                {latestAlbums.length > 0 && (
+                    <section className="space-y-4">
+                        <h2 className="text-lg font-semibold">
+                            📸 Fotos nuevas
+                        </h2>
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                            {latestAlbums.map((album) => (
+                                <AlbumCard key={album.id} album={album} />
+                            ))}
                         </div>
                     </section>
                 )}

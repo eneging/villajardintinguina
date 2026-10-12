@@ -102,6 +102,43 @@ function uploadToCloudinary(
 }
 
 /**
+ * Pide la firma a Laravel, sube el archivo directo a Cloudinary y lo registra.
+ */
+export async function uploadFile(
+    file: File,
+    target: UploadTarget,
+    resourceType: ResourceType,
+    onProgress: (percent: number) => void,
+): Promise<MediaItem> {
+    if (file.size > maxBytes[resourceType]) {
+        throw new Error(
+            `«${file.name}» pesa más de ${maxBytes[resourceType] / 1024 / 1024} MB.`,
+        );
+    }
+
+    const signed = await postJson<SignedUpload>(signature().url, {
+        ...target,
+        resource_type: resourceType,
+    });
+    const result = await uploadToCloudinary(file, signed, onProgress);
+
+    return postJson<MediaItem>(store().url, {
+        ...target,
+        public_id: result.public_id,
+        version: result.version,
+        signature: result.signature,
+        resource_type: result.resource_type,
+        type: result.type,
+        format: result.format,
+        bytes: result.bytes,
+        width: result.width,
+        height: result.height,
+        duration: result.duration,
+        original_filename: file.name,
+    });
+}
+
+/**
  * Sube un archivo directo del navegador a Cloudinary con la firma que da Laravel.
  */
 export function MediaUploader({
@@ -124,36 +161,11 @@ export function MediaUploader({
     async function handleFile(file: File) {
         setError(null);
 
-        if (file.size > maxBytes[resourceType]) {
-            setError(
-                `El archivo pesa más de ${maxBytes[resourceType] / 1024 / 1024} MB.`,
-            );
-
-            return;
-        }
-
         try {
             setProgress(0);
-            const signed = await postJson<SignedUpload>(signature().url, {
-                ...target,
-                resource_type: resourceType,
-            });
-            const result = await uploadToCloudinary(file, signed, setProgress);
-            const media = await postJson<MediaItem>(store().url, {
-                ...target,
-                public_id: result.public_id,
-                version: result.version,
-                signature: result.signature,
-                resource_type: result.resource_type,
-                type: result.type,
-                format: result.format,
-                bytes: result.bytes,
-                width: result.width,
-                height: result.height,
-                duration: result.duration,
-                original_filename: file.name,
-            });
-            onUploaded(media);
+            onUploaded(
+                await uploadFile(file, target, resourceType, setProgress),
+            );
         } catch (exception) {
             setError(
                 exception instanceof Error

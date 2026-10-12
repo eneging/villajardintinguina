@@ -206,3 +206,14 @@ export type Announcement = {
     created_at: string;
     can_delete: boolean;
 };
+
+export type AlbumCard = {
+    id: number;
+    title: string;
+    description: string | null;
+    date: string;
+    published: boolean;
+    items_count: number;
+    cover: MediaItem | null;
+    classroom: { id: number; name: string; mascot: string | null } | null;
+};
