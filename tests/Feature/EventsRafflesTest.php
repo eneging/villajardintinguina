@@ -143,4 +143,30 @@ class EventsRafflesTest extends TestCase
         $this->actingAs($this->parent)->post(route('admin.raffles.draw', $raffle))->assertForbidden();
         $this->assertSame(0, RaffleTicket::where('paid', true)->count());
     }
+
+    public function test_raffle_can_be_edited_and_deleted_only_before_sales(): void
+    {
+        $event = $this->createEvent();
+        $this->actingAs($this->admin)->post(route('admin.raffles.store'), [
+            'event_id' => $event->id, 'title' => 'Sorteo', 'prize' => 'Bicicleta', 'ticket_price' => 5, 'total_tickets' => 10,
+        ]);
+        $raffle = Raffle::sole();
+
+        $this->actingAs($this->admin)->put(route('admin.raffles.update', $raffle), ['title' => 'Sorteo navideño', 'prize' => 'Bicicleta', 'ticket_price' => 6])
+            ->assertSessionHasNoErrors();
+        $this->assertSame('Sorteo navideño', $raffle->fresh()->title);
+
+        $ticket = $raffle->tickets()->first();
+        $this->actingAs($this->admin)->put(route('admin.raffles.tickets.assign', $ticket), ['buyer_name' => 'Ana', 'paid' => true]);
+
+        $this->actingAs($this->admin)->put(route('admin.raffles.update', $raffle), ['title' => 'Sorteo', 'prize' => 'Bici', 'ticket_price' => 10])
+            ->assertSessionHasErrors('ticket_price');
+        $this->actingAs($this->admin)->delete(route('admin.raffles.destroy', $raffle))->assertSessionHasErrors('raffle');
+        $this->actingAs($this->admin)->delete(route('admin.events.destroy', $event))->assertSessionHasErrors('event');
+
+        $this->actingAs($this->admin)->put(route('admin.raffles.tickets.assign', $ticket), ['buyer_name' => null, 'paid' => false]);
+        $this->actingAs($this->admin)->delete(route('admin.events.destroy', $event))->assertRedirect(route('admin.events.index'));
+        $this->assertModelMissing($event);
+        $this->assertSame(0, Raffle::count());
+    }
 }

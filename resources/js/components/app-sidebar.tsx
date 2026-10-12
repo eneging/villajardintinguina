@@ -8,6 +8,7 @@ import {
     PartyPopper,
     CalendarCheck,
     ClipboardCheck,
+    Cog,
     BookHeart,
     BookX,
     Globe,
@@ -43,6 +44,7 @@ import { index as adminDocuments } from '@/routes/admin/documents';
 import { index as finance } from '@/routes/admin/finance';
 import { index as leads } from '@/routes/admin/leads';
 import { index as payroll } from '@/routes/admin/payroll';
+import { index as settings } from '@/routes/admin/settings';
 import { index as siteEditor } from '@/routes/admin/site';
 import { index as staffAttendance } from '@/routes/admin/staff-attendance';
 import { index as students } from '@/routes/admin/students';
@@ -135,6 +137,7 @@ export function AppSidebar() {
                   href: complaints(),
                   icon: BookX,
               },
+              { title: 'Configuración', href: settings(), icon: Cog },
           ]
         : [];
     const siteNavItems: NavItem[] = hasRole(auth.roles, 'admin')

@@ -106,4 +106,18 @@ class DocumentsTest extends TestCase
         $this->artisan('documentos:alertar-vencimientos')->assertSuccessful();
         Mail::assertSent(DocumentExpirations::class, fn ($mail) => $mail->documents->count() === 1);
     }
+
+    public function test_admin_edits_document_metadata_within_its_owner_type(): void
+    {
+        $this->upload(['owner_type' => 'institution', 'category' => 'Reglamento interno', 'title' => 'Reglamento', 'visibility' => 'all']);
+        $document = Document::sole();
+
+        $this->actingAs($this->admin)->put(route('admin.documents.update', $document), ['title' => 'Reglamento 2026', 'category' => 'Carné de vacunas', 'visibility' => 'all'])
+            ->assertSessionHasErrors('category');
+        $this->actingAs($this->admin)->put(route('admin.documents.update', $document), ['title' => 'Reglamento 2026', 'category' => 'Reglamento interno', 'visibility' => 'families', 'expires_on' => '2026-12-31'])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('families', $document->fresh()->visibility);
+        $this->actingAs($this->parent)->put(route('admin.documents.update', $document), ['title' => 'x'])->assertForbidden();
+    }
 }

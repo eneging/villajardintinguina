@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import EventController from '@/actions/App/Http/Controllers/Admin/EventController';
@@ -400,7 +400,27 @@ export default function EventForm({ event, themes, cloudinaryEnabled }: Props) {
                     </div>
                 </section>
 
-                <div className="flex justify-end gap-2">
+                <InputError
+                    message={(errors as Record<string, string>).event}
+                />
+                <div className="flex flex-wrap justify-end gap-2">
+                    {event && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            className="mr-auto text-destructive"
+                            onClick={() =>
+                                confirm(
+                                    '¿Eliminar el evento con sus respuestas y sorteos sin vender? No se puede deshacer.',
+                                ) &&
+                                router.delete(
+                                    EventController.destroy.url(event.id),
+                                )
+                            }
+                        >
+                            <Trash2 /> Eliminar evento
+                        </Button>
+                    )}
                     <Button variant="ghost" asChild>
                         <Link href={index()}>Cancelar</Link>
                     </Button>

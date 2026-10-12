@@ -10,6 +10,12 @@ import { MediaUploader } from '@/components/school/media-uploader';
 import { NativeSelect } from '@/components/school/native-select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { destroy, index } from '@/routes/admin/documents';
@@ -60,6 +66,7 @@ export default function DocumentsAdmin({
 }: Props) {
     const [search, setSearch] = useState(filters.search);
     const [file, setFile] = useState<MediaItem | null>(null);
+    const [editing, setEditing] = useState<DocumentRow | null>(null);
     const form = useForm({
         owner_type: 'institution' as OwnerType,
         owner_id: '' as number | '',
@@ -264,6 +271,7 @@ export default function DocumentsAdmin({
 
                 <DocumentList
                     documents={documents}
+                    onEdit={setEditing}
                     onDelete={(doc) =>
                         confirm(`¿Eliminar «${doc.title}»?`) &&
                         router.delete(destroy.url(doc.id), {
@@ -272,7 +280,107 @@ export default function DocumentsAdmin({
                     }
                 />
             </div>
+            {editing && (
+                <EditDocument
+                    key={editing.id}
+                    document={editing}
+                    categories={categories[editing.owner_type]}
+                    onClose={() => setEditing(null)}
+                />
+            )}
         </>
+    );
+}
+
+function EditDocument({
+    document,
+    categories,
+    onClose,
+}: {
+    document: DocumentRow;
+    categories: string[];
+    onClose: () => void;
+}) {
+    const form = useForm({
+        title: document.title,
+        category: document.category,
+        expires_on: document.expires_on ?? '',
+        visibility: document.visibility,
+    });
+
+    return (
+        <Dialog open onOpenChange={(open) => !open && onClose()}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Editar documento</DialogTitle>
+                </DialogHeader>
+                <form
+                    className="grid gap-3"
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        form.transform((data) => ({
+                            ...data,
+                            expires_on: data.expires_on || null,
+                        }));
+                        form.submit(DocumentController.update(document.id), {
+                            preserveScroll: true,
+                            onSuccess: onClose,
+                        });
+                    }}
+                >
+                    <div className="grid gap-1">
+                        <Label htmlFor="edit-title">Título</Label>
+                        <Input
+                            id="edit-title"
+                            value={form.data.title}
+                            onChange={(e) =>
+                                form.setData('title', e.target.value)
+                            }
+                        />
+                        <InputError message={form.errors.title} />
+                    </div>
+                    <div className="grid gap-1">
+                        <Label htmlFor="edit-category">Tipo</Label>
+                        <NativeSelect
+                            id="edit-category"
+                            value={form.data.category}
+                            options={categories.map((c) => ({
+                                value: c,
+                                label: c,
+                            }))}
+                            onChange={(e) =>
+                                form.setData('category', e.target.value)
+                            }
+                        />
+                    </div>
+                    <div className="grid gap-1">
+                        <Label htmlFor="edit-expires">Vence el</Label>
+                        <Input
+                            id="edit-expires"
+                            type="date"
+                            value={form.data.expires_on}
+                            onChange={(e) =>
+                                form.setData('expires_on', e.target.value)
+                            }
+                        />
+                    </div>
+                    <div className="grid gap-1">
+                        <Label htmlFor="edit-visibility">Quién lo ve</Label>
+                        <NativeSelect
+                            id="edit-visibility"
+                            value={form.data.visibility}
+                            options={visibilityOptions[document.owner_type]}
+                            onChange={(e) =>
+                                form.setData('visibility', e.target.value)
+                            }
+                        />
+                    </div>
+                    <Button type="submit" disabled={form.processing}>
+                        Guardar
+                    </Button>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 }
 

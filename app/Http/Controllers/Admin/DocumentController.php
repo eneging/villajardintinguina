@@ -79,6 +79,22 @@ class DocumentController extends Controller
         return back();
     }
 
+    public function update(Request $request, Document $document): RedirectResponse
+    {
+        $type = $document->owner_type;
+
+        $document->update($request->validate([
+            'category' => ['required', Rule::in(Document::CATEGORIES[$type] ?? [])],
+            'title' => ['required', 'string', 'max:150'],
+            'expires_on' => ['nullable', 'date'],
+            'visibility' => ['required', Rule::in($type === 'institution' ? ['staff', 'families', 'all'] : ['private', 'shared'])],
+        ], [], ['category' => 'tipo', 'title' => 'título', 'expires_on' => 'vencimiento']));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Documento actualizado.']);
+
+        return back();
+    }
+
     public function destroy(Document $document): RedirectResponse
     {
         $document->delete();

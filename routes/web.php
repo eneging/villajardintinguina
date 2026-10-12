@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\RaffleController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SiteContentController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
@@ -154,23 +155,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('eventos', [AdminEventController::class, 'store'])->name('events.store');
         Route::get('eventos/{event}/editar', [AdminEventController::class, 'edit'])->name('events.edit');
         Route::put('eventos/{event}', [AdminEventController::class, 'update'])->name('events.update');
+        Route::delete('eventos/{event}', [AdminEventController::class, 'destroy'])->name('events.destroy');
         Route::get('eventos/{event}/respuestas', [AdminEventController::class, 'submissions'])->name('events.submissions');
         Route::get('eventos/{event}/respuestas/descargar', [AdminEventController::class, 'download'])->name('events.download');
 
         Route::post('sorteos', [RaffleController::class, 'store'])->name('raffles.store');
         Route::get('sorteos/{raffle}', [RaffleController::class, 'show'])->name('raffles.show');
+        Route::put('sorteos/{raffle}', [RaffleController::class, 'update'])->name('raffles.update');
+        Route::delete('sorteos/{raffle}', [RaffleController::class, 'destroy'])->name('raffles.destroy');
         Route::put('sorteos/tickets/{ticket}', [RaffleController::class, 'assign'])->name('raffles.tickets.assign');
         Route::post('sorteos/{raffle}/sortear', [RaffleController::class, 'draw'])->name('raffles.draw');
         Route::get('sorteos/{raffle}/en-vivo', [RaffleController::class, 'live'])->name('raffles.live');
 
         Route::get('documentos', [AdminDocumentController::class, 'index'])->name('documents.index');
         Route::post('documentos', [AdminDocumentController::class, 'store'])->name('documents.store');
+        Route::put('documentos/{document}', [AdminDocumentController::class, 'update'])->name('documents.update');
         Route::delete('documentos/{document}', [AdminDocumentController::class, 'destroy'])->name('documents.destroy');
 
         Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
         Route::put('salones/{classroom}', [AdminClassroomController::class, 'update'])->name('classrooms.update');
+
+        Route::get('configuracion', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('configuracion/anios', [SettingsController::class, 'storeYear'])->name('settings.years.store');
+        Route::put('configuracion/anios/{year}', [SettingsController::class, 'updateYear'])->name('settings.years.update');
+        Route::post('configuracion/anios/{year}/activar', [SettingsController::class, 'activateYear'])->name('settings.years.activate');
+        Route::post('configuracion/niveles', [SettingsController::class, 'storeLevel'])->name('settings.levels.store');
+        Route::put('configuracion/niveles/{level}', [SettingsController::class, 'updateLevel'])->name('settings.levels.update');
+        Route::delete('configuracion/niveles/{level}', [SettingsController::class, 'destroyLevel'])->name('settings.levels.destroy');
+        Route::post('configuracion/categorias', [SettingsController::class, 'storeCategory'])->name('settings.categories.store');
+        Route::put('configuracion/categorias/{category}', [SettingsController::class, 'updateCategory'])->name('settings.categories.update');
+        Route::delete('configuracion/categorias/{category}', [SettingsController::class, 'destroyCategory'])->name('settings.categories.destroy');
 
         Route::get('sitio-web', [SiteContentController::class, 'index'])->name('site.index');
         Route::put('sitio-web/{section}', [SiteContentController::class, 'update'])->name('site.update');
@@ -211,6 +227,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Comunicados generales y por salón.
     Route::get('comunicados', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('comunicados', [AnnouncementController::class, 'store'])->middleware('role:admin,teacher')->name('announcements.store');
+    Route::put('comunicados/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
     Route::delete('comunicados/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
     // Eventos y fechas festivas (formularios y sorteos).

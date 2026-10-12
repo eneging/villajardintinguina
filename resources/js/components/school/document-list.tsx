@@ -1,4 +1,4 @@
-import { AlertTriangle, FileText, Trash2 } from 'lucide-react';
+import { AlertTriangle, FileText, Pencil, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { day } from '@/components/billing/format';
 import { open } from '@/routes/documents';
@@ -26,9 +26,11 @@ const visibilityLabels: Record<string, string> = {
 export function DocumentList({
     documents,
     onDelete,
+    onEdit,
 }: {
     documents: DocumentRow[];
     onDelete?: (doc: DocumentRow) => void;
+    onEdit?: (doc: DocumentRow) => void;
 }) {
     if (documents.length === 0) {
         return (
@@ -63,6 +65,16 @@ export function DocumentList({
                         </span>
                     </a>
                     {document.expires_on && <ExpiryBadge document={document} />}
+                    {onEdit && (
+                        <button
+                            type="button"
+                            aria-label="Editar documento"
+                            className="rounded-md p-2 hover:bg-accent"
+                            onClick={() => onEdit(document)}
+                        >
+                            <Pencil className="size-4" />
+                        </button>
+                    )}
                     {onDelete && (
                         <button
                             type="button"

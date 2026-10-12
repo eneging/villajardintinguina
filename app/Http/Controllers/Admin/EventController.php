@@ -72,6 +72,19 @@ class EventController extends Controller
         return to_route('events.show', $event);
     }
 
+    public function destroy(Event $event): RedirectResponse
+    {
+        if ($event->raffles()->whereHas('tickets', fn ($q) => $q->where('paid', true))->exists()) {
+            throw ValidationException::withMessages(['event' => 'El evento tiene sorteos con tickets pagados; ocúltalo en lugar de eliminarlo.']);
+        }
+
+        $event->raffles()->delete();
+        $event->delete();
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Evento eliminado.']);
+
+        return to_route('admin.events.index');
+    }
+
     public function submissions(Event $event): Response
     {
         $event->load('submissions.user', 'submissions.student');

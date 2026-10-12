@@ -37,6 +37,43 @@ class RaffleController extends Controller
         return to_route('admin.raffles.show', $raffle);
     }
 
+    public function update(Request $request, Raffle $raffle): RedirectResponse
+    {
+        if ($raffle->status === 'sorteado') {
+            throw ValidationException::withMessages(['raffle' => 'El sorteo ya se realizó; no se puede modificar.']);
+        }
+
+        $data = $request->validate([
+            'title' => ['required', 'string', 'max:150'],
+            'prize' => ['required', 'string', 'max:255'],
+            'ticket_price' => ['required', 'numeric', 'min:0', 'max:9999'],
+            'draw_at' => ['nullable', 'date'],
+        ], [], ['title' => 'título', 'prize' => 'premio', 'ticket_price' => 'precio del ticket']);
+
+        if (abs((float) $data['ticket_price'] - (float) $raffle->ticket_price) > 0.001 && $raffle->tickets()->where('paid', true)->exists()) {
+            throw ValidationException::withMessages(['ticket_price' => 'Ya hay tickets pagados: no se puede cambiar el precio.']);
+        }
+
+        $raffle->update($data);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sorteo actualizado.']);
+
+        return back();
+    }
+
+    /** Solo se elimina si aún no se vendió (pagó) ningún ticket ni se sorteó. */
+    public function destroy(Raffle $raffle): RedirectResponse
+    {
+        if ($raffle->status === 'sorteado' || $raffle->tickets()->where('paid', true)->exists()) {
+            throw ValidationException::withMessages(['raffle' => 'Este sorteo ya tiene tickets pagados o se realizó: se conserva como registro.']);
+        }
+
+        $event = $raffle->event_id;
+        $raffle->delete();
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Sorteo eliminado.']);
+
+        return $event ? to_route('admin.events.edit', $event) : to_route('admin.events.index');
+    }
+
     public function show(Raffle $raffle): Response
     {
         $raffle->load(['tickets.buyer', 'winner', 'event']);

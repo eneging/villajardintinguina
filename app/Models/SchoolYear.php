@@ -23,6 +23,12 @@ class SchoolYear extends Model
         return static::query()->where('is_active', true)->first();
     }
 
+    /** @return HasMany<Enrollment, $this> */
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
     /** @return HasMany<Classroom, $this> */
     public function classrooms(): HasMany
     {

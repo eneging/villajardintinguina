@@ -1,7 +1,13 @@
-import { router, usePage } from '@inertiajs/react';
-import { MessageCircle, Pin, Trash2 } from 'lucide-react';
+import { router, useForm, usePage } from '@inertiajs/react';
+import { MessageCircle, Pencil, Pin, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { day } from '@/components/billing/format';
-import { destroy } from '@/routes/announcements';
+import InputError from '@/components/input-error';
+import { textareaClass } from '@/components/school/block-editor';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { destroy, update } from '@/routes/announcements';
 import type { Announcement } from '@/types';
 
 /** Texto para reenviar el comunicado al grupo de WhatsApp de los padres. */
@@ -20,6 +26,65 @@ export function AnnouncementCard({
     announcement: Announcement;
 }) {
     const { school } = usePage().props;
+    const [editing, setEditing] = useState(false);
+    const form = useForm({
+        title: announcement.title,
+        body: announcement.body,
+        pinned: announcement.pinned,
+    });
+
+    if (editing) {
+        return (
+            <form
+                className="space-y-3 rounded-2xl border bg-card p-4"
+                onSubmit={(event) => {
+                    event.preventDefault();
+                    form.submit(update(announcement.id), {
+                        preserveScroll: true,
+                        onSuccess: () => setEditing(false),
+                    });
+                }}
+            >
+                <Input
+                    aria-label="Título"
+                    value={form.data.title}
+                    onChange={(e) => form.setData('title', e.target.value)}
+                />
+                <InputError message={form.errors.title} />
+                <textarea
+                    aria-label="Mensaje"
+                    className={textareaClass}
+                    value={form.data.body}
+                    onChange={(e) => form.setData('body', e.target.value)}
+                />
+                <InputError message={form.errors.body} />
+                <label className="flex items-center gap-2 text-sm">
+                    <Checkbox
+                        checked={form.data.pinned}
+                        onCheckedChange={(c) =>
+                            form.setData('pinned', c === true)
+                        }
+                    />
+                    Fijar arriba
+                </label>
+                <div className="flex justify-end gap-2">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => {
+                            form.reset();
+                            setEditing(false);
+                        }}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button type="submit" disabled={form.processing}>
+                        Guardar
+                    </Button>
+                </div>
+            </form>
+        );
+    }
 
     return (
         <article
@@ -55,6 +120,16 @@ export function AnnouncementCard({
                     >
                         <MessageCircle className="size-4" />
                     </a>
+                    {announcement.can_delete && (
+                        <button
+                            type="button"
+                            className="rounded-md p-2 hover:bg-accent"
+                            aria-label="Editar comunicado"
+                            onClick={() => setEditing(true)}
+                        >
+                            <Pencil className="size-4" />
+                        </button>
+                    )}
                     {announcement.can_delete && (
                         <button
                             type="button"

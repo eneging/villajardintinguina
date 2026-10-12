@@ -53,6 +53,11 @@ class AnnouncementsTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page->has('announcements', 2));
 
         $mine = Announcement::where('title', 'Paseo')->firstOrFail();
+        $this->actingAs($parent)->put(route('announcements.update', $mine), ['title' => 'x', 'body' => 'x'])->assertForbidden();
+        $this->actingAs($teacher)->put(route('announcements.update', $mine), ['title' => 'Paseo a la granja', 'body' => 'Traer gorro y agua.', 'pinned' => true])->assertRedirect();
+        $this->assertTrue($mine->fresh()->pinned);
+        $this->assertSame('Paseo a la granja', $mine->fresh()->title);
+
         $this->actingAs($parent)->delete(route('announcements.destroy', $mine))->assertForbidden();
         $this->actingAs($teacher)->delete(route('announcements.destroy', $mine))->assertRedirect();
         $this->assertModelMissing($mine);

@@ -1,13 +1,15 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { PartyPopper, Search } from 'lucide-react';
+import { Form, Head, Link, router } from '@inertiajs/react';
+import { PartyPopper, Pencil, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import RaffleController from '@/actions/App/Http/Controllers/Admin/RaffleController';
 import { money } from '@/components/billing/format';
 import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
 import { NativeSelect } from '@/components/school/native-select';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { index as events } from '@/routes/admin/events';
 import { live, show } from '@/routes/admin/raffles';
@@ -28,6 +30,7 @@ type Props = {
         ticket_price: number;
         total_tickets: number;
         status: 'abierto' | 'sorteado';
+        draw_at: string | null;
         winner: { number: number; name: string | null } | null;
     };
     tickets: TicketRow[];
@@ -116,6 +119,112 @@ export default function RaffleShow({ raffle, tickets, parents }: Props) {
                         </Button>
                     )}
                 </div>
+
+                {open && (
+                    <details className="rounded-2xl border bg-card p-4">
+                        <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium">
+                            <Pencil className="size-4" /> Editar datos del
+                            sorteo
+                        </summary>
+                        <Form
+                            {...RaffleController.update.form(raffle.id)}
+                            options={{ preserveScroll: true }}
+                            className="mt-4 grid gap-3 sm:grid-cols-2"
+                        >
+                            {({ errors, processing }) => (
+                                <>
+                                    <div className="grid gap-1">
+                                        <Label htmlFor="raffle-title">
+                                            Título
+                                        </Label>
+                                        <Input
+                                            id="raffle-title"
+                                            name="title"
+                                            defaultValue={raffle.title}
+                                        />
+                                        <InputError message={errors.title} />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <Label htmlFor="raffle-prize">
+                                            Premio
+                                        </Label>
+                                        <Input
+                                            id="raffle-prize"
+                                            name="prize"
+                                            defaultValue={raffle.prize}
+                                        />
+                                        <InputError message={errors.prize} />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <Label htmlFor="raffle-price">
+                                            Precio del ticket (S/)
+                                        </Label>
+                                        <Input
+                                            id="raffle-price"
+                                            name="ticket_price"
+                                            type="number"
+                                            step="0.5"
+                                            min={0}
+                                            defaultValue={raffle.ticket_price}
+                                        />
+                                        <InputError
+                                            message={errors.ticket_price}
+                                        />
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <Label htmlFor="raffle-draw">
+                                            Fecha del sorteo
+                                        </Label>
+                                        <Input
+                                            id="raffle-draw"
+                                            name="draw_at"
+                                            type="datetime-local"
+                                            defaultValue={
+                                                raffle.draw_at?.slice(0, 16) ??
+                                                ''
+                                            }
+                                        />
+                                    </div>
+                                    <InputError
+                                        message={errors.raffle}
+                                        className="sm:col-span-2"
+                                    />
+                                    <div className="flex flex-wrap justify-between gap-2 sm:col-span-2">
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            className="text-destructive"
+                                            disabled={paid > 0}
+                                            title={
+                                                paid > 0
+                                                    ? 'Ya hay tickets pagados'
+                                                    : undefined
+                                            }
+                                            onClick={() =>
+                                                confirm(
+                                                    '¿Eliminar este sorteo y todos sus tickets?',
+                                                ) &&
+                                                router.delete(
+                                                    RaffleController.destroy.url(
+                                                        raffle.id,
+                                                    ),
+                                                )
+                                            }
+                                        >
+                                            <Trash2 /> Eliminar sorteo
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                        >
+                                            Guardar cambios
+                                        </Button>
+                                    </div>
+                                </>
+                            )}
+                        </Form>
+                    </details>
+                )}
 
                 <div className="flex flex-wrap gap-4 text-sm">
                     <span className="flex items-center gap-2">

@@ -54,6 +54,21 @@ class AnnouncementController extends Controller
         return back();
     }
 
+    public function update(Request $request, Announcement $announcement): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin() || $request->user()->id === $announcement->author_id, 403);
+
+        $announcement->update($request->validate([
+            'title' => ['required', 'string', 'max:150'],
+            'body' => ['required', 'string', 'max:5000'],
+            'pinned' => ['boolean'],
+        ], [], ['title' => 'título', 'body' => 'mensaje']));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Comunicado actualizado.']);
+
+        return back();
+    }
+
     public function destroy(Request $request, Announcement $announcement): RedirectResponse
     {
         abort_unless($request->user()->isAdmin() || $request->user()->id === $announcement->author_id, 403);
