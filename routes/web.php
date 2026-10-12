@@ -3,6 +3,9 @@
 use App\Http\Controllers\Admin\BillingController;
 use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\FinanceController;
+use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\UserController;
@@ -13,6 +16,7 @@ use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Parent\PaymentController;
+use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +93,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('asistencia-personal', [AdminStaffAttendanceController::class, 'index'])->name('staff-attendance.index');
         Route::post('asistencia-personal', [AdminStaffAttendanceController::class, 'store'])->name('staff-attendance.store');
 
+        Route::get('trabajadores', [EmployeeController::class, 'index'])->name('employees.index');
+        Route::get('trabajadores/crear', [EmployeeController::class, 'create'])->name('employees.create');
+        Route::post('trabajadores', [EmployeeController::class, 'store'])->name('employees.store');
+        Route::get('trabajadores/{employee}/editar', [EmployeeController::class, 'edit'])->name('employees.edit');
+        Route::put('trabajadores/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+
+        Route::get('planilla', [PayrollController::class, 'index'])->name('payroll.index');
+        Route::post('planilla', [PayrollController::class, 'generate'])->name('payroll.generate');
+        Route::get('planilla/{run}', [PayrollController::class, 'show'])->name('payroll.show');
+        Route::post('planilla/{run}/aprobar', [PayrollController::class, 'approve'])->name('payroll.approve');
+        Route::put('planilla/items/{item}', [PayrollController::class, 'updateItem'])->name('payroll.items.update');
+        Route::post('planilla/items/{item}/pago', [PayrollController::class, 'pay'])->name('payroll.items.pay');
+        Route::get('planilla/items/{item}/boleta', [PayrollController::class, 'slip'])->name('payroll.items.slip');
+
+        Route::get('finanzas', [FinanceController::class, 'index'])->name('finance.index');
+        Route::get('finanzas/exportar', [FinanceController::class, 'export'])->name('finance.download');
+        Route::post('finanzas/gastos', [FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
+        Route::delete('finanzas/gastos/{expense}', [FinanceController::class, 'destroyExpense'])->name('finance.expenses.destroy');
+        Route::post('finanzas/ingresos', [FinanceController::class, 'storeIncome'])->name('finance.incomes.store');
+        Route::delete('finanzas/ingresos/{income}', [FinanceController::class, 'destroyIncome'])->name('finance.incomes.destroy');
+
         Route::get('salones/crear', [AdminClassroomController::class, 'create'])->name('classrooms.create');
         Route::post('salones', [AdminClassroomController::class, 'store'])->name('classrooms.store');
         Route::get('salones/{classroom}/editar', [AdminClassroomController::class, 'edit'])->name('classrooms.edit');
@@ -109,6 +134,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('mi-asistencia/entrada', [StaffAttendanceController::class, 'checkIn'])->middleware('throttle:10,1')->name('attendance.check-in');
         Route::post('mi-asistencia/salida', [StaffAttendanceController::class, 'checkOut'])->middleware('throttle:10,1')->name('attendance.check-out');
     });
+
+    // Personal: sus boletas de pago.
+    Route::get('mis-boletas', [PayslipController::class, 'index'])->name('payslips.index');
+    Route::get('mis-boletas/{item}', [PayslipController::class, 'show'])->name('payslips.show');
 
     // Padres: estado de cuenta y reporte de pagos con voucher.
     Route::middleware('role:parent')->group(function () {

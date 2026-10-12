@@ -38,6 +38,20 @@ return [
     // Asistencia de alumnos: hora de entrada (después se marca tardanza).
     'student_start_time' => env('SCHOOL_STUDENT_START_TIME', '08:15'),
 
+    // Planilla (referencial: confirmar con el contador).
+    'payroll' => [
+        // Descuento por falta injustificada = sueldo / 30 por día.
+        'absence_divisor' => 30,
+        // Descuento por minuto de tardanza (0 = no se descuenta).
+        'late_deduction_per_minute' => (float) env('SCHOOL_LATE_DEDUCTION_PER_MINUTE', 0),
+        // Retenciones referenciales.
+        'onp_rate' => 13.0,
+        'afp_rate' => (float) env('SCHOOL_AFP_RATE', 11.37),
+        // Recibo por honorarios: retención de 4.ª categoría si el monto supera el tope.
+        'fee_retention_rate' => 8.0,
+        'fee_retention_threshold' => 1500,
+    ],
+
     // Plazo legal de respuesta del Libro de Reclamaciones (días hábiles).
     'complaint_response_days' => 15,
 

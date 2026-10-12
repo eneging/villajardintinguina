@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\ExpenseCategory;
 use App\Models\Level;
 use App\Models\SchoolYear;
 use Illuminate\Database\Seeder;
@@ -41,6 +42,10 @@ class SchoolSeeder extends Seeder
                     'mascot' => $data['mascot'],
                 ],
             );
+        }
+
+        foreach (['Alquiler', 'Luz', 'Agua', 'Internet y teléfono', 'Materiales educativos', 'Alimentación', 'Limpieza', 'Mantenimiento', 'Impuestos y trámites', 'Otros'] as $category) {
+            ExpenseCategory::firstOrCreate(['name' => $category]);
         }
     }
 }

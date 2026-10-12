@@ -68,37 +68,69 @@ class AttendanceService
     public function monthlySummary(string $month): Collection
     {
         $start = CarbonImmutable::createFromFormat('!Y-m', $month);
-        $end = $start->endOfMonth()->min(today());
-        $businessDays = [];
 
-        for ($day = $start; $day->lessThanOrEqualTo($end); $day = $day->addDay()) {
-            if (PeruCalendar::isBusinessDay($day)) {
-                $businessDays[] = $day->toDateString();
-            }
-        }
-
-        $staff = User::query()
+        return User::query()
             ->where('active', true)
             ->whereHas('roleAssignments', fn ($q) => $q->whereIn('role', [Role::Teacher->value, Role::Intern->value]))
             ->with(['staffAttendances' => fn ($q) => $q->whereBetween('date', [$start->toDateString(), $start->endOfMonth()->toDateString()])])
             ->orderBy('name')
+            ->get()
+            ->map(fn (User $user) => ['user' => $user, ...$this->stats($user->staffAttendances, $this->businessDays($month))]);
+    }
+
+    /**
+     * Resumen de una persona en el mes, contando solo desde su fecha de ingreso.
+     *
+     * @return array<string, mixed>
+     */
+    public function summaryFor(User $user, string $month, ?CarbonImmutable $from = null): array
+    {
+        $start = CarbonImmutable::createFromFormat('!Y-m', $month);
+        $records = $user->staffAttendances()
+            ->whereBetween('date', [$start->toDateString(), $start->endOfMonth()->toDateString()])
             ->get();
 
-        return $staff->map(function (User $user) use ($businessDays) {
-            $records = $user->staffAttendances->keyBy(fn (StaffAttendance $record) => $record->date->toDateString());
-            $absences = collect($businessDays)->filter(fn ($day) => ! $records->has($day) || $records[$day]->status === 'falta')->count();
+        return $this->stats($records, $this->businessDays($month, $from));
+    }
 
-            return [
-                'user' => $user,
-                'records' => $records,
-                'business_days' => count($businessDays),
-                'present' => $records->whereIn('status', ['puntual', 'tardanza'])->count(),
-                'late' => $records->where('status', 'tardanza')->count(),
-                'late_minutes' => (int) $records->sum('late_minutes'),
-                'justified' => $records->where('status', 'justificada')->count(),
-                'absences' => $absences,
-            ];
-        });
+    /**
+     * Días hábiles del mes (hasta hoy si es el mes en curso).
+     *
+     * @return list<string>
+     */
+    public function businessDays(string $month, ?CarbonImmutable $from = null): array
+    {
+        $start = CarbonImmutable::createFromFormat('!Y-m', $month);
+        $end = $start->endOfMonth()->min(today());
+        $days = [];
+
+        for ($day = $start; $day->lessThanOrEqualTo($end); $day = $day->addDay()) {
+            if (PeruCalendar::isBusinessDay($day) && (! $from || $day->greaterThanOrEqualTo($from->startOfDay()))) {
+                $days[] = $day->toDateString();
+            }
+        }
+
+        return $days;
+    }
+
+    /**
+     * @param  Collection<int, StaffAttendance>  $records
+     * @param  list<string>  $businessDays
+     * @return array<string, mixed>
+     */
+    private function stats(Collection $records, array $businessDays): array
+    {
+        $records = $records->keyBy(fn (StaffAttendance $record) => $record->date->toDateString());
+
+        return [
+            'records' => $records,
+            'business_days' => count($businessDays),
+            'present' => $records->whereIn('status', ['puntual', 'tardanza'])->count(),
+            'late' => $records->where('status', 'tardanza')->count(),
+            'late_minutes' => (int) $records->sum('late_minutes'),
+            'justified' => $records->where('status', 'justificada')->count(),
+            'absences' => collect($businessDays)->filter(fn ($day) => ! $records->has($day) || $records[$day]->status === 'falta')->count(),
+        ];
     }
 
     private function ensureAtSchool(?float $latitude, ?float $longitude): void

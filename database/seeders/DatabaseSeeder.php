@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SchoolSeeder::class);
 
         if (! app()->isProduction()) {
-            $this->call([DemoSeeder::class, InductionSeeder::class, BillingSeeder::class]);
+            $this->call([DemoSeeder::class, InductionSeeder::class, BillingSeeder::class, FinanceSeeder::class]);
         }
     }
 }

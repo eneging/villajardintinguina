@@ -17,6 +17,7 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 - **Administración**: personas (cuentas y roles, activar/desactivar, enlace de acceso por correo), alumnos con apoderados y matrícula, salones con su personal.
 - **Pagos y morosidad**: mensualidades automáticas (con descuento por alumno), matrícula y otros cobros; pagos en efectivo, transferencia, Yape, Plin o tarjeta que pueden cubrir varios meses; foto del voucher y de la boleta/factura; los padres reportan su pago con voucher y la administradora lo confirma o rechaza; panel de morosos con recordatorio por WhatsApp registrado.
 - **Asistencia**: alumnos por salón (presente, tardanza, falta, justificada; hora de llegada, salida y quién lo recogió), reporte mensual y calendario para los padres; marcación de entrada y salida del personal con tardanza automática y ubicación opcional, resumen mensual y registro manual de la administradora.
+- **Planilla y balance**: trabajadores (planilla, honorarios o prácticas; ONP/AFP), planilla mensual calculada con la asistencia (faltas = sueldo ÷ 30, tardanzas opcionales), bonos y descuentos, aprobación, pago con voucher y boleta imprimible (el personal ve las suyas); gastos por categoría, otros ingresos (sorteos, eventos) y balance mensual con gráfico de 12 meses y exportación a Excel.
 - **Subida directa a Cloudinary** firmada por Laravel (archivos de salones e inducción con entrega `authenticated`).
 
 ## Desarrollo local

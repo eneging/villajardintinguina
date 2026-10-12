@@ -1,6 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Baby,
+    Banknote,
+    ChartColumn,
+    FileText,
     CalendarCheck,
     ClipboardCheck,
     BookHeart,
@@ -27,9 +30,12 @@ import {
 } from '@/components/ui/sidebar';
 import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
+import { index as payslips } from '@/routes/payslips';
 import { index as myPayments } from '@/routes/payments';
 import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
+import { index as finance } from '@/routes/admin/finance';
+import { index as payroll } from '@/routes/admin/payroll';
 import { index as staffAttendance } from '@/routes/admin/staff-attendance';
 import { index as students } from '@/routes/admin/students';
 import { index as users } from '@/routes/admin/users';
@@ -93,6 +99,8 @@ export function AppSidebar() {
         ...(hasRole(auth.roles, 'admin')
             ? [
                   { title: 'Pagos', href: billing(), icon: Wallet },
+                  { title: 'Planilla', href: payroll(), icon: Banknote },
+                  { title: 'Finanzas', href: finance(), icon: ChartColumn },
                   { title: 'Alumnos', href: students(), icon: Baby },
                   {
                       title: 'Asistencia del personal',
