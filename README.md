@@ -28,6 +28,8 @@ Sitio web y plataforma de gestión para el colegio inicial y guardería **EP Vil
 - **Galería privada por salón**: álbumes de fotos y videos (subida múltiple a Cloudinary), visibles solo para las familias y el personal del salón; publicar exige confirmar la autorización de imagen (se avisa qué niños no la tienen); visor a pantalla completa y descarga.
 - **Configuración**: años escolares (crear el siguiente copiando salones, personal e inducciones, y activarlo), niveles, categorías de gastos y **respaldos** de la base de datos.
 - **Auditoría**: historial inmutable de quién creó, cambió o eliminó pagos, cuotas, planilla, gastos, matrículas y reclamos.
+- **Notificaciones** (campanita): comunicados, módulos, fotos, eventos, pagos confirmados u observados, vouchers por verificar, admisiones y reclamos.
+- **Exportar a Excel**: alumnos, morosos, admisiones y balance mensual.
 - **PWA**: la plataforma se instala en el celular como app (ícono, pantalla completa y aviso sin conexión).
 - **Subida directa a Cloudinary** firmada por Laravel (archivos de salones e inducción con entrega `authenticated`).
 
