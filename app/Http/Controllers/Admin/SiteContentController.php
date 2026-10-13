@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use App\Models\Media;
 use App\Models\SiteContent;
 use App\Services\CloudinaryService;
 use App\Support\SiteDefaults;
@@ -54,7 +55,14 @@ class SiteContentController extends Controller
     private function rules(string $section): array
     {
         $text = fn (int $max = 255) => ['nullable', 'string', 'max:'.$max];
-        $media = ['nullable', 'integer', 'exists:media,id'];
+        // Solo archivos subidos para el sitio: nunca vouchers, documentos ni fotos de salones.
+        $media = ['nullable', 'integer', function (string $attribute, mixed $value, \Closure $fail) {
+            $publicId = Media::whereKey($value)->value('public_id');
+
+            if (! $publicId || ! app(CloudinaryService::class)->belongsToFolder($publicId, 'sitio')) {
+                $fail('El archivo no es válido para el sitio web.');
+            }
+        }];
         $icon = ['required', Rule::in(SiteDefaults::ICONS)];
 
         return match ($section) {

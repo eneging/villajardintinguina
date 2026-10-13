@@ -51,6 +51,11 @@ class PublicSiteTest extends TestCase
 
     public function test_admin_edits_site_sections_and_public_pages_show_them(): void
     {
+        $voucher = Media::create(['public_id' => 'vj/pagos/voucher', 'resource_type' => 'image', 'delivery_type' => 'authenticated', 'format' => 'jpg']);
+        $this->actingAs($this->admin())
+            ->put(route('admin.site.update', 'hero'), ['title' => 'Hola', 'image_media_id' => $voucher->id])
+            ->assertSessionHasErrors('image_media_id');
+
         $photo = Media::create(['public_id' => 'vj/sitio/maestra', 'resource_type' => 'image', 'delivery_type' => 'authenticated', 'format' => 'jpg']);
 
         $this->actingAs($this->admin())
