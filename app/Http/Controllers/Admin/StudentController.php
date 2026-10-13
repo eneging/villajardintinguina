@@ -8,6 +8,7 @@ use App\Models\Classroom;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\User;
+use App\Support\CsvExport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Fichas de alumnos con sus apoderados y su matrícula del año activo.
@@ -59,6 +61,34 @@ class StudentController extends Controller
             'classrooms' => $this->classroomOptions(),
             'year' => $year?->year,
         ]);
+    }
+
+    public function export(): StreamedResponse
+    {
+        $year = SchoolYear::current();
+        $students = Student::query()
+            ->with(['guardians', 'authorizedPickups', 'currentEnrollment.classroom'])
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
+        return CsvExport::download(
+            'alumnos-villajardin-'.($year?->year ?? today()->year).'.csv',
+            ['Apellidos', 'Nombres', 'DNI', 'Fecha de nacimiento', 'Edad', 'Salón', 'Mensualidad', 'Apoderados', 'Personas autorizadas', 'Alergias', 'Autoriza imagen'],
+            $students->map(fn (Student $student) => [
+                $student->last_name,
+                $student->first_name,
+                $student->dni,
+                $student->birth_date?->format('d/m/Y'),
+                $student->age(),
+                $student->currentEnrollment?->classroom->name ?? 'Sin matrícula',
+                $student->currentEnrollment ? (float) $student->currentEnrollment->monthly_fee : null,
+                $student->guardians->map(fn (User $guardian) => "{$guardian->name} ({$guardian->pivot->relationship}) {$guardian->phone}")->implode(' | '),
+                $student->authorizedPickups->map(fn ($pickup) => $pickup->label())->implode(' | '),
+                $student->allergies,
+                $student->image_consent,
+            ]),
+        );
     }
 
     public function create(): Response

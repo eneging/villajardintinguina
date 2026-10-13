@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { MessageCircle, Send } from 'lucide-react';
+import { FileDown, MessageCircle, Send } from 'lucide-react';
 import BillingController from '@/actions/App/Http/Controllers/Admin/BillingController';
 import { day, money } from '@/components/billing/format';
 import Heading from '@/components/heading';
@@ -10,6 +10,7 @@ import {
     remind,
     student,
 } from '@/routes/admin/billing';
+import { download as downloadDebtors } from '@/routes/admin/billing/debtors';
 
 type Debtor = {
     contact: { id: number; name: string; phone: string | null } | null;
@@ -64,21 +65,28 @@ export default function Debtors({
                         description={`${debtors.length} familia${debtors.length === 1 ? '' : 's'} con cuotas vencidas · ${money(total)} por cobrar.`}
                     />
                     {debtors.length > 0 && (
-                        <Button
-                            variant="outline"
-                            onClick={() =>
-                                confirm(
-                                    'Se enviará un recordatorio por correo (y por WhatsApp automático si está configurado) a las familias que no recibieron uno en los últimos días. ¿Continuar?',
-                                ) &&
-                                router.post(
-                                    BillingController.remindAll.url(),
-                                    {},
-                                    { preserveScroll: true },
-                                )
-                            }
-                        >
-                            <Send /> Recordar a todos
-                        </Button>
+                        <div className="flex flex-wrap gap-2">
+                            <Button variant="outline" asChild>
+                                <a href={downloadDebtors.url()}>
+                                    <FileDown /> Exportar
+                                </a>
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    confirm(
+                                        'Se enviará un recordatorio por correo (y por WhatsApp automático si está configurado) a las familias que no recibieron uno en los últimos días. ¿Continuar?',
+                                    ) &&
+                                    router.post(
+                                        BillingController.remindAll.url(),
+                                        {},
+                                        { preserveScroll: true },
+                                    )
+                                }
+                            >
+                                <Send /> Recordar a todos
+                            </Button>
+                        </div>
                     )}
                 </div>
 

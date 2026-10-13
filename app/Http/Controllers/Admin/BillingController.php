@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Services\BillingService;
 use App\Services\CloudinaryService;
 use App\Services\PaymentReminders;
+use App\Support\CsvExport;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Cobranza de pensiones: cuotas, pagos, verificación de vouchers y morosidad.
@@ -311,6 +313,23 @@ class BillingController extends Controller
             ]),
             'school' => config('school.name'),
         ]);
+    }
+
+    public function exportDebtors(): StreamedResponse
+    {
+        return CsvExport::download(
+            'morosos-villajardin-'.today()->format('Y-m-d').'.csv',
+            ['Apoderado', 'Celular', 'Correo', 'Alumno(s)', 'Cuotas vencidas', 'Total', 'Máx. días de atraso'],
+            $this->billing->debtors()->map(fn (array $debtor) => [
+                $debtor['contact']?->name ?? 'Sin apoderado',
+                $debtor['contact']?->phone,
+                $debtor['contact']?->email,
+                $debtor['charges']->map(fn (Charge $charge) => $charge->student->fullName())->unique()->implode(', '),
+                $debtor['charges']->map(fn (Charge $charge) => $charge->description)->implode(', '),
+                (float) $debtor['total'],
+                $debtor['max_days_late'],
+            ]),
+        );
     }
 
     /**

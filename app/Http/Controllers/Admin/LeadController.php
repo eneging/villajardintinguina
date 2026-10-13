@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
+use App\Support\CsvExport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Seguimiento de las familias interesadas (admisión / pre-inscripción).
@@ -57,6 +59,27 @@ class LeadController extends Controller
                 'search' => $filters['search'] ?? '',
             ],
         ]);
+    }
+
+    public function export(): StreamedResponse
+    {
+        return CsvExport::download(
+            'admisiones-villajardin-'.today()->format('Y-m-d').'.csv',
+            ['Fecha', 'Padre/madre', 'Celular', 'Correo', 'Niño(a)', 'Edad', 'Nivel de interés', 'Estado', 'Origen', 'Mensaje', 'Notas'],
+            Lead::query()->latest()->get()->map(fn (Lead $lead) => [
+                $lead->created_at->format('d/m/Y H:i'),
+                $lead->parent_name,
+                $lead->phone,
+                $lead->email,
+                $lead->child_name,
+                $lead->childAge(),
+                $lead->level_interest,
+                Lead::STATUSES[$lead->status] ?? $lead->status,
+                Lead::SOURCES[$lead->source] ?? $lead->source,
+                $lead->message,
+                $lead->notes,
+            ]),
+        );
     }
 
     /** Registro manual (familias que llaman o escriben por WhatsApp). */

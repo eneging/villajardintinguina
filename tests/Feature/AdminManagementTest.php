@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\Role;
 use App\Models\Classroom;
+use App\Models\Lead;
 use App\Models\Student;
 use App\Models\User;
 use Database\Seeders\DemoSeeder;
@@ -154,5 +155,24 @@ class AdminManagementTest extends TestCase
 
         // La maestra ya puede publicar módulos en su nuevo salón.
         $this->actingAs($teacher)->get(route('modules.create', $classroom))->assertOk();
+    }
+
+    public function test_admin_exports_students_debtors_and_leads_to_csv(): void
+    {
+        $admin = User::where('email', 'admin@villajardin.test')->firstOrFail();
+        Lead::create(['parent_name' => '=HYPERLINK("x")', 'phone' => '987654321']);
+
+        $students = $this->actingAs($admin)->get(route('admin.students.download'))->assertOk()->streamedContent();
+        $this->assertStringStartsWith("\xEF\xBB\xBFApellidos;Nombres", $students);
+        $this->assertStringContainsString('Quispe;Sofía;90000001', $students);
+        $this->assertStringContainsString('Rosa Huamán (Abuela, DNI 21456789)', $students);
+
+        $this->actingAs($admin)->get(route('admin.billing.debtors.download'))->assertOk();
+
+        $leads = $this->actingAs($admin)->get(route('admin.leads.download'))->assertOk()->streamedContent();
+        $this->assertStringContainsString("'=HYPERLINK", $leads);
+
+        $teacher = User::where('email', 'maestra@villajardin.test')->firstOrFail();
+        $this->actingAs($teacher)->get(route('admin.students.download'))->assertForbidden();
     }
 }

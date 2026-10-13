@@ -1,5 +1,12 @@
 import { Form, Head, router } from '@inertiajs/react';
-import { MessageCircle, Phone, Plus, Search, Trash2 } from 'lucide-react';
+import {
+    FileDown,
+    MessageCircle,
+    Phone,
+    Plus,
+    Search,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import LeadController from '@/actions/App/Http/Controllers/Admin/LeadController';
 import Heading from '@/components/heading';
@@ -19,7 +26,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { index } from '@/routes/admin/leads';
+import { download, index } from '@/routes/admin/leads';
 import type { Option } from '@/types';
 
 type LeadRow = {
@@ -221,100 +228,107 @@ export default function LeadsIndex({
                         title="Admisiones"
                         description="Familias interesadas que dejaron sus datos en el sitio web o que registraste tú."
                     />
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <Plus /> Registrar familia
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>
-                                    Registrar familia interesada
-                                </DialogTitle>
-                            </DialogHeader>
-                            <Form
-                                {...LeadController.store.form()}
-                                options={{ preserveScroll: true }}
-                                onSuccess={() => setOpen(false)}
-                                resetOnSuccess
-                                className="grid gap-3"
-                            >
-                                {({ errors, processing }) => (
-                                    <>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lead-name">
-                                                Nombre
-                                            </Label>
-                                            <Input
-                                                id="lead-name"
-                                                name="parent_name"
-                                            />
-                                            <InputError
-                                                message={errors.parent_name}
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lead-phone">
-                                                Celular
-                                            </Label>
-                                            <Input
-                                                id="lead-phone"
-                                                name="phone"
-                                            />
-                                            <InputError
-                                                message={errors.phone}
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lead-child">
-                                                Niño(a)
-                                            </Label>
-                                            <Input
-                                                id="lead-child"
-                                                name="child_name"
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lead-level">
-                                                Nivel de interés
-                                            </Label>
-                                            <Input
-                                                id="lead-level"
-                                                name="level_interest"
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lead-source">
-                                                ¿Cómo nos contactó?
-                                            </Label>
-                                            <NativeSelect
-                                                id="lead-source"
-                                                name="source"
-                                                defaultValue="whatsapp"
-                                                options={sources}
-                                            />
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="lead-message">
-                                                Notas
-                                            </Label>
-                                            <Input
-                                                id="lead-message"
-                                                name="message"
-                                            />
-                                        </div>
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                        >
-                                            Guardar
-                                        </Button>
-                                    </>
-                                )}
-                            </Form>
-                        </DialogContent>
-                    </Dialog>
+                    <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" asChild>
+                            <a href={download.url()}>
+                                <FileDown /> Exportar
+                            </a>
+                        </Button>
+                        <Dialog open={open} onOpenChange={setOpen}>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <Plus /> Registrar familia
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Registrar familia interesada
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <Form
+                                    {...LeadController.store.form()}
+                                    options={{ preserveScroll: true }}
+                                    onSuccess={() => setOpen(false)}
+                                    resetOnSuccess
+                                    className="grid gap-3"
+                                >
+                                    {({ errors, processing }) => (
+                                        <>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="lead-name">
+                                                    Nombre
+                                                </Label>
+                                                <Input
+                                                    id="lead-name"
+                                                    name="parent_name"
+                                                />
+                                                <InputError
+                                                    message={errors.parent_name}
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="lead-phone">
+                                                    Celular
+                                                </Label>
+                                                <Input
+                                                    id="lead-phone"
+                                                    name="phone"
+                                                />
+                                                <InputError
+                                                    message={errors.phone}
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="lead-child">
+                                                    Niño(a)
+                                                </Label>
+                                                <Input
+                                                    id="lead-child"
+                                                    name="child_name"
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="lead-level">
+                                                    Nivel de interés
+                                                </Label>
+                                                <Input
+                                                    id="lead-level"
+                                                    name="level_interest"
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="lead-source">
+                                                    ¿Cómo nos contactó?
+                                                </Label>
+                                                <NativeSelect
+                                                    id="lead-source"
+                                                    name="source"
+                                                    defaultValue="whatsapp"
+                                                    options={sources}
+                                                />
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="lead-message">
+                                                    Notas
+                                                </Label>
+                                                <Input
+                                                    id="lead-message"
+                                                    name="message"
+                                                />
+                                            </div>
+                                            <Button
+                                                type="submit"
+                                                disabled={processing}
+                                            >
+                                                Guardar
+                                            </Button>
+                                        </>
+                                    )}
+                                </Form>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">

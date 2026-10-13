@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Plus, Search } from 'lucide-react';
+import { FileDown, Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 import Heading from '@/components/heading';
 import { NativeSelect } from '@/components/school/native-select';
@@ -7,7 +7,7 @@ import { Pagination } from '@/components/school/pagination';
 import type { Paginated } from '@/components/school/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { create, edit, index } from '@/routes/admin/students';
+import { create, download, edit, index } from '@/routes/admin/students';
 import { show } from '@/routes/students';
 
 type StudentRow = {
@@ -50,11 +50,18 @@ export default function StudentsIndex({
                         title="Alumnos"
                         description={`Fichas, apoderados y matrícula ${year ?? ''}.`}
                     />
-                    <Button asChild>
-                        <Link href={create()}>
-                            <Plus /> Nuevo alumno
-                        </Link>
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" asChild>
+                            <a href={download.url()}>
+                                <FileDown /> Exportar a Excel
+                            </a>
+                        </Button>
+                        <Button asChild>
+                            <Link href={create()}>
+                                <Plus /> Nuevo alumno
+                            </Link>
+                        </Button>
+                    </div>
                 </div>
 
                 <form

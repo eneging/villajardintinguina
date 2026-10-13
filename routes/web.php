@@ -116,6 +116,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('users.access');
 
         Route::get('alumnos', [StudentController::class, 'index'])->name('students.index');
+        Route::get('alumnos/exportar', [StudentController::class, 'export'])->name('students.download');
         Route::get('alumnos/crear', [StudentController::class, 'create'])->name('students.create');
         Route::post('alumnos', [StudentController::class, 'store'])->name('students.store');
         Route::get('alumnos/{student}/editar', [StudentController::class, 'edit'])->name('students.edit');
@@ -131,6 +132,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('pagos/alumno/{student}/cuotas', [BillingController::class, 'storeCharge'])->name('billing.charges.store');
         Route::post('cuotas/{charge}/anular', [BillingController::class, 'voidCharge'])->name('billing.charges.annul');
         Route::get('morosos', [BillingController::class, 'debtors'])->name('billing.debtors');
+        Route::get('morosos/exportar', [BillingController::class, 'exportDebtors'])->name('billing.debtors.download');
         Route::post('morosos/recordatorios', [BillingController::class, 'remindAll'])->middleware('throttle:3,1')->name('billing.remind-all');
         Route::post('morosos/{user}/recordatorio', [BillingController::class, 'remind'])->name('billing.remind');
 
@@ -204,6 +206,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('sitio-web/{section}', [SiteContentController::class, 'update'])->name('site.update');
 
         Route::get('admisiones', [LeadController::class, 'index'])->name('leads.index');
+        Route::get('admisiones/exportar', [LeadController::class, 'export'])->name('leads.download');
         Route::post('admisiones', [LeadController::class, 'store'])->name('leads.store');
         Route::put('admisiones/{lead}', [LeadController::class, 'update'])->name('leads.update');
         Route::delete('admisiones/{lead}', [LeadController::class, 'destroy'])->name('leads.destroy');
