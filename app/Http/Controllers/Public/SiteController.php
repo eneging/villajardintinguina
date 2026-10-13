@@ -11,6 +11,7 @@ use App\Models\ContentBlock;
 use App\Models\InductionLesson;
 use App\Models\Lead;
 use App\Models\SiteContent;
+use App\Services\Notifier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -164,6 +165,9 @@ class SiteController extends Controller
             'source' => 'web',
             'ip_address' => $request->ip(),
         ]);
+
+        $notifier = app(Notifier::class);
+        $notifier->send($notifier->admins(), 'lead', 'Nueva solicitud de admisión', $lead->parent_name.($lead->child_name ? " · {$lead->child_name}" : ''), route('admin.leads.index', absolute: false));
 
         try {
             Mail::to(config('school.email'))->send(new LeadReceived($lead));

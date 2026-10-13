@@ -265,3 +265,12 @@ export type AttendanceStatus =
     | 'tardanza'
     | 'falta'
     | 'justificada';
+
+export type AppNotification = {
+    id: string;
+    kind: string;
+    title: string;
+    body: string | null;
+    read: boolean;
+    created_at: string;
+};

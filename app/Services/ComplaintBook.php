@@ -35,6 +35,9 @@ class ComplaintBook
             ]);
         }), 50, fn ($exception) => $exception instanceof UniqueConstraintViolationException);
 
+        $notifier = app(Notifier::class);
+        $notifier->send($notifier->admins(), 'complaint', "Nueva hoja de reclamación N° {$complaint->code}", $complaint->consumer_name, route('admin.complaints.show', $complaint, false));
+
         Mail::to($complaint->consumer_email)
             ->bcc(config('school.email'))
             ->send(new ComplaintReceived($complaint));

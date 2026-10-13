@@ -11,6 +11,7 @@ use App\Models\Payment;
 use App\Models\Student;
 use App\Services\BillingService;
 use App\Services\CloudinaryService;
+use App\Services\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -78,6 +79,9 @@ class PaymentController extends Controller
         } catch (InvalidArgumentException $exception) {
             throw ValidationException::withMessages(['amount' => $exception->getMessage()]);
         }
+
+        $notifier = app(Notifier::class);
+        $notifier->send($notifier->admins(), 'voucher', 'Voucher por verificar', "{$request->user()->name} · S/ ".number_format((float) $request->validated('amount'), 2), route('admin.billing.index', absolute: false), $request->user());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Recibimos tu voucher. La administración lo verificará pronto.']);
 

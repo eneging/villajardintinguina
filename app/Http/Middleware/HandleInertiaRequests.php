@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\NotificationController;
 use App\Models\SiteContent;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -49,6 +50,12 @@ class HandleInertiaRequests extends Middleware
                 'name' => config('school.name'),
                 'whatsapp' => config('school.whatsapp'),
             ],
+            // Campanita: avisos sin leer y los más recientes.
+            'notifications' => fn () => $request->user() ? [
+                'unread' => $request->user()->unreadNotifications()->count(),
+                'latest' => $request->user()->notifications()->limit(6)->get()
+                    ->map(fn ($notification) => NotificationController::present($notification)),
+            ] : null,
             // Datos de contacto del pie de página del sitio público (en caché).
             'contact' => fn () => SiteContent::section('contact'),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

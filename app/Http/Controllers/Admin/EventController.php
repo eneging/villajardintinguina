@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventSubmission;
 use App\Models\Media;
 use App\Models\Raffle;
+use App\Models\User;
 use App\Services\CloudinaryService;
+use App\Services\Notifier;
 use App\Support\EventForm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -54,6 +57,10 @@ class EventController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $event = Event::create([...$this->validated($request), 'created_by' => $request->user()->id]);
+
+        if ($event->published) {
+            $this->announce($event, $request);
+        }
         Inertia::flash('toast', ['type' => 'success', 'message' => $event->published ? 'Evento publicado.' : 'Evento guardado como borrador.']);
 
         return to_route('events.show', $event);
@@ -66,10 +73,28 @@ class EventController extends Controller
 
     public function update(Request $request, Event $event): RedirectResponse
     {
+        $wasPublished = $event->published;
         $event->update($this->validated($request));
+
+        if (! $wasPublished && $event->published) {
+            $this->announce($event, $request);
+        }
+
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Evento actualizado.']);
 
         return to_route('events.show', $event);
+    }
+
+    private function announce(Event $event, Request $request): void
+    {
+        app(Notifier::class)->send(
+            User::query()->whereHas('roleAssignments', fn ($q) => $q->whereIn('role', [Role::Parent, Role::Teacher, Role::Intern]))->get(),
+            'event',
+            trim(($event->theme['emoji'] ?? '').' '.$event->title),
+            'Nuevo evento: revisa los detalles y el formulario.',
+            route('events.show', $event, false),
+            $request->user(),
+        );
     }
 
     public function destroy(Event $event): RedirectResponse

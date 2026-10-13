@@ -129,6 +129,10 @@ class BillingService
                 'rejection_reason' => null,
             ]);
         });
+
+        if ($payment->payer && $payment->payer_id !== $by->id) {
+            app(Notifier::class)->send($payment->payer, 'payment', 'Pago confirmado', 'S/ '.number_format((float) $payment->amount, 2).' · ¡Gracias!', route('payments.index', absolute: false));
+        }
     }
 
     public function reject(Payment $payment, User $by, string $reason): void
@@ -139,6 +143,10 @@ class BillingService
             'reviewed_at' => now(),
             'rejection_reason' => $reason,
         ]);
+
+        if ($payment->payer) {
+            app(Notifier::class)->send($payment->payer, 'payment', 'Voucher observado', $reason, route('payments.index', absolute: false), $by);
+        }
     }
 
     /**

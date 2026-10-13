@@ -28,6 +28,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Parent\PaymentController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\Public\SiteController;
@@ -67,6 +68,10 @@ Route::get('libro-de-reclamaciones/constancia/{complaint}', [ComplaintController
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('notificaciones', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notificaciones/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
+    Route::post('notificaciones/leidas', [NotificationController::class, 'readAll'])->name('notifications.read-all');
 
     // Salones y módulos de aprendizaje (las Policies deciden qué ve cada rol).
     Route::get('salones', [ClassroomController::class, 'index'])

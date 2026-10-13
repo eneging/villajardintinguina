@@ -7,7 +7,9 @@ use App\Http\Requests\LearningModuleRequest;
 use App\Models\Classroom;
 use App\Models\ContentBlock;
 use App\Models\LearningModule;
+use App\Models\User;
 use App\Services\CloudinaryService;
+use App\Services\Notifier;
 use App\Support\ContentBlocks;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +37,10 @@ class LearningModuleController extends Controller
 
             return $module;
         });
+
+        if ($module->isPublished()) {
+            $this->announceModule($module, $request->user());
+        }
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -74,10 +80,16 @@ class LearningModuleController extends Controller
 
     public function update(LearningModuleRequest $request, LearningModule $module): RedirectResponse
     {
+        $wasPublished = $module->isPublished();
+
         DB::transaction(function () use ($request, $module) {
             $module->update($this->attributes($request, $module));
             ContentBlocks::sync($module, $request->validated('blocks', []));
         });
+
+        if (! $wasPublished && $module->isPublished()) {
+            $this->announceModule($module, $request->user());
+        }
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -85,6 +97,19 @@ class LearningModuleController extends Controller
         ]);
 
         return to_route('modules.show', $module);
+    }
+
+    private function announceModule(LearningModule $module, User $by): void
+    {
+        $notifier = app(Notifier::class);
+        $notifier->send(
+            $notifier->parentsOf($module->classroom),
+            'module',
+            "Nuevo módulo en el salón {$module->classroom->name}",
+            $module->title,
+            route('modules.show', $module, false),
+            $by,
+        );
     }
 
     public function destroy(LearningModule $module): RedirectResponse

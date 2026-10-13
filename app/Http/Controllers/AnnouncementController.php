@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\Announcement;
 use App\Models\Classroom;
 use App\Models\SchoolYear;
+use App\Services\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -34,7 +35,7 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, Notifier $notifier): RedirectResponse
     {
         $allowed = collect($this->targets($request))->pluck('value');
         abort_if($allowed->isEmpty(), 403);
@@ -48,7 +49,15 @@ class AnnouncementController extends Controller
 
         abort_if(empty($data['classroom_id']) && ! $request->user()->isAdmin(), 403);
 
-        Announcement::create([...$data, 'author_id' => $request->user()->id]);
+        $announcement = Announcement::create([...$data, 'author_id' => $request->user()->id]);
+        $notifier->send(
+            $notifier->audienceOf($announcement->load('classroom')),
+            'announcement',
+            $announcement->classroom ? "Comunicado del salón {$announcement->classroom->name}" : 'Nuevo comunicado',
+            $announcement->title,
+            route('announcements.index', absolute: false),
+            $request->user(),
+        );
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Comunicado publicado.']);
 
         return back();

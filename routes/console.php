@@ -8,6 +8,7 @@ use App\Services\BillingService;
 use App\Services\DatabaseBackup;
 use App\Services\PaymentReminders;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schedule;
 
@@ -84,3 +85,10 @@ Artisan::command('morosos:recordar {--forzar : Envía aunque AUTO_REMINDERS est�
 })->purpose('Envía recordatorios de pago a las familias con cuotas vencidas');
 
 Schedule::command('morosos:recordar')->weekdays()->at('09:00');
+
+Artisan::command('notificaciones:limpiar', function () {
+    $deleted = DB::table('notifications')->where('created_at', '<', now()->subDays(120))->delete();
+    $this->info("Notificaciones antiguas eliminadas: {$deleted}");
+})->purpose('Elimina avisos de la campanita con más de 120 días');
+
+Schedule::command('notificaciones:limpiar')->weeklyOn(0, '03:00');

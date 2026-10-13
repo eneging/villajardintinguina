@@ -12,6 +12,7 @@ use App\Models\Student;
 use App\Models\User;
 use App\Services\CloudinaryService;
 use App\Services\InductionService;
+use App\Services\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +113,18 @@ class GalleryController extends Controller
         $album->update($data['published']
             ? ['published' => true, 'consent_confirmed_by' => $request->user()->id, 'consent_confirmed_at' => now()]
             : ['published' => false, 'is_public' => false]);
+
+        if ($data['published']) {
+            $notifier = app(Notifier::class);
+            $notifier->send(
+                $notifier->parentsOf($album->classroom),
+                'album',
+                "Nuevas fotos del salón {$album->classroom->name}",
+                $album->title,
+                route('gallery.show', $album, false),
+                $request->user(),
+            );
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => $data['published'] ? 'Álbum publicado para las familias del salón.' : 'Álbum ocultado.']);
 

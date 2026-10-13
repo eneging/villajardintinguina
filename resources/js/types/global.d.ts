@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { AppNotification } from '@/types/school';
 import type { SiteContact } from '@/types/site';
 
 declare module 'react' {
@@ -15,6 +16,10 @@ declare module '@inertiajs/core' {
             sidebarOpen: boolean;
             school: { name: string; whatsapp: string };
             contact: SiteContact;
+            notifications: {
+                unread: number;
+                latest: AppNotification[];
+            } | null;
             [key: string]: unknown;
         };
     }
