@@ -298,3 +298,22 @@ export type DailyLogOptions = {
     diapers: Option[];
     moods: { value: string; label: string; emoji: string }[];
 };
+
+export type CompetencyCatalog = {
+    grades: Option[];
+    areas: {
+        key: string;
+        area: string;
+        competencies: { key: string; label: string }[];
+    }[];
+};
+
+export type GradeEntry = { grade: string | null; conclusion: string | null };
+
+export type GradingPeriodItem = {
+    id: number;
+    name: string;
+    starts_on: string;
+    ends_on: string;
+    published: boolean;
+};

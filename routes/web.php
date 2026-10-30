@@ -33,6 +33,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Parent\PaymentController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\Public\SiteController;
+use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
 use App\Http\Controllers\StudentProfileController;
@@ -196,6 +197,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('configuracion/anios', [SettingsController::class, 'storeYear'])->name('settings.years.store');
         Route::put('configuracion/anios/{year}', [SettingsController::class, 'updateYear'])->name('settings.years.update');
         Route::post('configuracion/anios/{year}/activar', [SettingsController::class, 'activateYear'])->name('settings.years.activate');
+        Route::post('configuracion/periodos', [ReportCardController::class, 'storePeriod'])->name('settings.periods.store');
+        Route::post('configuracion/periodos/{period}/publicar', [ReportCardController::class, 'publishPeriod'])->name('settings.periods.publish');
+        Route::delete('configuracion/periodos/{period}', [ReportCardController::class, 'destroyPeriod'])->name('settings.periods.destroy');
         Route::post('configuracion/niveles', [SettingsController::class, 'storeLevel'])->name('settings.levels.store');
         Route::put('configuracion/niveles/{level}', [SettingsController::class, 'updateLevel'])->name('settings.levels.update');
         Route::delete('configuracion/niveles/{level}', [SettingsController::class, 'destroyLevel'])->name('settings.levels.destroy');
@@ -223,6 +227,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('salones/{classroom}/asistencia/reporte', [StudentAttendanceController::class, 'report'])->name('attendance.report');
     Route::get('salones/{classroom}/cuaderno', [DailyLogController::class, 'classroom'])->name('daily-logs.classroom');
     Route::put('salones/{classroom}/cuaderno/{student}', [DailyLogController::class, 'save'])->name('daily-logs.save');
+    Route::get('salones/{classroom}/libretas', [ReportCardController::class, 'classroom'])->name('report-cards.classroom');
+    Route::put('salones/{classroom}/libretas/{period}/{student}', [ReportCardController::class, 'save'])->name('report-cards.save');
+    Route::get('alumnos/{student}/libreta/{period}', [ReportCardController::class, 'show'])->name('report-cards.show');
+    Route::get('libretas', [ReportCardController::class, 'mine'])->middleware('role:parent')->name('report-cards.mine');
     Route::get('cuaderno', [DailyLogController::class, 'mine'])->middleware('role:parent')->name('daily-logs.mine');
     Route::get('asistencia', [StudentAttendanceController::class, 'mine'])->middleware('role:parent')->name('attendance.mine');
     Route::middleware('role:teacher,intern')->group(function () {

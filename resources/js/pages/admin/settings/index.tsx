@@ -4,6 +4,7 @@ import {
     Check,
     DatabaseBackup,
     Download,
+    GraduationCap,
     Layers,
     Plus,
     Tags,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import SettingsController from '@/actions/App/Http/Controllers/Admin/SettingsController';
+import ReportCardController from '@/actions/App/Http/Controllers/ReportCardController';
 import { day } from '@/components/billing/format';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -49,6 +51,14 @@ type Props = {
     levels: Level[];
     categories: Category[];
     backups: Backup[];
+    periods: {
+        id: number;
+        name: string;
+        starts_on: string;
+        ends_on: string;
+        published: boolean;
+        cards: number;
+    }[];
 };
 
 const stamp = new Intl.DateTimeFormat('es-PE', {
@@ -199,6 +209,7 @@ export default function Settings({
     levels,
     categories,
     backups,
+    periods,
 }: Props) {
     const errors = usePage().props.errors as Record<string, string>;
     const active = years.find((year) => year.is_active);
@@ -399,6 +410,122 @@ export default function Settings({
                                         formErrors.name ??
                                         formErrors.max_age_months ??
                                         formErrors.min_age_months
+                                    }
+                                    className="sm:col-span-4"
+                                />
+                            </>
+                        )}
+                    </Form>
+                </section>
+
+                <section className="space-y-3 rounded-2xl border bg-card p-5">
+                    <h2 className="flex items-center gap-2 font-semibold">
+                        <GraduationCap className="size-5" /> Periodos de
+                        evaluación (libretas)
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Bimestres o trimestres del año activo. Las familias ven
+                        la libreta cuando publicas el periodo.
+                    </p>
+                    <ul className="divide-y">
+                        {periods.map((period) => (
+                            <li
+                                key={period.id}
+                                className="flex flex-wrap items-center justify-between gap-2 py-2"
+                            >
+                                <span>
+                                    <span className="font-medium">
+                                        {period.name}
+                                    </span>{' '}
+                                    {period.published && (
+                                        <Badge className="ml-1">
+                                            Publicado
+                                        </Badge>
+                                    )}
+                                    <span className="block text-sm text-muted-foreground">
+                                        {day(period.starts_on)} –{' '}
+                                        {day(period.ends_on)} · {period.cards}{' '}
+                                        libreta(s)
+                                    </span>
+                                </span>
+                                <span className="flex gap-1">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() =>
+                                            router.post(
+                                                ReportCardController.publishPeriod.url(
+                                                    period.id,
+                                                ),
+                                                {
+                                                    published:
+                                                        !period.published,
+                                                },
+                                                { preserveScroll: true },
+                                            )
+                                        }
+                                    >
+                                        {period.published
+                                            ? 'Ocultar a las familias'
+                                            : 'Publicar libretas'}
+                                    </Button>
+                                    {period.cards === 0 && (
+                                        <Button
+                                            size="icon"
+                                            variant="ghost"
+                                            className="size-8"
+                                            aria-label={`Eliminar ${period.name}`}
+                                            onClick={() =>
+                                                router.delete(
+                                                    ReportCardController.destroyPeriod.url(
+                                                        period.id,
+                                                    ),
+                                                    { preserveScroll: true },
+                                                )
+                                            }
+                                        >
+                                            <Trash2 />
+                                        </Button>
+                                    )}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                    <Form
+                        {...ReportCardController.storePeriod.form()}
+                        options={{ preserveScroll: true }}
+                        resetOnSuccess
+                        className="grid gap-2 sm:grid-cols-[1fr_10rem_10rem_auto]"
+                    >
+                        {({ errors: formErrors, processing }) => (
+                            <>
+                                <Input
+                                    name="name"
+                                    placeholder="I Trimestre"
+                                    aria-label="Nombre del periodo"
+                                />
+                                <Input
+                                    name="starts_on"
+                                    type="date"
+                                    aria-label="Inicio"
+                                />
+                                <Input
+                                    name="ends_on"
+                                    type="date"
+                                    aria-label="Fin"
+                                />
+                                <Button
+                                    type="submit"
+                                    variant="outline"
+                                    disabled={processing}
+                                >
+                                    <Plus /> Agregar
+                                </Button>
+                                <InputError
+                                    message={
+                                        formErrors.name ??
+                                        formErrors.starts_on ??
+                                        formErrors.ends_on
                                     }
                                     className="sm:col-span-4"
                                 />

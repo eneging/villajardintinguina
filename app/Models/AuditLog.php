@@ -26,6 +26,7 @@ class AuditLog extends Model
         'Employee' => 'Trabajador',
         'Enrollment' => 'Matrícula',
         'Complaint' => 'Reclamo',
+        'ReportCard' => 'Libreta de notas',
     ];
 
     protected function casts(): array

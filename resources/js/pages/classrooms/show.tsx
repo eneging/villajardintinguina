@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ClipboardCheck,
+    GraduationCap,
     ListChecks,
     NotebookPen,
     Pencil,
@@ -16,6 +17,7 @@ import { edit as editClassroom } from '@/routes/admin/classrooms';
 import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
 import { classroom as dailyLogs } from '@/routes/daily-logs';
+import { classroom as reportCards } from '@/routes/report-cards';
 import { edit as editInfo } from '@/routes/classrooms/info';
 import { index as gallery } from '@/routes/gallery';
 import { progress } from '@/routes/induction';
@@ -131,6 +133,11 @@ export default function ClassroomShow({
                                 <Button variant="outline" asChild>
                                     <Link href={dailyLogs(classroom.id)}>
                                         <NotebookPen /> Cuaderno diario
+                                    </Link>
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <Link href={reportCards(classroom.id)}>
+                                        <GraduationCap /> Libretas
                                     </Link>
                                 </Button>
                                 {auth.roles.includes('admin') && (

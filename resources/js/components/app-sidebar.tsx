@@ -12,6 +12,7 @@ import {
     BookHeart,
     BookX,
     Globe,
+    GraduationCap,
     History,
     LayoutGrid,
     Megaphone,
@@ -60,6 +61,7 @@ import { index as announcements } from '@/routes/announcements';
 import { index as myChildren } from '@/routes/children';
 import { index as classrooms } from '@/routes/classrooms';
 import { mine as myDailyLogs } from '@/routes/daily-logs';
+import { mine as myReportCards } from '@/routes/report-cards';
 import { index as documents } from '@/routes/documents';
 import { index as events } from '@/routes/events';
 import {
@@ -107,6 +109,11 @@ export function AppSidebar() {
                       title: 'Cuaderno diario',
                       href: myDailyLogs(),
                       icon: NotebookPen,
+                  },
+                  {
+                      title: 'Libretas de notas',
+                      href: myReportCards(),
+                      icon: GraduationCap,
                   },
                   {
                       title: 'Asistencia',

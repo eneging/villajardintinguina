@@ -147,3 +147,17 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Al imprimir (libretas, boletas) solo sale el documento, sin menú ni barra superior. */
+@media print {
+    [data-slot='sidebar'],
+    [data-slot='sidebar-inset'] > header {
+        display: none !important;
+    }
+
+    [data-slot='sidebar-inset'] {
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: 0 !important;
+    }
+}

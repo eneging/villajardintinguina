@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\InductionScope;
 use App\Http\Controllers\Controller;
 use App\Models\ExpenseCategory;
+use App\Models\GradingPeriod;
 use App\Models\InductionAssignment;
 use App\Models\Level;
 use App\Models\SchoolYear;
@@ -27,6 +28,12 @@ class SettingsController extends Controller
     {
         return Inertia::render('admin/settings/index', [
             'backups' => $backup->list(),
+            'periods' => GradingPeriod::query()
+                ->where('school_year_id', SchoolYear::current()?->id)
+                ->withCount('reportCards')
+                ->orderBy('starts_on')
+                ->get()
+                ->map(fn (GradingPeriod $period) => [...$period->toClient(), 'cards' => $period->report_cards_count]),
             'years' => SchoolYear::query()
                 ->withCount(['classrooms', 'enrollments'])
                 ->orderByDesc('year')
