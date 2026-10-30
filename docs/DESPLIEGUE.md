@@ -113,6 +113,9 @@ Esto ejecuta automáticamente:
 | `documentos:alertar-vencimientos` – documentos por vencer | lunes, 08:15           |
 | `respaldo:crear` – respaldo de la base de datos           | todos los días, 02:00  |
 | `morosos:recordar` – recordatorio a familias morosas      | lunes a viernes, 09:00 |
+| `cumpleanos:avisar` – cumpleaños del día al personal      | todos los días, 07:00  |
+| `inventario:alertar` – materiales por acabarse            | lunes, 08:30           |
+| `notificaciones:limpiar` – avisos de más de 120 días      | domingo, 03:00         |
 
 Los respaldos quedan en `storage/app/private/backups` (se guardan los últimos `BACKUPS_KEEP`) y se descargan desde **Admin › Configuración**. Descarga uno al mes y guárdalo en Google Drive: el respaldo del hosting no basta.
 
