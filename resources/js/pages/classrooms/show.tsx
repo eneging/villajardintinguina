@@ -1,5 +1,11 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ClipboardCheck, ListChecks, Pencil, Plus } from 'lucide-react';
+import {
+    ClipboardCheck,
+    ListChecks,
+    NotebookPen,
+    Pencil,
+    Plus,
+} from 'lucide-react';
 import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
 import { ClassroomInfoCards } from '@/components/school/classroom-info';
@@ -9,6 +15,7 @@ import { moduleTiming } from '@/lib/school';
 import { edit as editClassroom } from '@/routes/admin/classrooms';
 import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
+import { classroom as dailyLogs } from '@/routes/daily-logs';
 import { edit as editInfo } from '@/routes/classrooms/info';
 import { index as gallery } from '@/routes/gallery';
 import { progress } from '@/routes/induction';
@@ -101,17 +108,29 @@ export default function ClassroomShow({
                             )}
                         </div>
                         {canTakeAttendance && !canManage && (
-                            <Button asChild>
-                                <Link href={attendance(classroom.id)}>
-                                    <ClipboardCheck /> Asistencia de hoy
-                                </Link>
-                            </Button>
+                            <div className="flex flex-wrap gap-2">
+                                <Button asChild>
+                                    <Link href={attendance(classroom.id)}>
+                                        <ClipboardCheck /> Asistencia de hoy
+                                    </Link>
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <Link href={dailyLogs(classroom.id)}>
+                                        <NotebookPen /> Cuaderno diario
+                                    </Link>
+                                </Button>
+                            </div>
                         )}
                         {canManage && (
                             <div className="flex flex-wrap gap-2">
                                 <Button variant="outline" asChild>
                                     <Link href={attendance(classroom.id)}>
                                         <ClipboardCheck /> Asistencia
+                                    </Link>
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <Link href={dailyLogs(classroom.id)}>
+                                        <NotebookPen /> Cuaderno diario
                                     </Link>
                                 </Button>
                                 {auth.roles.includes('admin') && (

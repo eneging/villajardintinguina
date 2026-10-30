@@ -15,6 +15,7 @@ import {
     History,
     LayoutGrid,
     Megaphone,
+    NotebookPen,
     School,
     Settings2,
     Smile,
@@ -58,6 +59,7 @@ import {
 import { index as announcements } from '@/routes/announcements';
 import { index as myChildren } from '@/routes/children';
 import { index as classrooms } from '@/routes/classrooms';
+import { mine as myDailyLogs } from '@/routes/daily-logs';
 import { index as documents } from '@/routes/documents';
 import { index as events } from '@/routes/events';
 import {
@@ -101,6 +103,11 @@ export function AppSidebar() {
         ...(hasRole(auth.roles, 'parent')
             ? [
                   { title: 'Mis hijos', href: myChildren(), icon: Smile },
+                  {
+                      title: 'Cuaderno diario',
+                      href: myDailyLogs(),
+                      icon: NotebookPen,
+                  },
                   {
                       title: 'Asistencia',
                       href: childrenAttendance(),

@@ -20,6 +20,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ClassroomInfoController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\DailyLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocumentController;
@@ -220,6 +221,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('salones/{classroom}/asistencia', [StudentAttendanceController::class, 'show'])->name('attendance.classroom');
     Route::post('salones/{classroom}/asistencia', [StudentAttendanceController::class, 'store'])->name('attendance.classroom.store');
     Route::get('salones/{classroom}/asistencia/reporte', [StudentAttendanceController::class, 'report'])->name('attendance.report');
+    Route::get('salones/{classroom}/cuaderno', [DailyLogController::class, 'classroom'])->name('daily-logs.classroom');
+    Route::put('salones/{classroom}/cuaderno/{student}', [DailyLogController::class, 'save'])->name('daily-logs.save');
+    Route::get('cuaderno', [DailyLogController::class, 'mine'])->middleware('role:parent')->name('daily-logs.mine');
     Route::get('asistencia', [StudentAttendanceController::class, 'mine'])->middleware('role:parent')->name('attendance.mine');
     Route::middleware('role:teacher,intern')->group(function () {
         Route::get('mi-asistencia', [StaffAttendanceController::class, 'index'])->name('attendance.staff');

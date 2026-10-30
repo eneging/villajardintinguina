@@ -5,6 +5,7 @@ import {
     Camera,
     FileWarning,
     Megaphone,
+    NotebookPen,
     PartyPopper,
     UserPlus,
     Wallet,
@@ -32,6 +33,7 @@ export const notificationIcons: Record<string, LucideIcon> = {
     lead: UserPlus,
     complaint: FileWarning,
     event: PartyPopper,
+    daily: NotebookPen,
 };
 
 const relative = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });

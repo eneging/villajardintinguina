@@ -274,3 +274,27 @@ export type AppNotification = {
     read: boolean;
     created_at: string;
 };
+
+export type DailyLogEntry = {
+    id?: number;
+    student_id?: number;
+    date: string;
+    meals: { moment: string; amount: string; note?: string | null }[];
+    naps: { from: string; to?: string | null }[];
+    diapers: { time: string; type: string }[];
+    mood: string | null;
+    note: string | null;
+    needs: string | null;
+    photo: MediaItem | null;
+    photo_media_id: number | null;
+    nap_minutes?: number;
+    recorded_by?: string | null;
+    sent_at: string | null;
+};
+
+export type DailyLogOptions = {
+    moments: Option[];
+    amounts: Option[];
+    diapers: Option[];
+    moods: { value: string; label: string; emoji: string }[];
+};
