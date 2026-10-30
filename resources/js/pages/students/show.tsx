@@ -2,6 +2,7 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     AlertTriangle,
     HeartPulse,
+    MessagesSquare,
     Pencil,
     Phone,
     ShieldCheck,
@@ -31,6 +32,7 @@ import {
 import { mine as attendanceMine } from '@/routes/attendance';
 import { index as children } from '@/routes/children';
 import { show as showClassroom } from '@/routes/classrooms';
+import { show as messageThread } from '@/routes/messages';
 import { index as myPayments } from '@/routes/payments';
 import { show } from '@/routes/students';
 import type {
@@ -289,6 +291,11 @@ export default function StudentShow({
                             </p>
                         )}
                     </div>
+                    <Button variant="outline" asChild>
+                        <Link href={messageThread(student.id)}>
+                            <MessagesSquare /> Mensajes
+                        </Link>
+                    </Button>
                     {can.edit && (
                         <Button variant="outline" asChild>
                             <Link href={editStudent(student.id)}>

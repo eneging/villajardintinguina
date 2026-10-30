@@ -31,6 +31,7 @@ use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Parent\EnrollmentController;
 use App\Http\Controllers\Parent\PaymentController;
@@ -247,6 +248,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('recojo/{token}/entregar', [PickupController::class, 'handOver'])->middleware('throttle:30,1')->name('pickups.hand-over');
     });
     Route::post('incidentes/{incident}/enterado', [IncidentController::class, 'acknowledge'])->name('incidents.acknowledge');
+    Route::get('mensajes', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('mensajes/{student}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('mensajes/{student}', [MessageController::class, 'store'])->middleware('throttle:30,1')->name('messages.store');
     Route::get('cuaderno', [DailyLogController::class, 'mine'])->middleware('role:parent')->name('daily-logs.mine');
     Route::get('asistencia', [StudentAttendanceController::class, 'mine'])->middleware('role:parent')->name('attendance.mine');
     Route::middleware('role:teacher,intern')->group(function () {

@@ -50,6 +50,12 @@ class Student extends Model
             ->whereHas('schoolYear', fn ($query) => $query->where('is_active', true));
     }
 
+    /** @return HasOne<Conversation, $this> */
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(Conversation::class);
+    }
+
     /** @return HasMany<AuthorizedPickup, $this> */
     public function authorizedPickups(): HasMany
     {

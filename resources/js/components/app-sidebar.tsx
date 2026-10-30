@@ -18,6 +18,7 @@ import {
     History,
     LayoutGrid,
     Megaphone,
+    MessagesSquare,
     NotebookPen,
     School,
     Settings2,
@@ -42,6 +43,7 @@ import {
 import { hasRole } from '@/lib/school';
 import { dashboard, home } from '@/routes';
 import { index as payslips } from '@/routes/payslips';
+import { index as messages } from '@/routes/messages';
 import { index as myPayments } from '@/routes/payments';
 import { index as audit } from '@/routes/admin/audit';
 import { index as billing } from '@/routes/admin/billing';
@@ -88,6 +90,9 @@ export function AppSidebar() {
     const mainNavItems: NavItem[] = [
         { title: 'Inicio', href: dashboard(), icon: LayoutGrid },
         { title: 'Comunicados', href: announcements(), icon: Megaphone },
+        ...(hasRole(auth.roles, 'admin', 'teacher', 'intern', 'parent')
+            ? [{ title: 'Mensajes', href: messages(), icon: MessagesSquare }]
+            : []),
         { title: 'Eventos', href: events(), icon: PartyPopper },
         {
             title: 'Documentos',

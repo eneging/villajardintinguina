@@ -10,6 +10,7 @@ import {
     HeartPulse,
     LogOut,
     Megaphone,
+    MessagesSquare,
     NotebookPen,
     PartyPopper,
     UserPlus,
@@ -44,6 +45,7 @@ export const notificationIcons: Record<string, LucideIcon> = {
     incident: HeartPulse,
     pickup: LogOut,
     birthday: Cake,
+    message: MessagesSquare,
 };
 
 const relative = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
