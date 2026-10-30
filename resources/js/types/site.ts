@@ -90,3 +90,12 @@ export type PublicLessonCard = {
     description: string | null;
     cover: MediaItem | null;
 };
+
+export type PostCard = {
+    id: number;
+    title: string;
+    slug: string;
+    excerpt: string | null;
+    cover: MediaItem | null;
+    published_at: string | null;
+};

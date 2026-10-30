@@ -1,5 +1,6 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
+    CalendarCheck,
     CheckCircle2,
     ClipboardList,
     MessageCircle,
@@ -17,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { visit } from '@/routes';
 import { store } from '@/routes/admission';
 import type { SiteAdmission, SiteContact } from '@/types';
 
@@ -97,6 +99,13 @@ export default function Admission({ content }: Props) {
                             </ul>
                         </div>
                     )}
+                    <Link
+                        href={visit()}
+                        className="flex items-center justify-center gap-2 rounded-3xl bg-green-600 p-4 font-semibold text-white shadow-sm hover:bg-green-700"
+                    >
+                        <CalendarCheck className="size-5" /> Agenda una visita
+                        guiada
+                    </Link>
                     <a
                         href={whatsappLink(
                             school.whatsapp,

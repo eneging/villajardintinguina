@@ -12,13 +12,16 @@ use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PayrollController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\RaffleController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SiteContentController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\SurveyController as AdminSurveyController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VisitController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\ClassroomInfoController;
@@ -45,6 +48,7 @@ use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
 use App\Http\Controllers\StudentProfileController;
 use App\Http\Controllers\SupplyController;
+use App\Http\Controllers\SurveyController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +61,10 @@ Route::get('videos/{lesson}', [SiteController::class, 'video'])->name('videos.sh
 Route::get('fotos', [SiteController::class, 'gallery'])->name('photos');
 Route::get('fotos/{album}', [SiteController::class, 'album'])->name('photos.show');
 Route::get('admision', [SiteController::class, 'admission'])->name('admission');
+Route::get('noticias', [SiteController::class, 'news'])->name('news');
+Route::get('noticias/{post}', [SiteController::class, 'newsShow'])->name('news.show');
+Route::get('visita', [SiteController::class, 'visit'])->name('visit');
+Route::post('visita', [SiteController::class, 'storeVisit'])->middleware('throttle:5,10')->name('visit.store');
 Route::post('admision', [SiteController::class, 'storeLead'])
     ->middleware('throttle:5,10')
     ->name('admission.store');
@@ -218,6 +226,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('sitio-web', [SiteContentController::class, 'index'])->name('site.index');
         Route::put('sitio-web/{section}', [SiteContentController::class, 'update'])->name('site.update');
 
+        Route::get('noticias', [PostController::class, 'index'])->name('posts.index');
+        Route::get('noticias/crear', [PostController::class, 'create'])->name('posts.create');
+        Route::post('noticias', [PostController::class, 'store'])->name('posts.store');
+        Route::get('noticias/{post:id}/editar', [PostController::class, 'edit'])->name('posts.edit');
+        Route::put('noticias/{post:id}', [PostController::class, 'update'])->name('posts.update');
+        Route::delete('noticias/{post:id}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+        Route::get('encuestas', [AdminSurveyController::class, 'index'])->name('surveys.index');
+        Route::get('encuestas/crear', [AdminSurveyController::class, 'create'])->name('surveys.create');
+        Route::post('encuestas', [AdminSurveyController::class, 'store'])->name('surveys.store');
+        Route::get('encuestas/{survey}/editar', [AdminSurveyController::class, 'edit'])->name('surveys.edit');
+        Route::put('encuestas/{survey}', [AdminSurveyController::class, 'update'])->name('surveys.update');
+        Route::get('encuestas/{survey}/resultados', [AdminSurveyController::class, 'results'])->name('surveys.results');
+        Route::delete('encuestas/{survey}', [AdminSurveyController::class, 'destroy'])->name('surveys.destroy');
+
+        Route::get('visitas', [VisitController::class, 'index'])->name('visits.index');
+        Route::post('visitas/horarios', [VisitController::class, 'storeSlots'])->name('visits.slots.store');
+        Route::delete('visitas/horarios/{slot}', [VisitController::class, 'destroySlot'])->name('visits.slots.destroy');
+        Route::put('visitas/reservas/{booking}', [VisitController::class, 'updateBooking'])->name('visits.bookings.update');
+
         Route::get('servicios', [ServiceController::class, 'index'])->name('services.index');
         Route::post('servicios', [ServiceController::class, 'store'])->name('services.store');
         Route::put('servicios/{service}', [ServiceController::class, 'update'])->name('services.update');
@@ -265,6 +293,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('incidentes/{incident}/enterado', [IncidentController::class, 'acknowledge'])->name('incidents.acknowledge');
     Route::get('salones/{classroom}/utiles', [SupplyController::class, 'show'])->name('supplies.show');
     Route::post('salones/{classroom}/utiles', [SupplyController::class, 'toggle'])->name('supplies.toggle');
+    Route::get('encuestas', [SurveyController::class, 'index'])->name('surveys.index');
+    Route::get('encuestas/{survey}', [SurveyController::class, 'show'])->name('surveys.show');
+    Route::post('encuestas/{survey}', [SurveyController::class, 'submit'])->middleware('throttle:10,1')->name('surveys.submit');
     Route::get('mensajes', [MessageController::class, 'index'])->name('messages.index');
     Route::get('mensajes/{student}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('mensajes/{student}', [MessageController::class, 'store'])->middleware('throttle:30,1')->name('messages.store');

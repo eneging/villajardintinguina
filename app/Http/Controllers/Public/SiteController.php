@@ -10,12 +10,16 @@ use App\Models\AlbumItem;
 use App\Models\ContentBlock;
 use App\Models\InductionLesson;
 use App\Models\Lead;
+use App\Models\Post;
 use App\Models\SiteContent;
+use App\Models\VisitSlot;
 use App\Services\Notifier;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -42,7 +46,94 @@ class SiteController extends Controller
             ]),
             'videos' => $this->publicLessons()->limit(3)->get()->map(fn (InductionLesson $lesson) => $this->lessonCard($lesson)),
             'albums' => $this->publicAlbums()->limit(4)->get()->map(fn (Album $album) => $album->toCard()),
+            'posts' => Post::query()->published()->with('cover')->latest('published_at')->limit(3)->get()->map(fn (Post $post) => $post->toCard()),
         ]);
+    }
+
+    public function news(): Response
+    {
+        return Inertia::render('public/news', [
+            'posts' => Post::query()->published()->with('cover')->latest('published_at')->paginate(12)->through(fn (Post $post) => $post->toCard()),
+        ]);
+    }
+
+    public function newsShow(Post $post): Response
+    {
+        abort_unless($post->published_at && $post->published_at->lte(now()), 404);
+        $post->load(['cover', 'author']);
+
+        return Inertia::render('public/news-show', [
+            'post' => [...$post->toCard(), 'body' => $post->body, 'author' => $post->author?->name],
+            'more' => Post::query()->published()->with('cover')->whereKeyNot($post->id)->latest('published_at')->limit(3)->get()->map(fn (Post $p) => $p->toCard()),
+        ]);
+    }
+
+    /** Reserva de visita guiada: muestra los horarios con cupo. */
+    public function visit(): Response
+    {
+        return Inertia::render('public/visit', [
+            'slots' => VisitSlot::query()
+                ->where('starts_at', '>', now()->addHours(2))
+                ->where('starts_at', '<', now()->addWeeks(6))
+                ->withCount('activeBookings')
+                ->orderBy('starts_at')
+                ->get()
+                ->filter(fn (VisitSlot $slot) => $slot->active_bookings_count < $slot->capacity)
+                ->values()
+                ->map(fn (VisitSlot $slot) => ['id' => $slot->id, 'starts_at' => $slot->starts_at->format('Y-m-d\TH:i')]),
+            'levels' => collect(SiteContent::section('levels')['items'] ?? [])->pluck('name')->values(),
+        ]);
+    }
+
+    public function storeVisit(Request $request, Notifier $notifier): RedirectResponse
+    {
+        if (filled($request->input('website'))) {
+            return back();
+        }
+
+        $data = $request->validate([
+            'visit_slot_id' => ['required', 'integer', 'exists:visit_slots,id'],
+            'parent_name' => ['required', 'string', 'max:150'],
+            'phone' => ['required', 'string', 'regex:/^\+?[0-9 ]{9,15}$/'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'child_name' => ['nullable', 'string', 'max:150'],
+            'level_interest' => ['nullable', 'string', 'max:60'],
+            'notes' => ['nullable', 'string', 'max:500'],
+            'privacy' => ['accepted'],
+        ], [], ['visit_slot_id' => 'horario', 'parent_name' => 'nombre', 'phone' => 'celular', 'privacy' => 'autorización de datos']);
+
+        $booking = DB::transaction(function () use ($data, $request) {
+            $slot = VisitSlot::lockForUpdate()->findOrFail($data['visit_slot_id']);
+
+            if ($slot->starts_at->lte(now()) || $slot->activeBookings()->count() >= $slot->capacity) {
+                throw ValidationException::withMessages(['visit_slot_id' => 'Ese horario ya no tiene cupo. Elige otro.']);
+            }
+
+            $lead = Lead::create([
+                'parent_name' => $data['parent_name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'] ?? null,
+                'child_name' => $data['child_name'] ?? null,
+                'level_interest' => $data['level_interest'] ?? null,
+                'message' => 'Visita guiada: '.$slot->starts_at->locale('es')->translatedFormat('l j \d\e F, H:i').(! empty($data['notes']) ? " · {$data['notes']}" : ''),
+                'status' => 'visita',
+                'source' => 'web',
+                'ip_address' => $request->ip(),
+            ]);
+
+            return $slot->bookings()->create([
+                ...collect($data)->only(['parent_name', 'phone', 'email', 'child_name', 'notes'])->all(),
+                'lead_id' => $lead->id,
+                'ip_address' => $request->ip(),
+            ]);
+        });
+
+        $when = $booking->slot->starts_at->locale('es')->translatedFormat('l j \d\e F \a \l\a\s H:i');
+        $notifier->send($notifier->admins(), 'lead', 'Nueva visita agendada', "{$booking->parent_name} · {$when}", route('admin.visits.index', absolute: false));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => "¡Listo! Te esperamos el {$when}."]);
+
+        return to_route('visit');
     }
 
     public function about(): Response

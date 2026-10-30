@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
+    CalendarCheck,
     Clock,
     MessageCircle,
     PlayCircle,
@@ -9,13 +10,23 @@ import {
 } from 'lucide-react';
 import { AlbumCard } from '@/components/gallery/album-card';
 import { PublicLayout, whatsappLink } from '@/components/school/public-layout';
+import { PostCard } from '@/components/school/post-card';
 import { SiteIcon } from '@/components/school/site-icon';
 import { mapEmbedUrl, youtubeEmbedUrl } from '@/lib/school';
-import { about, admission, photos, services, videos } from '@/routes';
+import {
+    about,
+    admission,
+    news,
+    photos,
+    services,
+    videos,
+    visit,
+} from '@/routes';
 import { show as photoAlbum } from '@/routes/photos';
 import { show as videoShow } from '@/routes/videos';
 import type {
     AlbumCard as Album,
+    PostCard as PostCardData,
     PublicLessonCard,
     SiteHero,
     SiteIconItem,
@@ -35,9 +46,15 @@ type Props = {
     };
     videos: PublicLessonCard[];
     albums: Album[];
+    posts: PostCardData[];
 };
 
-export default function Welcome({ content, videos: lessons, albums }: Props) {
+export default function Welcome({
+    content,
+    videos: lessons,
+    albums,
+    posts,
+}: Props) {
     const { school, contact } = usePage().props;
     const { hero, levels, testimonials, schedule } = content;
     const whatsapp = whatsappLink(
@@ -81,14 +98,21 @@ export default function Welcome({ content, videos: lessons, albums }: Props) {
                             </p>
                         )}
                         <div className="flex flex-wrap gap-3">
+                            <Link
+                                href={visit()}
+                                className="inline-flex items-center gap-2 rounded-full bg-green-600 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-green-700"
+                            >
+                                <CalendarCheck className="size-5" /> Agenda tu
+                                visita
+                            </Link>
                             <a
                                 href={whatsapp}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 rounded-full bg-[#25d366] px-6 py-3 font-semibold text-white shadow-md transition hover:brightness-95"
+                                aria-label="Escríbenos por WhatsApp"
+                                className="inline-flex items-center gap-2 rounded-full bg-[#25d366] px-4 py-3 font-semibold text-white shadow-md transition hover:brightness-95"
                             >
-                                <MessageCircle className="size-5" /> Agenda tu
-                                visita
+                                <MessageCircle className="size-5" />
                             </a>
                             {content.admission.open && (
                                 <Link
@@ -323,6 +347,30 @@ export default function Welcome({ content, videos: lessons, albums }: Props) {
                                 className="inline-flex items-center gap-1 font-semibold text-green-700 hover:underline"
                             >
                                 Ver galería <ArrowRight className="size-4" />
+                            </Link>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {posts.length > 0 && (
+                <section id="noticias" className="bg-white py-20">
+                    <div className="mx-auto max-w-6xl space-y-10 px-4">
+                        <h2 className="text-center font-display text-3xl font-bold text-slate-900 sm:text-4xl">
+                            Noticias
+                        </h2>
+                        <div className="grid gap-6 sm:grid-cols-3">
+                            {posts.map((post) => (
+                                <PostCard key={post.id} post={post} />
+                            ))}
+                        </div>
+                        <div className="text-center">
+                            <Link
+                                href={news()}
+                                className="inline-flex items-center gap-1 font-semibold text-green-700 hover:underline"
+                            >
+                                Ver todas las noticias{' '}
+                                <ArrowRight className="size-4" />
                             </Link>
                         </div>
                     </div>

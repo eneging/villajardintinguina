@@ -396,3 +396,11 @@ export type IncidentItem = {
     acknowledged_at: string | null;
     acknowledged_by: string | null;
 };
+
+export type SurveyQuestion = {
+    key?: string;
+    label: string;
+    type: 'rating' | 'choice' | 'text';
+    required: boolean;
+    options: string[];
+};

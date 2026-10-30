@@ -14,6 +14,7 @@ import {
     NotebookPen,
     Package,
     PartyPopper,
+    Star,
     UserPlus,
     Wallet,
 } from 'lucide-react';
@@ -48,6 +49,7 @@ export const notificationIcons: Record<string, LucideIcon> = {
     birthday: Cake,
     message: MessagesSquare,
     inventory: Package,
+    survey: Star,
 };
 
 const relative = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });

@@ -1,6 +1,10 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Baby,
+    BarChart3,
+    CalendarClock,
+    Newspaper,
+    Star,
     Banknote,
     Bus,
     ChartColumn,
@@ -47,6 +51,7 @@ import { dashboard, home } from '@/routes';
 import { index as payslips } from '@/routes/payslips';
 import { index as messages } from '@/routes/messages';
 import { index as myPayments } from '@/routes/payments';
+import { index as surveys } from '@/routes/surveys';
 import { index as audit } from '@/routes/admin/audit';
 import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
@@ -55,13 +60,16 @@ import { index as enrollments } from '@/routes/admin/enrollments';
 import { index as finance } from '@/routes/admin/finance';
 import { index as inventory } from '@/routes/admin/inventory';
 import { index as leads } from '@/routes/admin/leads';
+import { index as posts } from '@/routes/admin/posts';
 import { index as payroll } from '@/routes/admin/payroll';
 import { index as services } from '@/routes/admin/services';
 import { index as settings } from '@/routes/admin/settings';
 import { index as siteEditor } from '@/routes/admin/site';
 import { index as staffAttendance } from '@/routes/admin/staff-attendance';
 import { index as students } from '@/routes/admin/students';
+import { index as adminSurveys } from '@/routes/admin/surveys';
 import { index as users } from '@/routes/admin/users';
+import { index as visits } from '@/routes/admin/visits';
 import {
     mine as childrenAttendance,
     staff as myAttendance,
@@ -98,6 +106,7 @@ export function AppSidebar() {
             ? [{ title: 'Mensajes', href: messages(), icon: MessagesSquare }]
             : []),
         { title: 'Eventos', href: events(), icon: PartyPopper },
+        { title: 'Encuestas', href: surveys(), icon: Star },
         {
             title: 'Documentos',
             href: auth.roles.includes('admin') ? adminDocuments() : documents(),
@@ -187,6 +196,17 @@ export function AppSidebar() {
         ? [
               { title: 'Sitio web', href: siteEditor(), icon: Globe },
               { title: 'Admisiones', href: leads(), icon: UserPlus },
+              {
+                  title: 'Visitas guiadas',
+                  href: visits(),
+                  icon: CalendarClock,
+              },
+              { title: 'Noticias', href: posts(), icon: Newspaper },
+              {
+                  title: 'Resultados de encuestas',
+                  href: adminSurveys(),
+                  icon: BarChart3,
+              },
               {
                   title: 'Matrículas en línea',
                   href: enrollments(),

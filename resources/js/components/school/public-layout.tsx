@@ -22,6 +22,7 @@ import {
     dashboard,
     home,
     login,
+    news,
     photos,
     services,
     videos,
@@ -34,6 +35,7 @@ const navItems = [
     { title: 'Servicios', href: services() },
     { title: 'Videos', href: videos() },
     { title: 'Fotos', href: photos() },
+    { title: 'Noticias', href: news() },
     { title: 'Admisión', href: admission() },
 ];
 

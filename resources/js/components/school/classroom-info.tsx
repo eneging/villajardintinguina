@@ -50,7 +50,7 @@ export function ActivityList({
         <ul className="divide-y">
             {activities.map((activity) => (
                 <li key={activity.id} className="flex gap-3 py-2.5">
-                    <div className="w-20 shrink-0 text-sm font-medium capitalize">
+                    <div className="w-20 shrink-0 text-sm font-medium first-letter:uppercase">
                         {shortDate.format(
                             new Date(`${activity.date}T00:00:00`),
                         )}

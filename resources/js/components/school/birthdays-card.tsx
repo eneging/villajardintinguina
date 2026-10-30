@@ -40,7 +40,7 @@ export function BirthdaysCard({
                             </span>{' '}
                             cumple {birthday.turns}{' '}
                             {birthday.turns === 1 ? 'año' : 'años'}
-                            <span className="block text-muted-foreground capitalize">
+                            <span className="block text-muted-foreground first-letter:uppercase">
                                 {birthday.days === 0
                                     ? '¡Hoy!'
                                     : weekday.format(
