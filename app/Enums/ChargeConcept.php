@@ -6,6 +6,7 @@ enum ChargeConcept: string
 {
     case Enrollment = 'matricula';
     case Monthly = 'mensualidad';
+    case Service = 'servicio';
     case Other = 'otro';
 
     public function label(): string
@@ -13,6 +14,7 @@ enum ChargeConcept: string
         return match ($this) {
             self::Enrollment => 'Matrícula',
             self::Monthly => 'Mensualidad',
+            self::Service => 'Servicio',
             self::Other => 'Otro',
         };
     }

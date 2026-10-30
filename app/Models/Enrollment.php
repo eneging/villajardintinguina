@@ -6,6 +6,7 @@ use App\Models\Concerns\Auditable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['student_id', 'classroom_id', 'school_year_id', 'status', 'monthly_fee', 'discount_pct'])]
@@ -37,6 +38,12 @@ class Enrollment extends Model
     public function schoolYear(): BelongsTo
     {
         return $this->belongsTo(SchoolYear::class);
+    }
+
+    /** @return BelongsToMany<Service, $this> */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class)->withPivot('price')->withTimestamps();
     }
 
     /** @return HasMany<Charge, $this> */

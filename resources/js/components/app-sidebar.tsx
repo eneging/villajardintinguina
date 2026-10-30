@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     Baby,
     Banknote,
+    Bus,
     ChartColumn,
     FilePlus2,
     FileText,
@@ -20,6 +21,7 @@ import {
     Megaphone,
     MessagesSquare,
     NotebookPen,
+    Package,
     School,
     Settings2,
     Smile,
@@ -51,8 +53,10 @@ import { index as complaints } from '@/routes/admin/complaints';
 import { index as adminDocuments } from '@/routes/admin/documents';
 import { index as enrollments } from '@/routes/admin/enrollments';
 import { index as finance } from '@/routes/admin/finance';
+import { index as inventory } from '@/routes/admin/inventory';
 import { index as leads } from '@/routes/admin/leads';
 import { index as payroll } from '@/routes/admin/payroll';
+import { index as services } from '@/routes/admin/services';
 import { index as settings } from '@/routes/admin/settings';
 import { index as siteEditor } from '@/routes/admin/site';
 import { index as staffAttendance } from '@/routes/admin/staff-attendance';
@@ -160,8 +164,10 @@ export function AppSidebar() {
         ? [
               { title: 'Alumnos', href: students(), icon: Baby },
               { title: 'Pagos', href: billing(), icon: Wallet },
+              { title: 'Servicios', href: services(), icon: Bus },
               { title: 'Planilla', href: payroll(), icon: Banknote },
               { title: 'Finanzas', href: finance(), icon: ChartColumn },
+              { title: 'Inventario', href: inventory(), icon: Package },
               {
                   title: 'Asistencia del personal',
                   href: staffAttendance(),

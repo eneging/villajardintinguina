@@ -55,6 +55,41 @@ class BillingService
                 $created += $charge->wasRecentlyCreated ? 1 : 0;
             });
 
+        // Servicios adicionales (movilidad, almuerzo…): una cuota por servicio y mes.
+        $label = ucfirst($month->locale('es')->translatedFormat('F Y'));
+
+        Enrollment::query()
+            ->where('school_year_id', $year->id)
+            ->where('status', 'active')
+            ->with(['services' => fn ($q) => $q->where('active', true)])
+            ->whereHas('services', fn ($q) => $q->where('active', true))
+            ->each(function (Enrollment $enrollment) use ($label, $dueOn, $by, &$created) {
+                foreach ($enrollment->services as $service) {
+                    $exists = Charge::query()
+                        ->where('enrollment_id', $enrollment->id)
+                        ->where('service_id', $service->id)
+                        ->whereDate('due_on', $dueOn)
+                        ->exists();
+
+                    if ($exists) {
+                        continue;
+                    }
+
+                    Charge::create([
+                        'enrollment_id' => $enrollment->id,
+                        'student_id' => $enrollment->student_id,
+                        'concept' => ChargeConcept::Service,
+                        'service_id' => $service->id,
+                        'period' => null,
+                        'description' => "{$service->name} {$label}",
+                        'amount' => (float) ($service->pivot->price ?? $service->monthly_price),
+                        'due_on' => $dueOn,
+                        'created_by' => $by?->id,
+                    ]);
+                    $created++;
+                }
+            });
+
         return $created;
     }
 

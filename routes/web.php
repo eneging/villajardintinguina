@@ -9,9 +9,11 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\EnrollmentRequestController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\FinanceController;
+use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\RaffleController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SiteContentController;
 use App\Http\Controllers\Admin\StaffAttendanceController as AdminStaffAttendanceController;
@@ -42,6 +44,7 @@ use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\StaffAttendanceController;
 use App\Http\Controllers\StudentAttendanceController;
 use App\Http\Controllers\StudentProfileController;
+use App\Http\Controllers\SupplyController;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
@@ -215,6 +218,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('sitio-web', [SiteContentController::class, 'index'])->name('site.index');
         Route::put('sitio-web/{section}', [SiteContentController::class, 'update'])->name('site.update');
 
+        Route::get('servicios', [ServiceController::class, 'index'])->name('services.index');
+        Route::post('servicios', [ServiceController::class, 'store'])->name('services.store');
+        Route::put('servicios/{service}', [ServiceController::class, 'update'])->name('services.update');
+        Route::post('servicios/{service}/alumnos', [ServiceController::class, 'attach'])->name('services.attach');
+        Route::delete('servicios/{service}/alumnos/{enrollment}', [ServiceController::class, 'detach'])->name('services.detach');
+
+        Route::get('inventario', [InventoryController::class, 'index'])->name('inventory.index');
+        Route::post('inventario', [InventoryController::class, 'store'])->name('inventory.store');
+        Route::put('inventario/{item}', [InventoryController::class, 'update'])->name('inventory.update');
+        Route::post('inventario/{item}/movimientos', [InventoryController::class, 'move'])->name('inventory.move');
+        Route::delete('inventario/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+
         Route::get('matriculas', [EnrollmentRequestController::class, 'index'])->name('enrollments.index');
         Route::get('matriculas/{enrollment}', [EnrollmentRequestController::class, 'show'])->name('enrollments.show');
         Route::post('matriculas/{enrollment}/aprobar', [EnrollmentRequestController::class, 'approve'])->name('enrollments.approve');
@@ -248,6 +263,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('recojo/{token}/entregar', [PickupController::class, 'handOver'])->middleware('throttle:30,1')->name('pickups.hand-over');
     });
     Route::post('incidentes/{incident}/enterado', [IncidentController::class, 'acknowledge'])->name('incidents.acknowledge');
+    Route::get('salones/{classroom}/utiles', [SupplyController::class, 'show'])->name('supplies.show');
+    Route::post('salones/{classroom}/utiles', [SupplyController::class, 'toggle'])->name('supplies.toggle');
     Route::get('mensajes', [MessageController::class, 'index'])->name('messages.index');
     Route::get('mensajes/{student}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('mensajes/{student}', [MessageController::class, 'store'])->middleware('throttle:30,1')->name('messages.store');

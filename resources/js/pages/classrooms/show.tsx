@@ -5,6 +5,7 @@ import {
     ListChecks,
     NotebookPen,
     Pencil,
+    PencilRuler,
     Plus,
 } from 'lucide-react';
 import { AlbumCard } from '@/components/gallery/album-card';
@@ -19,6 +20,7 @@ import { classroom as attendance } from '@/routes/attendance';
 import { show } from '@/routes/classrooms';
 import { classroom as dailyLogs } from '@/routes/daily-logs';
 import { classroom as reportCards } from '@/routes/report-cards';
+import { show as supplies } from '@/routes/supplies';
 import { edit as editInfo } from '@/routes/classrooms/info';
 import { index as gallery } from '@/routes/gallery';
 import { progress } from '@/routes/induction';
@@ -142,6 +144,11 @@ export default function ClassroomShow({
                                 <Button variant="outline" asChild>
                                     <Link href={reportCards(classroom.id)}>
                                         <GraduationCap /> Libretas
+                                    </Link>
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <Link href={supplies(classroom.id)}>
+                                        <PencilRuler /> Útiles
                                     </Link>
                                 </Button>
                                 {auth.roles.includes('admin') && (

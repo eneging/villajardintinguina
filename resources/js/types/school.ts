@@ -142,7 +142,7 @@ export type ChargeStatus =
 
 export type Charge = {
     id: number;
-    concept: 'matricula' | 'mensualidad' | 'otro';
+    concept: 'matricula' | 'mensualidad' | 'servicio' | 'otro';
     description: string;
     period: string | null;
     amount: number;

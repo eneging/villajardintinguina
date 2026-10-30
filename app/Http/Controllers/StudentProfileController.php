@@ -110,6 +110,11 @@ class StudentProfileController extends Controller
                     ->when(! $user->isAdmin(), fn ($q) => $q->where('visibility', 'shared'))
                     ->latest()->get()->map(fn (Document $document) => DocumentPresenter::row($document))
                 : null,
+            'services' => $enrollment?->services()->get()->map(fn ($service) => [
+                'name' => $service->name,
+                'price' => (float) ($service->pivot->price ?? $service->monthly_price),
+            ]) ?? [],
+            'pendingSupplies' => SupplyController::pendingFor($student),
             'incidents' => Incident::query()->with(['reporter', 'acknowledger'])->where('student_id', $student->id)
                 ->latest('occurred_at')->limit(20)->get()->map(fn (Incident $incident) => $incident->toClient()),
             // Códigos QR de recojo: solo los ve la familia (y la administradora).

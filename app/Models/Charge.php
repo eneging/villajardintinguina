@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property float|null $paid_amount Suma de pagos confirmados (con withPaidAmount()).
  * @property float|null $pending_amount Suma de pagos por verificar (con withPaidAmount()).
  */
-#[Fillable(['enrollment_id', 'student_id', 'concept', 'description', 'period', 'amount', 'due_on', 'voided_at', 'created_by'])]
+#[Fillable(['enrollment_id', 'student_id', 'concept', 'service_id', 'description', 'period', 'amount', 'due_on', 'voided_at', 'created_by'])]
 class Charge extends Model
 {
     use Auditable;

@@ -75,6 +75,8 @@ type Props = {
     charges: Charge[] | null;
     documents: DocumentRow[] | null;
     incidents: IncidentItem[];
+    services: { name: string; price: number }[];
+    pendingSupplies: string[];
     pickupCodes: {
         key: string;
         name: string;
@@ -210,6 +212,8 @@ export default function StudentShow({
     documents,
     incidents,
     pickupCodes,
+    services,
+    pendingSupplies,
     can,
     cloudinaryEnabled,
 }: Props) {
@@ -511,6 +515,43 @@ export default function StudentShow({
                             </Button>
                         ))}
                 </section>
+
+                {(services.length > 0 || pendingSupplies.length > 0) && (
+                    <div className="grid gap-6 lg:grid-cols-2">
+                        {services.length > 0 && (
+                            <section className="space-y-2 rounded-2xl border bg-card p-5">
+                                <h2 className="font-semibold">
+                                    Servicios contratados
+                                </h2>
+                                <ul className="space-y-1 text-sm">
+                                    {services.map((service) => (
+                                        <li
+                                            key={service.name}
+                                            className="flex justify-between"
+                                        >
+                                            <span>{service.name}</span>
+                                            <span className="tabular-nums">
+                                                {money(service.price)} al mes
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
+                        {pendingSupplies.length > 0 && (
+                            <section className="space-y-2 rounded-2xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-900 dark:bg-amber-950/20">
+                                <h2 className="font-semibold">
+                                    ✏️ Útiles por entregar
+                                </h2>
+                                <ul className="list-inside list-disc text-sm">
+                                    {pendingSupplies.map((item) => (
+                                        <li key={item}>{item}</li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
+                    </div>
+                )}
 
                 <PickupCodes codes={pickupCodes} />
 

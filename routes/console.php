@@ -5,6 +5,7 @@ use App\Mail\DocumentExpirations;
 use App\Models\Classroom;
 use App\Models\Complaint;
 use App\Models\Document;
+use App\Models\InventoryItem;
 use App\Services\BillingService;
 use App\Services\DatabaseBackup;
 use App\Services\Notifier;
@@ -109,3 +110,15 @@ Artisan::command('cumpleanos:avisar', function (Notifier $notifier) {
 })->purpose('Avisa al personal del salón y a la administración los cumpleaños del día');
 
 Schedule::command('cumpleanos:avisar')->dailyAt('07:00');
+
+Artisan::command('inventario:alertar', function (Notifier $notifier) {
+    $low = InventoryItem::query()->get()->filter(fn (InventoryItem $item) => $item->isLow());
+
+    if ($low->isNotEmpty()) {
+        $notifier->send($notifier->admins(), 'inventory', "{$low->count()} material(es) por acabarse", $low->pluck('name')->implode(', '), '/admin/inventario');
+    }
+
+    $this->info("Materiales con stock bajo: {$low->count()}");
+})->purpose('Avisa a la administración de los materiales con stock bajo');
+
+Schedule::command('inventario:alertar')->weeklyOn(1, '08:30');
