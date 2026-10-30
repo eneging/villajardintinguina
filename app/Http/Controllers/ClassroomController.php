@@ -9,6 +9,7 @@ use App\Models\Classroom;
 use App\Models\ClassroomActivity;
 use App\Models\LearningModule;
 use App\Models\SchoolYear;
+use App\Support\Birthdays;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -70,6 +71,7 @@ class ClassroomController extends Controller
                 ->with('coverItem.media')->withCount('items')->orderByDesc('date')->limit(4)->get()
                 ->map(fn (Album $album) => $album->toCard()),
             'info' => ClassroomInfoController::info($classroom),
+            'birthdays' => Birthdays::upcoming([$classroom->id])->map(fn ($b) => [...$b, 'name' => $b['first_name']]),
             'weekdays' => Classroom::WEEKDAYS,
             'activities' => $classroom->activities()
                 ->whereDate('date', '>=', today())

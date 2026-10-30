@@ -2,11 +2,14 @@
 
 use App\Mail\ComplaintDeadlines;
 use App\Mail\DocumentExpirations;
+use App\Models\Classroom;
 use App\Models\Complaint;
 use App\Models\Document;
 use App\Services\BillingService;
 use App\Services\DatabaseBackup;
+use App\Services\Notifier;
 use App\Services\PaymentReminders;
+use App\Support\Birthdays;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -92,3 +95,17 @@ Artisan::command('notificaciones:limpiar', function () {
 })->purpose('Elimina avisos de la campanita con más de 120 días');
 
 Schedule::command('notificaciones:limpiar')->weeklyOn(0, '03:00');
+
+Artisan::command('cumpleanos:avisar', function (Notifier $notifier) {
+    $today = Birthdays::upcoming(null, 0);
+
+    foreach ($today as $birthday) {
+        $classroom = Classroom::find($birthday['classroom']['id'] ?? 0);
+        $staff = $classroom ? $classroom->staff()->get() : collect();
+        $notifier->send($staff->concat($notifier->admins()), 'birthday', "🎂 Hoy cumple {$birthday['turns']} años {$birthday['name']}", $classroom ? "Salón {$classroom->name}" : null, $classroom ? "/salones/{$classroom->id}" : '/dashboard');
+    }
+
+    $this->info("Cumpleaños de hoy: {$today->count()}");
+})->purpose('Avisa al personal del salón y a la administración los cumpleaños del día');
+
+Schedule::command('cumpleanos:avisar')->dailyAt('07:00');

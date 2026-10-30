@@ -17,6 +17,7 @@ use App\Models\Payment;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Services\InductionService;
+use App\Support\Birthdays;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -100,7 +101,15 @@ class DashboardController extends Controller
             'open_complaints' => Complaint::whereNull('responded_at')->count(),
         ] : null;
 
+        // Cumpleaños de la semana: todo el colegio para la administradora, sus salones para el personal.
+        $birthdays = match (true) {
+            $user->isAdmin() => Birthdays::upcoming(),
+            $user->hasRole(Role::Teacher, Role::Intern) => Birthdays::upcoming($user->classrooms()->where('school_year_id', SchoolYear::current()?->id)->pluck('classrooms.id')),
+            default => collect(),
+        };
+
         return Inertia::render('dashboard', [
+            'birthdays' => $birthdays,
             'latestAlbums' => GalleryController::latestForParent($user),
             'announcements' => Announcement::query()->visibleTo($user)->with(['classroom', 'author'])
                 ->orderByDesc('pinned')->latest()->limit(3)->get()

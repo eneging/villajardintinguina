@@ -27,6 +27,7 @@ use App\Http\Controllers\DeployController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Parent\EnrollmentController;
 use App\Http\Controllers\Parent\PaymentController;
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\PickupController;
 use App\Http\Controllers\Public\SiteController;
 use App\Http\Controllers\ReportCardController;
 use App\Http\Controllers\StaffAttendanceController;
@@ -238,6 +240,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('salones/{classroom}/libretas/{period}/{student}', [ReportCardController::class, 'save'])->name('report-cards.save');
     Route::get('alumnos/{student}/libreta/{period}', [ReportCardController::class, 'show'])->name('report-cards.show');
     Route::get('libretas', [ReportCardController::class, 'mine'])->middleware('role:parent')->name('report-cards.mine');
+    Route::middleware('role:admin,teacher,intern')->group(function () {
+        Route::get('incidentes', [IncidentController::class, 'index'])->name('incidents.index');
+        Route::post('incidentes', [IncidentController::class, 'store'])->name('incidents.store');
+        Route::get('recojo/{token}', [PickupController::class, 'scan'])->name('pickups.scan');
+        Route::post('recojo/{token}/entregar', [PickupController::class, 'handOver'])->middleware('throttle:30,1')->name('pickups.hand-over');
+    });
+    Route::post('incidentes/{incident}/enterado', [IncidentController::class, 'acknowledge'])->name('incidents.acknowledge');
     Route::get('cuaderno', [DailyLogController::class, 'mine'])->middleware('role:parent')->name('daily-logs.mine');
     Route::get('asistencia', [StudentAttendanceController::class, 'mine'])->middleware('role:parent')->name('attendance.mine');
     Route::middleware('role:teacher,intern')->group(function () {

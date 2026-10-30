@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DocumentPresenter;
 use App\Models\AuthorizedPickup;
 use App\Models\Charge;
 use App\Models\Document;
+use App\Models\Incident;
 use App\Models\Media;
 use App\Models\Student;
 use App\Models\StudentAttendance;
@@ -109,6 +110,14 @@ class StudentProfileController extends Controller
                     ->when(! $user->isAdmin(), fn ($q) => $q->where('visibility', 'shared'))
                     ->latest()->get()->map(fn (Document $document) => DocumentPresenter::row($document))
                 : null,
+            'incidents' => Incident::query()->with(['reporter', 'acknowledger'])->where('student_id', $student->id)
+                ->latest('occurred_at')->limit(20)->get()->map(fn (Incident $incident) => $incident->toClient()),
+            // Códigos QR de recojo: solo los ve la familia (y la administradora).
+            'pickupCodes' => $canManage ? collect([
+                ...$student->guardians->filter(fn (User $guardian) => $guardian->pivot->can_pick_up && ($user->isAdmin() || $guardian->id === $user->id))
+                    ->map(fn (User $guardian) => ['key' => "g{$guardian->id}", 'name' => $guardian->name, 'relationship' => $guardian->pivot->relationship, 'url' => route('pickups.scan', PickupController::tokenFor($guardian))]),
+                ...$student->authorizedPickups->map(fn (AuthorizedPickup $pickup) => ['key' => "p{$pickup->id}", 'name' => $pickup->name, 'relationship' => $pickup->relationship, 'url' => route('pickups.scan', PickupController::tokenFor($pickup))]),
+            ])->values() : [],
             'can' => [
                 'manage' => $canManage,
                 'updatePhoto' => $user->can('updatePhoto', $student),

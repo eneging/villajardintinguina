@@ -14,6 +14,8 @@ import { day, money } from '@/components/billing/format';
 import { ChargeStatusBadge } from '@/components/billing/charge-status';
 import InputError from '@/components/input-error';
 import { DocumentList } from '@/components/school/document-list';
+import { IncidentList } from '@/components/school/incident-list';
+import { PickupCodes } from '@/components/school/pickup-codes';
 import type { DocumentRow } from '@/components/school/document-list';
 import { MediaUploader } from '@/components/school/media-uploader';
 import { StudentAvatar } from '@/components/school/student-avatar';
@@ -35,6 +37,7 @@ import type {
     AttendanceStatus,
     AuthorizedPickup,
     Charge,
+    IncidentItem,
     MediaItem,
     StudentSummary,
 } from '@/types';
@@ -69,6 +72,13 @@ type Props = {
     };
     charges: Charge[] | null;
     documents: DocumentRow[] | null;
+    incidents: IncidentItem[];
+    pickupCodes: {
+        key: string;
+        name: string;
+        relationship: string;
+        url: string;
+    }[];
     can: { manage: boolean; updatePhoto: boolean; edit: boolean };
     cloudinaryEnabled: boolean;
 };
@@ -196,6 +206,8 @@ export default function StudentShow({
     attendance,
     charges,
     documents,
+    incidents,
+    pickupCodes,
     can,
     cloudinaryEnabled,
 }: Props) {
@@ -491,6 +503,16 @@ export default function StudentShow({
                                 <UserPlus /> Autorizar a otra persona
                             </Button>
                         ))}
+                </section>
+
+                <PickupCodes codes={pickupCodes} />
+
+                <section className="space-y-3 rounded-2xl border bg-card p-5">
+                    <h2 className="font-semibold">Incidentes y enfermería</h2>
+                    <IncidentList
+                        incidents={incidents}
+                        canAcknowledge={can.manage && !can.edit}
+                    />
                 </section>
 
                 {charges && (

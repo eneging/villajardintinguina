@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
+import { BirthdaysCard } from '@/components/school/birthdays-card';
 import { ClassroomInfoCards } from '@/components/school/classroom-info';
 import { ModuleCard } from '@/components/school/module-card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ import { create } from '@/routes/modules';
 import type {
     AlbumCard as Album,
     Announcement,
+    Birthday,
     ClassroomActivity,
     ClassroomInfo,
     ClassroomSummary,
@@ -46,6 +48,7 @@ type Props = {
     info: ClassroomInfo;
     weekdays: Record<string, string>;
     activities: ClassroomActivity[];
+    birthdays: Birthday[];
 };
 
 const staffLabels = {
@@ -71,6 +74,7 @@ export default function ClassroomShow({
     info,
     weekdays,
     activities,
+    birthdays,
 }: Props) {
     const { auth } = usePage().props;
     const drafts = modules.filter((m) => m.status === 'draft');
@@ -187,6 +191,8 @@ export default function ClassroomShow({
                         </div>
                     )}
                 </header>
+
+                <BirthdaysCard birthdays={birthdays} showClassroom={false} />
 
                 <ClassroomInfoCards
                     info={info}

@@ -4,6 +4,7 @@ import { money } from '@/components/billing/format';
 import Heading from '@/components/heading';
 import { AlbumCard } from '@/components/gallery/album-card';
 import { AnnouncementCard } from '@/components/school/announcement-card';
+import { BirthdaysCard } from '@/components/school/birthdays-card';
 import { ModuleCard } from '@/components/school/module-card';
 import { ClassroomTile } from '@/pages/classrooms/index';
 import { dashboard } from '@/routes';
@@ -16,6 +17,7 @@ import { mine as myInduction } from '@/routes/induction';
 import { index as myPayments } from '@/routes/payments';
 import { show as showStudent } from '@/routes/students';
 import type {
+    Birthday,
     AlbumCard as Album,
     Announcement,
     ClassroomSummary,
@@ -36,6 +38,7 @@ type Props = {
     debt: number | null;
     announcements: Announcement[];
     latestAlbums: Album[];
+    birthdays: Birthday[];
     finance: {
         overdue: number;
         pending_vouchers: number;
@@ -46,6 +49,7 @@ type Props = {
 };
 
 export default function Dashboard({
+    birthdays,
     children,
     latestModules,
     managedClassrooms,
@@ -142,6 +146,8 @@ export default function Dashboard({
                         por vencer en los próximos 30 días.
                     </Link>
                 )}
+
+                <BirthdaysCard birthdays={birthdays} />
 
                 {induction && induction.required > induction.completed && (
                     <Link

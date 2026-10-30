@@ -14,6 +14,7 @@ import {
     BookX,
     Globe,
     GraduationCap,
+    HeartPulse,
     History,
     LayoutGrid,
     Megaphone,
@@ -65,6 +66,7 @@ import { index as classrooms } from '@/routes/classrooms';
 import { mine as myDailyLogs } from '@/routes/daily-logs';
 import { mine as myReportCards } from '@/routes/report-cards';
 import { index as documents } from '@/routes/documents';
+import { index as incidents } from '@/routes/incidents';
 import { index as myEnrollment } from '@/routes/enrollment';
 import { index as events } from '@/routes/events';
 import {
@@ -103,6 +105,15 @@ export function AppSidebar() {
                       icon: ClipboardCheck,
                   },
                   { title: 'Mis boletas', href: payslips(), icon: FileText },
+              ]
+            : []),
+        ...(hasRole(auth.roles, 'admin', 'teacher', 'intern')
+            ? [
+                  {
+                      title: 'Incidentes',
+                      href: incidents(),
+                      icon: HeartPulse,
+                  },
               ]
             : []),
         ...(hasRole(auth.roles, 'parent')

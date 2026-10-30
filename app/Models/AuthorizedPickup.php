@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Persona autorizada a recoger al niño (abuela, tía, movilidad escolar…).
  */
-#[Fillable(['student_id', 'name', 'dni', 'relationship', 'phone', 'photo_media_id', 'added_by'])]
+#[Fillable(['student_id', 'name', 'dni', 'relationship', 'phone', 'pickup_token', 'photo_media_id', 'added_by'])]
 class AuthorizedPickup extends Model
 {
     /** @return BelongsTo<Student, $this> */

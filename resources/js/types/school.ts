@@ -366,3 +366,33 @@ export type EnrollmentRequestItem = {
     created_at: string;
     reviewed_at: string | null;
 };
+
+export type Birthday = {
+    id: number;
+    name: string;
+    first_name: string;
+    date: string;
+    days: number;
+    turns: number;
+    classroom: {
+        id: number;
+        name: string;
+        mascot: string | null;
+        color: string;
+    } | null;
+};
+
+export type IncidentItem = {
+    id: number;
+    student: { id: number; name: string } | null;
+    classroom: string | null;
+    occurred_at: string;
+    type: string;
+    type_label: string;
+    description: string;
+    action_taken: string | null;
+    medicine: string | null;
+    reported_by: string | null;
+    acknowledged_at: string | null;
+    acknowledged_by: string | null;
+};

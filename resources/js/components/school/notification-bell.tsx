@@ -2,10 +2,13 @@ import { Link, router, usePage } from '@inertiajs/react';
 import {
     Bell,
     BookOpen,
+    Cake,
     Camera,
     FilePlus2,
     FileWarning,
     GraduationCap,
+    HeartPulse,
+    LogOut,
     Megaphone,
     NotebookPen,
     PartyPopper,
@@ -38,6 +41,9 @@ export const notificationIcons: Record<string, LucideIcon> = {
     daily: NotebookPen,
     report: GraduationCap,
     enrollment: FilePlus2,
+    incident: HeartPulse,
+    pickup: LogOut,
+    birthday: Cake,
 };
 
 const relative = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
