@@ -317,3 +317,52 @@ export type GradingPeriodItem = {
     ends_on: string;
     published: boolean;
 };
+
+export type EnrollmentChild = {
+    first_name: string;
+    last_name: string;
+    dni?: string | null;
+    birth_date: string;
+    sex: 'F' | 'M' | '';
+    blood_type?: string | null;
+    allergies?: string | null;
+    medical_notes?: string | null;
+    insurance?: string | null;
+};
+
+export type EnrollmentRequestItem = {
+    id: number;
+    student_id: number | null;
+    school_year_id: number;
+    year: number | null;
+    level_id: number | null;
+    level: string | null;
+    child: EnrollmentChild;
+    child_name: string;
+    relationship: string;
+    second_guardian: {
+        name?: string;
+        dni?: string;
+        phone?: string;
+        relationship?: string;
+    } | null;
+    emergency_contact: { name: string; phone: string } | null;
+    pickups: {
+        name: string;
+        dni: string;
+        relationship: string;
+        phone?: string | null;
+    }[];
+    documents: {
+        type: string;
+        media_id: number;
+        label: string;
+        media: MediaItem | null;
+    }[];
+    image_consent: boolean;
+    status: 'enviada' | 'observada' | 'aprobada' | 'rechazada';
+    status_label: string;
+    admin_notes: string | null;
+    created_at: string;
+    reviewed_at: string | null;
+};

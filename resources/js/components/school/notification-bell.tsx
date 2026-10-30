@@ -3,6 +3,7 @@ import {
     Bell,
     BookOpen,
     Camera,
+    FilePlus2,
     FileWarning,
     GraduationCap,
     Megaphone,
@@ -36,6 +37,7 @@ export const notificationIcons: Record<string, LucideIcon> = {
     event: PartyPopper,
     daily: NotebookPen,
     report: GraduationCap,
+    enrollment: FilePlus2,
 };
 
 const relative = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });

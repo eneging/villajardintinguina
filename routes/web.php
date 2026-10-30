@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ClassroomController as AdminClassroomController;
 use App\Http\Controllers\Admin\ComplaintController as AdminComplaintController;
 use App\Http\Controllers\Admin\DocumentController as AdminDocumentController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\EnrollmentRequestController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\LeadController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\InductionController;
 use App\Http\Controllers\LearningModuleController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Parent\EnrollmentController;
 use App\Http\Controllers\Parent\PaymentController;
 use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\Public\SiteController;
@@ -210,6 +212,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('sitio-web', [SiteContentController::class, 'index'])->name('site.index');
         Route::put('sitio-web/{section}', [SiteContentController::class, 'update'])->name('site.update');
 
+        Route::get('matriculas', [EnrollmentRequestController::class, 'index'])->name('enrollments.index');
+        Route::get('matriculas/{enrollment}', [EnrollmentRequestController::class, 'show'])->name('enrollments.show');
+        Route::post('matriculas/{enrollment}/aprobar', [EnrollmentRequestController::class, 'approve'])->name('enrollments.approve');
+        Route::post('matriculas/{enrollment}/observar', [EnrollmentRequestController::class, 'observe'])->name('enrollments.observe');
+
         Route::get('admisiones', [LeadController::class, 'index'])->name('leads.index');
         Route::get('admisiones/exportar', [LeadController::class, 'export'])->name('leads.download');
         Route::post('admisiones', [LeadController::class, 'store'])->name('leads.store');
@@ -275,6 +282,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Padres: estado de cuenta y reporte de pagos con voucher.
     Route::middleware('role:parent')->group(function () {
         Route::get('mis-pagos', [PaymentController::class, 'index'])->name('payments.index');
+        Route::get('matricula', [EnrollmentController::class, 'index'])->name('enrollment.index');
+        Route::get('matricula/nueva', [EnrollmentController::class, 'create'])->name('enrollment.create');
+        Route::post('matricula', [EnrollmentController::class, 'store'])->middleware('throttle:10,1')->name('enrollment.store');
+        Route::get('matricula/{enrollment}/editar', [EnrollmentController::class, 'edit'])->name('enrollment.edit');
+        Route::put('matricula/{enrollment}', [EnrollmentController::class, 'update'])->name('enrollment.update');
         Route::post('mis-pagos', [PaymentController::class, 'store'])
             ->middleware('throttle:20,1')
             ->name('payments.store');

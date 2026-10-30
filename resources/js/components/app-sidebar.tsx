@@ -3,6 +3,7 @@ import {
     Baby,
     Banknote,
     ChartColumn,
+    FilePlus2,
     FileText,
     FolderOpen,
     PartyPopper,
@@ -45,6 +46,7 @@ import { index as audit } from '@/routes/admin/audit';
 import { index as billing } from '@/routes/admin/billing';
 import { index as complaints } from '@/routes/admin/complaints';
 import { index as adminDocuments } from '@/routes/admin/documents';
+import { index as enrollments } from '@/routes/admin/enrollments';
 import { index as finance } from '@/routes/admin/finance';
 import { index as leads } from '@/routes/admin/leads';
 import { index as payroll } from '@/routes/admin/payroll';
@@ -63,6 +65,7 @@ import { index as classrooms } from '@/routes/classrooms';
 import { mine as myDailyLogs } from '@/routes/daily-logs';
 import { mine as myReportCards } from '@/routes/report-cards';
 import { index as documents } from '@/routes/documents';
+import { index as myEnrollment } from '@/routes/enrollment';
 import { index as events } from '@/routes/events';
 import {
     index as manageInduction,
@@ -121,6 +124,7 @@ export function AppSidebar() {
                       icon: CalendarCheck,
                   },
                   { title: 'Mis pagos', href: myPayments(), icon: Wallet },
+                  { title: 'Matrícula', href: myEnrollment(), icon: FilePlus2 },
               ]
             : []),
         ...(hasRole(auth.roles, 'parent', 'teacher', 'intern')
@@ -161,6 +165,11 @@ export function AppSidebar() {
         ? [
               { title: 'Sitio web', href: siteEditor(), icon: Globe },
               { title: 'Admisiones', href: leads(), icon: UserPlus },
+              {
+                  title: 'Matrículas en línea',
+                  href: enrollments(),
+                  icon: FilePlus2,
+              },
           ]
         : [];
 

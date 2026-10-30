@@ -94,7 +94,7 @@ class MediaController extends Controller
     private function contextRules(): array
     {
         return [
-            'context' => ['sometimes', 'in:classroom,induction,payment,event,document,site,student'],
+            'context' => ['sometimes', 'in:classroom,induction,payment,event,document,site,student,enrollment'],
             'classroom_id' => ['required_if:context,classroom', 'required_without:context', 'nullable', 'integer', 'exists:classrooms,id'],
             'student_id' => ['required_if:context,student', 'nullable', 'integer', 'exists:students,id'],
         ];
@@ -121,6 +121,14 @@ class MediaController extends Controller
             abort_unless($request->user()->can('updatePhoto', $student), 403);
 
             return "alumnos/{$student->id}";
+        }
+
+        if (($data['context'] ?? null) === 'enrollment') {
+            // Documentos de la matrícula en línea: cada padre en su propia carpeta.
+            $user = $request->user();
+            abort_unless($user->hasRole(Role::Parent), 403);
+
+            return "matriculas/padres/{$user->id}";
         }
 
         if (($data['context'] ?? 'classroom') === 'payment') {

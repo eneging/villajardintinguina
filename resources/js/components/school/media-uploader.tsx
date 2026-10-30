@@ -14,7 +14,8 @@ export type UploadTarget =
     | { context: 'event' }
     | { context: 'document' }
     | { context: 'site' }
-    | { context: 'student'; student_id: number };
+    | { context: 'student'; student_id: number }
+    | { context: 'enrollment' };
 
 type SignedUpload = {
     upload_url: string;
@@ -189,7 +190,8 @@ export function MediaUploader({
                 type="file"
                 accept={
                     (target.context === 'payment' ||
-                        target.context === 'document') &&
+                        target.context === 'document' ||
+                        target.context === 'enrollment') &&
                     resourceType === 'image'
                         ? imageOrPdf
                         : accepts[resourceType]
