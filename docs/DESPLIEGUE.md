@@ -94,6 +94,16 @@ Cada cambio en la rama `main` (o _Actions → deploy → Run workflow_) hace:
 2. Sube los archivos por FTP (la primera vez tarda porque sube `vendor/`; luego solo sube lo que cambió).
 3. Llama a `POST /_deploy` con el token: ejecuta **migraciones**, `escuela:instalar` (estructura del colegio y **primera administradora**, que recibe un correo para crear su contraseña) y regenera las **cachés**.
 
+### Primera publicación
+
+Hoy todo el trabajo está en la rama `claude/ep-villa-jardin-architecture-o45xrx` (es la rama principal del repositorio) y aún no existe `main`. Antes de publicar:
+
+1. Prepara el hosting (secciones 1 a 4) y crea los secretos de arriba. Sin ellos, la publicación falla sin tocar nada.
+2. Elige una de estas dos formas:
+    - **Publicar esta rama tal cual:** _Actions → deploy → Run workflow_, elige la rama `claude/ep-villa-jardin-architecture-o45xrx` y confirma.
+    - **Trabajar con `main` (recomendado a futuro):** en GitHub crea la rama `main` desde esta rama (_Branches → New branch_) y márcala como principal en _Settings → General → Default branch_. Desde entonces, cada cambio que se una a `main` se publica solo.
+3. Al terminar, entra a `APP_URL`, revisa que cargue el sitio y que llegue el correo de la primera administradora (sección 8).
+
 ## 6. Tarea programada (cron)
 
 cPanel → **Cron Jobs** → _Once Per Minute_ (`* * * * *`):
