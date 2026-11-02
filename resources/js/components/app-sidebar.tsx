@@ -22,6 +22,7 @@ import {
     HeartPulse,
     History,
     LayoutGrid,
+    LifeBuoy,
     Megaphone,
     MessagesSquare,
     NotebookPen,
@@ -47,7 +48,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { hasRole } from '@/lib/school';
-import { dashboard, home } from '@/routes';
+import { dashboard, help, home } from '@/routes';
 import { index as payslips } from '@/routes/payslips';
 import { index as messages } from '@/routes/messages';
 import { index as myPayments } from '@/routes/payments';
@@ -90,6 +91,7 @@ import {
 import type { NavItem } from '@/types';
 
 const footerNavItems: NavItem[] = [
+    { title: 'Ayuda', href: help(), icon: LifeBuoy },
     {
         title: 'Ver sitio público',
         href: home(),

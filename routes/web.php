@@ -88,6 +88,8 @@ Route::get('libro-de-reclamaciones/constancia/{complaint}', [ComplaintController
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
+    Route::inertia('ayuda', 'help')->name('help');
+
     Route::get('notificaciones', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('notificaciones/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
     Route::post('notificaciones/leidas', [NotificationController::class, 'readAll'])->name('notifications.read-all');

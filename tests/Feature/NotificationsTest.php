@@ -64,4 +64,14 @@ class NotificationsTest extends TestCase
         $this->actingAs($admin)->post(route('notifications.read-all'))->assertRedirect();
         $this->assertSame(0, $admin->unreadNotifications()->count());
     }
+
+    public function test_help_page_is_available_to_every_role(): void
+    {
+        foreach (['admin', 'maestra', 'padre', 'practicante'] as $who) {
+            $this->actingAs($this->user("{$who}@villajardin.test"))->get(route('help'))->assertOk()->assertInertia(fn (Assert $page) => $page->component('help'));
+        }
+
+        auth()->logout();
+        $this->get(route('help'))->assertRedirect(route('login'));
+    }
 }
