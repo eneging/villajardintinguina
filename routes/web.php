@@ -135,6 +135,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('alumnos', [StudentController::class, 'index'])->name('students.index');
         Route::get('alumnos/exportar', [StudentController::class, 'export'])->name('students.download');
+        Route::get('alumnos/importar', [StudentController::class, 'importForm'])->name('students.import');
+        Route::get('alumnos/importar/plantilla', [StudentController::class, 'template'])->name('students.import.template');
+        Route::post('alumnos/importar/revisar', [StudentController::class, 'analyzeImport'])->name('students.import.analyze');
+        Route::post('alumnos/importar', [StudentController::class, 'import'])->middleware('throttle:10,1')->name('students.import.store');
         Route::get('alumnos/crear', [StudentController::class, 'create'])->name('students.create');
         Route::post('alumnos', [StudentController::class, 'store'])->name('students.store');
         Route::get('alumnos/{student}/editar', [StudentController::class, 'edit'])->name('students.edit');

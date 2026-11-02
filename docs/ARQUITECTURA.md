@@ -139,20 +139,20 @@ villajardin/{produccion|pruebas}/
 
 ## 2. Roles y permisos
 
-| Módulo                               |         Administradora         |               Maestra               |              Practicante              |                    Padre/Madre                    |          Alumno          |
-| ------------------------------------ | :----------------------------: | :---------------------------------: | :-----------------------------------: | :-----------------------------------------------: | :----------------------: |
-| Configuración, usuarios, aulas       |            ✅ CRUD             |                  —                  |                   —                   |                         —                         |            —             |
-| Asistencia de alumnos                |            ✅ todo             |             ✅ su aula              | 👁 + marcar si la maestra lo habilita |                    👁 su hijo                     |        👁 la suya        |
-| Asistencia de personal               |            ✅ todo             |     ✅ marca su entrada/salida      |      ✅ marca su entrada/salida       |                         —                         |            —             |
-| Pagos / mensualidades                |            ✅ CRUD             |                  —                  |                   —                   | 👁 sus pagos + descarga comprobante, sube voucher |            —             |
-| Planilla y balance                   |               ✅               |            👁 su boleta             |           👁 su constancia            |                         —                         |            —             |
-| Documentos                           |            ✅ todo             |          👁 los de su aula          |             👁 limitados              |           👁 los de su hijo + públicos            |       👁 públicos        |
-| Comunicados / recordatorios          |            ✅ envía            |         ✅ envía a su aula          |                   —                   |                     👁 recibe                     |            —             |
-| Sorteos y eventos                    |        ✅ crea/gestiona        |                 👁                  |                  👁                   |                   ✅ participa                    | ✅ participa (vía padre) |
-| Salones (página "Mi Salón", galería) |            ✅ todo             |          ✅ edita su salón          |              👁 su salón              |              👁 el salón de su hijo               |      👁 (vía padre)      |
+| Módulo                               |         Administradora         |               Maestra               |             Practicante              |                   Padre/Madre                    |          Alumno          |
+| ------------------------------------ | :----------------------------: | :---------------------------------: | :----------------------------------: | :----------------------------------------------: | :----------------------: |
+| Configuración, usuarios, aulas       |            ✅ CRUD             |                  —                  |                  —                   |                        —                         |            —             |
+| Asistencia de alumnos                |            ✅ todo             |             ✅ su aula              | 👁 + marcar si la maestra lo habilita |                    👁 su hijo                     |        👁 la suya         |
+| Asistencia de personal               |            ✅ todo             |     ✅ marca su entrada/salida      |      ✅ marca su entrada/salida      |                        —                         |            —             |
+| Pagos / mensualidades                |            ✅ CRUD             |                  —                  |                  —                   | 👁 sus pagos + descarga comprobante, sube voucher |            —             |
+| Planilla y balance                   |               ✅               |             👁 su boleta             |           👁 su constancia            |                        —                         |            —             |
+| Documentos                           |            ✅ todo             |          👁 los de su aula           |             👁 limitados              |           👁 los de su hijo + públicos            |        👁 públicos        |
+| Comunicados / recordatorios          |            ✅ envía            |         ✅ envía a su aula          |                  —                   |                     👁 recibe                     |            —             |
+| Sorteos y eventos                    |        ✅ crea/gestiona        |                  👁                  |                  👁                   |                   ✅ participa                   | ✅ participa (vía padre) |
+| Salones (página "Mi Salón", galería) |            ✅ todo             |          ✅ edita su salón          |              👁 su salón              |              👁 el salón de su hijo               |      👁 (vía padre)       |
 | Módulos de aprendizaje               |            ✅ todo             |      ✅ crea/edita en su salón      |              👁 su salón              |        👁 publicados del salón de su hijo         |            —             |
-| Inducción (video, imágenes, texto)   | ✅ crea/edita todo + ve avance | ✅ edita la de su salón + ve avance |          👁 la del personal           |                  ✅ la completa                   |            —             |
-| Libro de Reclamaciones               |          ✅ responde           |                  —                  |                   —                   |                    ✅ registra                    |            —             |
+| Inducción (video, imágenes, texto)   | ✅ crea/edita todo + ve avance | ✅ edita la de su salón + ve avance |          👁 la del personal           |                  ✅ la completa                  |            —             |
+| Libro de Reclamaciones               |          ✅ responde           |                  —                  |                  —                   |                   ✅ registra                    |            —             |
 
 **Nota sobre "Alumno":** son niños de 0–5 años; no inician sesión por sí mismos. El rol existe como **entidad** (ficha del alumno) y, opcionalmente, como vista simplificada que el padre abre (galería, logros, cumpleaños). Esto simplifica la seguridad y cumple con la Ley 29733 de protección de datos de menores.
 

@@ -8,7 +8,9 @@ use App\Models\Classroom;
 use App\Models\SchoolYear;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\StudentImporter;
 use App\Support\CsvExport;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -89,6 +91,56 @@ class StudentController extends Controller
                 $student->image_consent,
             ]),
         );
+    }
+
+    public function importForm(): Response
+    {
+        return Inertia::render('admin/students/import', [
+            'columns' => StudentImporter::COLUMNS,
+            'classrooms' => Classroom::query()->where('school_year_id', SchoolYear::current()?->id)->orderBy('level_id')->pluck('name'),
+            'year' => SchoolYear::current()?->year,
+        ]);
+    }
+
+    /** Plantilla para llenar en Excel (con una fila de ejemplo). */
+    public function template(): StreamedResponse
+    {
+        return CsvExport::download('plantilla-alumnos-villajardin.csv', StudentImporter::COLUMNS, [StudentImporter::EXAMPLE]);
+    }
+
+    /** Revisa las filas sin guardar nada. */
+    public function analyzeImport(Request $request, StudentImporter $importer): JsonResponse
+    {
+        return response()->json(['results' => $importer->analyze($this->importRows($request))]);
+    }
+
+    public function import(Request $request, StudentImporter $importer): JsonResponse
+    {
+        $rows = $this->importRows($request);
+        $results = $importer->analyze($rows);
+
+        abort_if(collect($results)->contains(fn ($result) => $result['errors'] !== []), 422, 'Corrige las filas con errores antes de importar.');
+
+        $summary = $importer->import($rows, $request->boolean('send_access'));
+        Inertia::flash('toast', ['type' => 'success', 'message' => "Importación lista: {$summary['students']} alumnos nuevos y {$summary['parents']} apoderados nuevos."]);
+
+        return response()->json($summary);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function importRows(Request $request): array
+    {
+        $data = $request->validate([
+            'rows' => ['required', 'array', 'min:1', 'max:500'],
+            'rows.*' => ['array'],
+        ], ['rows.required' => 'El archivo no tiene filas.', 'rows.max' => 'Importa como máximo 500 alumnos a la vez.']);
+
+        return array_values(array_map(
+            fn (array $row) => collect($row)->only(StudentImporter::COLUMNS)->map(fn ($value) => is_scalar($value) ? mb_substr((string) $value, 0, 200) : null)->all(),
+            $data['rows'],
+        ));
     }
 
     public function create(): Response
