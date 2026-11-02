@@ -61,6 +61,7 @@ Route::get('videos/{lesson}', [SiteController::class, 'video'])->name('videos.sh
 Route::get('fotos', [SiteController::class, 'gallery'])->name('photos');
 Route::get('fotos/{album}', [SiteController::class, 'album'])->name('photos.show');
 Route::get('admision', [SiteController::class, 'admission'])->name('admission');
+Route::get('privacidad', [SiteController::class, 'privacy'])->name('privacy');
 Route::get('noticias', [SiteController::class, 'news'])->name('news');
 Route::get('noticias/{post}', [SiteController::class, 'newsShow'])->name('news.show');
 Route::get('visita', [SiteController::class, 'visit'])->name('visit');

@@ -16,6 +16,40 @@ class SiteDefaults
     ];
 
     /**
+     * Texto de referencia según la Ley N° 29733 y su reglamento. Las marcas
+     * {colegio}, {razon_social}, {ruc}, {direccion} y {correo} se reemplazan
+     * con los datos del colegio. Debe revisarlo un abogado antes de publicarse.
+     */
+    public const PRIVACY = <<<'TEXT'
+## Quién es responsable de tus datos
+{razon_social} (RUC {ruc}), con domicilio en {direccion}, que opera {colegio}, es responsable del tratamiento de los datos personales que recopila a través de este sitio web y de su plataforma para familias y personal.
+
+## Qué datos recopilamos
+- De las familias interesadas: nombre, celular, correo y datos básicos del niño o niña que nos envías en los formularios de admisión y de visitas.
+- De las familias matriculadas: datos de identificación de los padres, apoderados y personas autorizadas a recoger (nombre, DNI, celular, correo, foto), y del alumno (nombre, DNI, fecha de nacimiento, datos de salud como alergias o indicaciones médicas, asistencia, evaluaciones y pagos).
+- Del personal: datos de identificación, contacto, asistencia y planilla.
+- Fotos y videos de las actividades escolares, solo de los niños cuyos padres lo autorizaron.
+
+## Para qué los usamos
+Para brindar el servicio educativo y de guardería: matrícula, comunicación con las familias, asistencia, cuidado de la salud de los niños, entrega segura a personas autorizadas, evaluaciones, cobro de pensiones, atención de reclamos (Libro de Reclamaciones) y, para las familias interesadas, coordinar la admisión. No vendemos ni cedemos tus datos con fines comerciales.
+
+## Datos de niñas y niños
+Tratamos los datos de los alumnos con el consentimiento de sus padres o apoderados. Los datos de salud se usan solo para su cuidado y solo los ve el personal que lo necesita. Las fotos solo se publican en la galería privada del salón o en el sitio web cuando los padres dieron su autorización de uso de imagen, que pueden retirar en cualquier momento.
+
+## Con quién los compartimos
+Con proveedores que nos ayudan a operar la plataforma, bajo obligación de confidencialidad: el servicio de alojamiento web, el servicio de almacenamiento de fotos y documentos (Cloudinary, con servidores fuera del Perú) y el servicio de correo. También con autoridades cuando la ley lo exija (por ejemplo, el Ministerio de Educación o INDECOPI).
+
+## Cuánto tiempo los guardamos
+Mientras dure la relación con el colegio y luego el tiempo que exijan las normas (por ejemplo, las hojas de reclamación se conservan al menos dos años). Los datos de familias interesadas que no se matriculan se eliminan después de un año.
+
+## Cómo los protegemos
+Acceso con usuario y contraseña, permisos según el rol de cada persona, conexión cifrada (HTTPS), archivos privados con enlaces temporales, registro de cambios y copias de seguridad.
+
+## Tus derechos
+Puedes pedir acceder a tus datos, corregirlos, cancelarlos u oponerte a su uso (derechos ARCO), así como revocar tu consentimiento, escribiendo a {correo} o en la dirección del colegio. Responderemos en los plazos que fija la ley. Si no estás conforme con la respuesta, puedes acudir a la Autoridad Nacional de Protección de Datos Personales del Ministerio de Justicia y Derechos Humanos.
+TEXT;
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     public static function all(): array
@@ -93,6 +127,10 @@ class SiteDefaults
                 'instagram' => null,
                 'tiktok' => null,
                 'youtube' => null,
+            ],
+            'privacy' => [
+                'updated_on' => '2026-11-02',
+                'body' => self::PRIVACY,
             ],
             'admission' => [
                 'open' => true,

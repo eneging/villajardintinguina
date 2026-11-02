@@ -38,6 +38,7 @@ const tabs = [
     { key: 'testimonials', label: 'Testimonios' },
     { key: 'contact', label: 'Contacto y redes' },
     { key: 'admission', label: 'Admisión' },
+    { key: 'privacy', label: 'Privacidad' },
 ] as const;
 
 type TabKey = (typeof tabs)[number]['key'];
@@ -1000,6 +1001,49 @@ export default function SiteEditor({
                                             placeholder="https://…"
                                         />
                                     ))}
+                                </div>
+                            )}
+                        </SectionForm>
+                    )}
+
+                    {tab === 'privacy' && (
+                        <SectionForm
+                            section="privacy"
+                            initial={sections.privacy}
+                        >
+                            {(data, set, errors) => (
+                                <div className="grid gap-4">
+                                    <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+                                        Es un texto de referencia según la Ley
+                                        N° 29733. Pídele a un abogado que lo
+                                        revise. Usa «## » para subtítulos y «- »
+                                        para viñetas. Las marcas {'{colegio}'},{' '}
+                                        {'{razon_social}'}, {'{ruc}'},{' '}
+                                        {'{direccion}'} y {'{correo}'} se
+                                        reemplazan solas.
+                                    </p>
+                                    <Field
+                                        label="Fecha de actualización"
+                                        type="date"
+                                        value={data.updated_on}
+                                        onChange={(v) => set('updated_on', v)}
+                                        error={errors.updated_on}
+                                        className="sm:w-56"
+                                    />
+                                    <div className="grid gap-2">
+                                        <Label>Texto</Label>
+                                        <textarea
+                                            className={cn(
+                                                textareaClass,
+                                                'min-h-[28rem] font-mono text-xs',
+                                            )}
+                                            value={data.body}
+                                            onChange={(e) =>
+                                                set('body', e.target.value)
+                                            }
+                                        />
+                                        <InputError message={errors.body} />
+                                    </div>
                                 </div>
                             )}
                         </SectionForm>

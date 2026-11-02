@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { privacy } from '@/routes';
 import { index as documents } from '@/routes/documents';
 import { index } from '@/routes/enrollment';
 import type { EnrollmentRequestItem, Option } from '@/types';
@@ -643,7 +644,15 @@ export default function EnrollmentForm({
                             <Link href={documents()} className="underline">
                                 Documentos
                             </Link>
-                            ) y declaro que los datos son verdaderos.
+                            ), declaro que los datos son verdaderos y acepto la{' '}
+                            <Link
+                                href={privacy()}
+                                className="underline"
+                                target="_blank"
+                            >
+                                política de privacidad
+                            </Link>
+                            .
                         </span>
                     </label>
                     <InputError message={errors.rules_accepted} />

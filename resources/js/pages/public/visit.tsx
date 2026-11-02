@@ -1,4 +1,4 @@
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { CalendarCheck, MessageCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import InputError from '@/components/input-error';
@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { privacy } from '@/routes';
 import { store } from '@/routes/visit';
 
 type Props = {
@@ -238,7 +239,14 @@ export default function Visit({ slots, levels }: Props) {
                                     className="mt-0.5"
                                 />
                                 Autorizo a EP Villa Jardín a usar mis datos solo
-                                para coordinar la visita (Ley N° 29733).
+                                para coordinar la visita (Ley N° 29733).{' '}
+                                <Link
+                                    href={privacy()}
+                                    className="underline"
+                                    target="_blank"
+                                >
+                                    Ver política de privacidad
+                                </Link>
                             </label>
                             <InputError message={errors.privacy} />
                             <Button

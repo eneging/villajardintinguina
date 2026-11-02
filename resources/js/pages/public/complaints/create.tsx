@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import ComplaintController from '@/actions/App/Http/Controllers/ComplaintController';
 import InputError from '@/components/input-error';
@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { privacy } from '@/routes';
 import type { Provider } from '@/types';
 
 type Props = {
@@ -403,7 +404,15 @@ export default function ComplaintCreate({
                         />
                         <Label htmlFor="accepted" className="leading-snug">
                             Declaro que los datos consignados son correctos y
-                            autorizo su uso para atender mi reclamo o queja.
+                            autorizo su uso para atender mi reclamo o queja (
+                            <Link
+                                href={privacy()}
+                                className="underline"
+                                target="_blank"
+                            >
+                                política de privacidad
+                            </Link>
+                            ).
                         </Label>
                     </div>
                     <InputError message={errors.accepted} />

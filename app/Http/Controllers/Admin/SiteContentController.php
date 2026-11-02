@@ -135,6 +135,10 @@ class SiteContentController extends Controller
                 'tiktok' => ['nullable', 'url', 'max:255'],
                 'youtube' => ['nullable', 'url', 'max:255'],
             ],
+            'privacy' => [
+                'updated_on' => ['required', 'date'],
+                'body' => ['required', 'string', 'max:30000'],
+            ],
             'admission' => [
                 'open' => ['boolean'],
                 'title' => ['required', 'string', 'max:80'],

@@ -161,4 +161,16 @@ class PublicSiteTest extends TestCase
         $teacher = User::where('email', 'maestra@villajardin.test')->firstOrFail();
         $this->actingAs($teacher)->post(route('gallery.public', $album), ['is_public' => false])->assertForbidden();
     }
+
+    public function test_privacy_policy_is_public_and_fills_in_school_data(): void
+    {
+        config(['school.legal_name' => 'Villa Jardín E.I.R.L.', 'school.ruc' => '20123456789']);
+
+        $this->get(route('privacy'))->assertOk()->assertInertia(fn (Assert $page) => $page
+            ->component('public/privacy')
+            ->where('body', fn ($body) => str_contains($body, 'Villa Jardín E.I.R.L. (RUC 20123456789)') && ! str_contains($body, '{ruc}')));
+
+        $this->actingAs($this->admin())->put(route('admin.site.update', 'privacy'), ['updated_on' => '2026-11-10', 'body' => "## Hola\nTexto {colegio}"])->assertSessionHasNoErrors();
+        $this->get(route('privacy'))->assertInertia(fn (Assert $page) => $page->where('updated_on', '2026-11-10')->where('body', "## Hola\nTexto ".config('school.name')));
+    }
 }

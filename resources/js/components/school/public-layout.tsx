@@ -24,6 +24,7 @@ import {
     login,
     news,
     photos,
+    privacy,
     services,
     videos,
 } from '@/routes';
@@ -253,10 +254,12 @@ export function PublicLayout({
                         >
                             📕 Libro de Reclamaciones
                         </Link>
-                        <p className="text-xs text-slate-500">
-                            Tus datos se tratan conforme a la Ley N° 29733 de
-                            Protección de Datos Personales.
-                        </p>
+                        <Link
+                            href={privacy()}
+                            className="block text-xs text-slate-500 underline-offset-2 hover:underline"
+                        >
+                            Política de privacidad (Ley N° 29733)
+                        </Link>
                     </div>
                 </div>
                 <div className="border-t border-amber-100 py-4 text-center text-xs text-slate-500">

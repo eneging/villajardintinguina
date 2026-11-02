@@ -50,6 +50,23 @@ class SiteController extends Controller
         ]);
     }
 
+    public function privacy(): Response
+    {
+        $privacy = SiteContent::section('privacy');
+        $contact = SiteContent::section('contact');
+
+        return Inertia::render('public/privacy', [
+            'updated_on' => $privacy['updated_on'],
+            'body' => strtr($privacy['body'], [
+                '{colegio}' => config('school.name'),
+                '{razon_social}' => config('school.legal_name'),
+                '{ruc}' => config('school.ruc'),
+                '{direccion}' => config('school.address'),
+                '{correo}' => $contact['email'] ?: config('school.email'),
+            ]),
+        ]);
+    }
+
     public function news(): Response
     {
         return Inertia::render('public/news', [

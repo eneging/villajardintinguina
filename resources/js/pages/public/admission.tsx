@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { visit } from '@/routes';
+import { privacy, visit } from '@/routes';
 import { store } from '@/routes/admission';
 import type { SiteAdmission, SiteContact } from '@/types';
 
@@ -292,7 +292,14 @@ export default function Admission({ content }: Props) {
                                 />
                                 Autorizo a EP Villa Jardín a usar mis datos solo
                                 para contactarme sobre el proceso de admisión
-                                (Ley N° 29733).
+                                (Ley N° 29733).{' '}
+                                <Link
+                                    href={privacy()}
+                                    className="underline"
+                                    target="_blank"
+                                >
+                                    Ver política de privacidad
+                                </Link>
                             </label>
                             <InputError
                                 message={errors.privacy}

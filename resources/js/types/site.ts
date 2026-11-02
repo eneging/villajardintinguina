@@ -82,6 +82,7 @@ export type SiteSections = {
     testimonials: { items: SiteTestimonial[] };
     contact: SiteContact;
     admission: SiteAdmission;
+    privacy: { updated_on: string; body: string };
 };
 
 export type PublicLessonCard = {
